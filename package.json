@@ -10,7 +10,8 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/vue-fontawesome": "^3.0.0-3",
     "dexie": "^3.0.3",
-    "vue": "^3.0.5"
+    "vue": "^3.0.5",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "^2.0.2",

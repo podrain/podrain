@@ -2,8 +2,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import './css/app.css'
 import Dexie from 'dexie'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Helpers from './Helpers'
+
+import PodcastList from './components/PodcastList.vue'
+import Settings from './components/Settings.vue'
 
 // FontAwesome setup
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -30,6 +34,25 @@ dexieDB.version(1).stores({
 })
 Helpers.dexieDB = dexieDB
 
-const app = createApp(App)
+const routes = [
+  {
+    path: '/',
+    component: PodcastList,
+  },
 
-app.component('font-awesome-icon', FontAwesomeIcon).mount('#app')
+  {
+    path: '/settings',
+    component: Settings,
+  }
+]
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+})
+
+const app = createApp(App)
+app
+  .component('font-awesome-icon', FontAwesomeIcon)
+  .use(router)
+  .mount('#app')
