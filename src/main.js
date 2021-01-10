@@ -16,6 +16,10 @@ import {
   faPlus, 
   faListOl, 
   faCog,
+  faSave,
+  faDownload,
+  faUpload,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -24,6 +28,10 @@ library.add(
   faPlus, 
   faListOl, 
   faCog,
+  faSave,
+  faDownload,
+  faUpload,
+  faSpinner,
 )
 
 // Dexie
