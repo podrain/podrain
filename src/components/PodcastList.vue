@@ -5,6 +5,7 @@
         class="w-1/3 flex-none"
         v-for="pc in podcasts"
         :key="pc._id"
+        @click="$router.push(`/podcasts/${pc._id}`)"
       >
         <img :src="pc.meta.imageURL">
       </div>
@@ -27,7 +28,7 @@
       }
     },
 
-    mounted() {
+    created() {
       Helpers.dexieDB.podcasts.toArray().then(result => {
         this.podcasts = result
       })

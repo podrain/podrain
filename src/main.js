@@ -7,6 +7,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Helpers from './Helpers'
 
 import PodcastList from './components/PodcastList.vue'
+import PodcastShow from './components/PodcastShow.vue'
 import Settings from './components/Settings.vue'
 
 // FontAwesome setup
@@ -20,6 +21,9 @@ import {
   faDownload,
   faUpload,
   faSpinner,
+  faTimes,
+  faSearch,
+  faSync,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -32,6 +36,9 @@ library.add(
   faDownload,
   faUpload,
   faSpinner,
+  faTimes,
+  faSearch,
+  faSync,
 )
 
 // Dexie
@@ -43,6 +50,11 @@ dexieDB.version(1).stores({
 Helpers.dexieDB = dexieDB
 
 const routes = [
+  {
+    path: '/podcasts/:id',
+    component: PodcastShow
+  },
+
   {
     path: '/',
     component: PodcastList,
@@ -64,3 +76,7 @@ app
   .component('font-awesome-icon', FontAwesomeIcon)
   .use(router)
   .mount('#app')
+
+if (!localStorage.getItem('proxy_url')) {
+  localStorage.setItem('proxy_url', 'https://podrain-proxy.herokuapp.com/')
+}
