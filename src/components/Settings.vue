@@ -32,7 +32,7 @@
       <button 
         v-if="restoreFile"
         class="bg-orange-600 p-1 text-white mr-1 w-full mt-3"
-        
+        :disabled="restoring"
         @click="restoreBackup"
       >
         <template v-if="restoring">
@@ -76,7 +76,6 @@ export default {
     },
 
     restoreBackup() {
-      console.log('worx')
       this.restoring = true
       this.restoreStatus = 'Starting restore...'
       this.restoreFile.text().then(result => {
