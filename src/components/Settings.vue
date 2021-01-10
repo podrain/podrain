@@ -17,7 +17,10 @@
       </button>
 
       <div class="mt-6">
-        <button class="bg-purple-600 p-1 text-white mr-1 w-full">
+        <button 
+          class="bg-purple-600 p-1 text-white mr-1 w-full"
+          @click="downloadBackup"
+        >
           <font-awesome-icon icon="download" class="mr-1" />
           Download Backup
         </button>
@@ -51,6 +54,7 @@
 <script>
 import Layout from './Layout.vue'
 import Helpers from '../Helpers'
+import FileSaver from 'file-saver'
 
 export default {
   components: {
@@ -94,6 +98,24 @@ export default {
           this.restoring = false
           this.restoreStatus = 'Podcasts loaded!'
         })
+      })
+    },
+
+    downloadBackup() {
+      let getPodcasts = Helpers.dexieDB.podcasts.toArray()
+      let getEpisodes = Helpers.dexieDB.episodes.toArray()
+
+      Promise.all([getPodcasts, getEpisodes]).then(result => {
+        let downloadPayload = {
+          podcasts: result[0],
+          episodes: result[1]
+        }
+
+        let downloadBlob = new Blob([JSON.stringify(downloadPayload)], {
+          type: 'text/plain;charset=utf8'
+        })
+
+        FileSaver.saveAs(downloadBlob, 'backup.json')
       })
     }
   }
