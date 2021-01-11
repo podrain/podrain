@@ -33,7 +33,12 @@
       </div>
 
       <ul class="mx-3 mb-3">
-        <li class="flex flex-col mt-3" v-for="ep in episodes" :key="ep._id">
+        <li 
+          class="flex flex-col mt-3" 
+          v-for="ep in episodes" 
+          :key="ep._id"
+          @click="$router.push(`/episodes/${ep._id}`)"
+        >
           <div class="p-3 relative bg-gray-700">
             <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
               <font-awesome-icon icon="check" />

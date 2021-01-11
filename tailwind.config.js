@@ -8,11 +8,24 @@ module.exports = {
       colors: {
         teal: colors.teal,
         orange: colors.orange
+      },
+
+      typography: {
+        'episode-details': {
+          css: {
+            color: colors.white,
+            a: {
+              color: colors.blue[300],
+            }
+          }
+        }
       }
     },
   },
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography')
+  ],
 }

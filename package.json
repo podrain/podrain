@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "^2.0.2",
+    "@tailwindcss/typography": "^0.3.1",
     "@vitejs/plugin-vue": "^1.0.4",
     "@vue/compiler-sfc": "^3.0.5",
     "autoprefixer": "^9",
