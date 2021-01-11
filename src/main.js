@@ -3,12 +3,14 @@ import App from './App.vue'
 import './css/app.css'
 import Dexie from 'dexie'
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { createStore } from 'vuex'
 
 import Helpers from './Helpers'
 
 import PodcastList from './components/PodcastList.vue'
 import PodcastShow from './components/PodcastShow.vue'
 import Settings from './components/Settings.vue'
+import Queue from './components/Queue.vue'
 
 // FontAwesome setup
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -51,7 +53,13 @@ dexieDB.version(1).stores({
 })
 Helpers.dexieDB = dexieDB
 
+// Router
 const routes = [
+  {
+    path: '/queue',
+    component: Queue
+  },
+
   {
     path: '/podcasts/:id',
     component: PodcastShow
@@ -63,14 +71,14 @@ const routes = [
   },
 
   {
-    path: '/',
-    redirect: '/podcasts',
+    path: '/settings',
+    component: Settings,
   },
 
   {
-    path: '/settings',
-    component: Settings,
-  }
+    path: '/',
+    redirect: '/podcasts',
+  },
 ]
 
 const router = createRouter({
@@ -78,10 +86,30 @@ const router = createRouter({
   routes,
 })
 
+// Vuex state
+const store = createStore({
+  state() {
+    return {
+      queue: []
+    }
+  },
+
+  mutations: {
+    addEpisodeToQueue(state, episode) {
+      state.queue.push(episode)
+    },
+
+    clearQueue(state) {
+      state.queue = []
+    }
+  },
+})
+
 const app = createApp(App)
 app
   .component('font-awesome-icon', FontAwesomeIcon)
   .use(router)
+  .use(store)
   .mount('#app')
 
 if (!localStorage.getItem('proxy_url')) {
