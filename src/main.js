@@ -56,8 +56,13 @@ const routes = [
   },
 
   {
-    path: '/',
+    path: '/podcasts',
     component: PodcastList,
+  },
+
+  {
+    path: '/',
+    redirect: '/podcasts',
   },
 
   {
