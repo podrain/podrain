@@ -26,10 +26,16 @@
         </div>
       </div>
 
-      <button 
-        class="bg-red-500 text-white p-1"
-        @click="removeFromQueue(ep._id)"
-      >Remove from queue</button>
+      <div class="flex">
+        <button 
+          class="w-1/4 bg-blue-500 text-white p-1"
+          @click="playEpisode(ep._id)"
+        >Play</button>
+        <button 
+          class="w-3/4 bg-red-500 text-white p-1"
+          @click="removeFromQueue(ep._id)"
+        >Remove from queue</button>
+      </div>
     </li>
   </ul>
 </template>
@@ -62,7 +68,11 @@ export default {
 
     removeFromQueue(episodeID) {
       this.$store.dispatch('removeEpisodeFromQueue', episodeID)
-    } 
+    },
+
+    playEpisode(id) {
+      this.$store.dispatch('playEpisode', id)
+    }
   },
 
   created() {

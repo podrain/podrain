@@ -4,11 +4,11 @@
       <div class="flex justify-between">
         <div class="flex flex-col w-4/5">
           <div class="w-full text-gray-800 text-sm">
-            Podcast title
+            {{ playingEpisode?.podcast?.meta?.title }}
           </div>
           <div class="w-full whitespace-no-wrap overflow-x-hidden">
             <marquee scrollamount="4">
-              Episode title
+              {{ playingEpisode?.title }}
             </marquee>
           </div>
         </div>
@@ -65,6 +65,10 @@
 
 <script>
 export default {
-  
+  computed: {
+    playingEpisode() {
+      return this.$store.state.playingEpisode
+    }
+  }
 }
 </script>

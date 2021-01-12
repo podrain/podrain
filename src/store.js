@@ -5,7 +5,8 @@ import _ from 'lodash'
 export default createStore({
   state() {
     return {
-      queue: []
+      queue: [],
+      playingEpisode: {},
     }
   },
 
@@ -26,6 +27,10 @@ export default createStore({
     setQueueOfEpisode(state, args) {
       let episodeIndex = _.findIndex(state.queue, qe => qe._id == args.episodeID)
       state.queue[episodeIndex].queue = args.newQueue
+    },
+
+    setPlayingEpisode(state, episode) {
+      state.playingEpisode = episode
     }
   },
 
@@ -103,6 +108,22 @@ export default createStore({
       }).then(episode => {
         context.commit('addEpisodeToQueue', episode)
       })
+    },
+
+    playEpisode(context, id) {
+       return Helpers.dexieDB.episodes
+        .where({ _id: id })
+        .first()
+        .then(episode => {
+          Helpers.dexieDB.podcasts
+            .where({ _id: episode.podcast_id })
+            .first()
+            .then(podcast => {
+              episode.podcast = podcast
+
+              context.commit('setPlayingEpisode', episode)
+            })
+        })
     }
   }
 })
