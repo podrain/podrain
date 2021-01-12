@@ -39,14 +39,16 @@ export default {
 
   methods: {
     addManualRssUrl() {
-      this.addPodcast(this.manualRssUrl)
+      this.addPodcast(this.manualRssUrl).then(() => {
+        this.$router.push('/podcasts')
+      })
     },
 
     addPodcast(podcastUrl) {
       let preUrl = podcastUrl
       this.feedUrl = preUrl.replace(/(?!:\/\/):/g, '%3A')
 
-      feedParser.parseURL(this.feedUrl, {
+      return feedParser.parseURL(this.feedUrl, {
         proxyURL: localStorage.getItem('proxy_url'),
         getAllPages: true,
       }).then(podcast => {
@@ -73,9 +75,6 @@ export default {
         }
 
         return Promise.all([addPodcast, ...addPodcastEpisodes])
-      }).then(() => {
-        this.$router.push('/podcasts')
-
       })
     }
   }
