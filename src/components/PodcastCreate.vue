@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <div class="p-3">
       <div class="text-white text-2xl">Add Podcast</div>
       <div class="flex-mt-3">
@@ -15,21 +14,15 @@
         >Submit</button>
       </div>
     </div>
-  </Layout>
 </template>
 
 <script>
-import Layout from './Layout.vue'
 import Helpers from '../Helpers'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 export default {
-  components: {
-    Layout
-  },
-
   data() {
     return {
       feedUrl: '',

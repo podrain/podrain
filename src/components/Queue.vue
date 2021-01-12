@@ -1,5 +1,4 @@
 <template>
-  <Layout>
   <ul class="mx-3 mb-3">
     <li 
       class="flex flex-col mt-3" 
@@ -33,20 +32,14 @@
       >Remove from queue</button>
     </li>
   </ul>
-  </Layout>
 </template>
 
 <script>
-import Layout from './Layout.vue'
 import Helpers from '../Helpers'
 import { DateTime } from 'luxon'
 import _ from 'lodash'
 
 export default {
-  components: {
-    Layout
-  },
-
   computed: {
     queue() {
       return this.$store.state.queue

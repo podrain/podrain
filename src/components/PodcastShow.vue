@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <div class="flex flex-col">
       <div class="flex">
         <div class="w-1/3 m-3">
@@ -73,19 +72,13 @@
         </li>
       </ul>
     </div>
-  </Layout>
 </template>
 
 <script>
-import Layout from './Layout.vue'
 import Helpers from '../Helpers'
 import { DateTime } from 'luxon'
 
 export default {
-  components: {
-    Layout
-  },
-
   data() {
     return {
       podcast: {

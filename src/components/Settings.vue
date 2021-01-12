@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <div class="p-3 text-white">
       <h1 class="text-xl text-center">Settings</h1>
       Proxy URL
@@ -48,19 +47,13 @@
         </template>
       </button>
     </div>
-  </Layout>
 </template>
 
 <script>
-import Layout from './Layout.vue'
 import Helpers from '../Helpers'
 import FileSaver from 'file-saver'
 
 export default {
-  components: {
-    Layout,
-  },
-
   data() {
     return {
       proxyURL: localStorage.getItem('proxy_url') || '',
