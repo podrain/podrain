@@ -12,6 +12,7 @@ import PodcastShow from './components/PodcastShow.vue'
 import Settings from './components/Settings.vue'
 import Queue from './components/Queue.vue'
 import EpisodeShow from './components/EpisodeShow.vue'
+import PodcastCreate from './components/PodcastCreate.vue'
 
 // FontAwesome setup
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -59,6 +60,11 @@ const routes = [
   {
     path: '/queue',
     component: Queue
+  },
+
+  {
+    path: '/podcasts/create',
+    component: PodcastCreate
   },
 
   {
