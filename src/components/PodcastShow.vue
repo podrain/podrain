@@ -38,9 +38,11 @@
           class="flex flex-col mt-3" 
           v-for="ep in episodes" 
           :key="ep._id"
-          @click="$router.push(`/episodes/${ep._id}`)"
         >
-          <div class="p-3 relative bg-gray-700">
+          <div 
+            class="p-3 relative bg-gray-700"
+            @click="$router.push(`/episodes/${ep._id}`)"
+          >
             <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
               <font-awesome-icon icon="check" />
             </div>
@@ -57,6 +59,17 @@
               </div>
             </div>
           </div>
+
+          <button 
+            v-if="queue.map(qe => qe._id).includes(ep._id)"
+            class="bg-red-500 text-white p-1"
+            @click="removeFromQueue(ep._id)"
+          >Remove from queue</button>
+          <button
+            v-else
+            class="bg-green-500 text-white p-1"
+            @click="addToQueue(ep._id)"
+          >Add to queue</button>
         </li>
       </ul>
     </div>
@@ -86,12 +99,18 @@ export default {
     }
   },
 
+  computed: {
+    queue() {
+      return this.$store.state.queue
+    }
+  },
+
   methods: {
     getEpisodes() {
       Helpers.dexieDB.episodes.where({
         podcast_id: this.podcast._id
       }).reverse().sortBy('pubDate').then(allEpisodes => {
-        this.episodes = allEpisodes.splice(0, 10)
+        this.episodes = allEpisodes
       })
     },
 
@@ -115,6 +134,14 @@ export default {
 
     prepareDateString(string) {
       return DateTime.fromISO(string).toFormat('D')
+    },
+
+    removeFromQueue(id) {
+      this.$store.dispatch('removeEpisodeFromQueue', id)
+    },
+
+    addToQueue(id) {
+      this.$store.dispatch('addEpisodeToQueue', id)
     }
   },
 

@@ -84,6 +84,25 @@ export default createStore({
           return Promise.resolve()
         }
       })
+    },
+
+    addEpisodeToQueue(context, id) {
+      return Helpers.dexieDB.episodes.filter(ep => {
+        return ep.queue > 0
+      }).toArray().then(episodesInQueue => {
+        let highestQueue = episodesInQueue.length > 0 ? Math.max(...episodesInQueue.map(ep => ep.queue)) : 0
+
+        let newHighestQueue = highestQueue + 1
+        return Helpers.dexieDB.episodes
+          .where({ _id: id })
+          .modify({ queue: newHighestQueue })
+      }).then(() => {
+        return Helpers.dexieDB.episodes
+          .where({ _id: id })
+          .first()
+      }).then(episode => {
+        context.commit('addEpisodeToQueue', episode)
+      })
     }
   }
 })
