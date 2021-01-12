@@ -5,9 +5,11 @@
       class="flex flex-col mt-3" 
       v-for="ep in queue" 
       :key="ep._id"
-      @click="$router.push('/episodes/'+ep._id)"
     >
-      <div class="p-3 relative bg-gray-700">
+      <div 
+        class="p-3 relative bg-gray-700"
+        @click="$router.push('/episodes/'+ep._id)"
+      >
         <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
           <font-awesome-icon icon="check" />
         </div>
@@ -24,6 +26,11 @@
           </div>
         </div>
       </div>
+
+      <button 
+        class="bg-red-500 text-white p-1"
+        @click="removeFromQueue(ep._id)"
+      >Remove from queue</button>
     </li>
   </ul>
   </Layout>
@@ -58,7 +65,11 @@ export default {
 
     prepareDateString(string) {
       return DateTime.fromISO(string).toFormat('D')
-    }
+    },
+
+    removeFromQueue(episodeID) {
+      this.$store.dispatch('removeEpisodeFromQueue', episodeID)
+    } 
   },
 
   created() {
