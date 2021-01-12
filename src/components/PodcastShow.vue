@@ -17,6 +17,7 @@
               </button>
               <button 
                 class="text-white bg-red-500 p-2 text-sm flex-1"
+                @click="deletePodcast"
               >
                 <font-awesome-icon class="mr-1" icon="times" />
                 Delete
@@ -91,6 +92,15 @@ export default {
         podcast_id: this.podcast._id
       }).reverse().sortBy('pubDate').then(allEpisodes => {
         this.episodes = allEpisodes.splice(0, 10)
+      })
+    },
+
+    deletePodcast() {
+      let deletePodcastOnly = Helpers.dexieDB.podcasts.where({ _id: this.podcast._id }).delete()
+      let deleteEpisodes = Helpers.dexieDB.episodes.where({ podcast_id: this.podcast._id }).delete()
+
+      Promise.all([deletePodcastOnly, deleteEpisodes]).then(() => {
+        this.$router.push('/podcasts')
       })
     },
 
