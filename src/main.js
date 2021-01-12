@@ -3,7 +3,7 @@ import App from './App.vue'
 import './css/app.css'
 import Dexie from 'dexie'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { createStore } from 'vuex'
+import store from './store'
 
 import Helpers from './Helpers'
 
@@ -96,25 +96,6 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-})
-
-// Vuex state
-const store = createStore({
-  state() {
-    return {
-      queue: []
-    }
-  },
-
-  mutations: {
-    addEpisodeToQueue(state, episode) {
-      state.queue.push(episode)
-    },
-
-    clearQueue(state) {
-      state.queue = []
-    }
-  },
 })
 
 const app = createApp(App)

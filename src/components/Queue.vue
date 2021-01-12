@@ -57,22 +57,7 @@ export default {
   },
 
   created() {
-    this.$store.commit('clearQueue')
-
-    Helpers.dexieDB.episodes.filter(ep => {
-      return ep.queue > 0
-    }).toArray().then(queuedEpisodes => {
-      return queuedEpisodes.map(async (qe) => {
-        qe.podcast = (await Helpers.dexieDB.podcasts.where({ _id: qe.podcast_id }).toArray())[0]
-        return qe
-      })
-    }).then(episodesWithPodcastsPromises => {
-      return Promise.all(episodesWithPodcastsPromises)
-    }).then(episodesWithPodcasts => {
-      for (let ep of episodesWithPodcasts) {
-        this.$store.commit('addEpisodeToQueue', ep)
-      }
-    })
+    this.$store.dispatch('getQueue')
   }
 }
 </script>
