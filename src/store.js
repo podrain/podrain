@@ -57,8 +57,6 @@ export default createStore({
       return Helpers.dexieDB.episodes.where({ _id: id }).modify({ queue: 0 }).then(() => {
         context.commit('removeEpisodeFromQueue', id)
 
-        console.log('current queue: '+currentEpisode.queue)
-
         return Helpers.dexieDB.episodes.filter(ep => {
           return ep.queue > currentEpisode.queue
         }).toArray()
