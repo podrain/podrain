@@ -50,8 +50,6 @@ export default {
         proxyURL: localStorage.getItem('proxy_url'),
         getAllPages: true,
       }).then(podcast => {
-        console.log(podcast)
-
         let podcastOnly = _.clone(podcast)
         delete podcastOnly.episodes
 
@@ -77,6 +75,7 @@ export default {
         return Promise.all([addPodcast, ...addPodcastEpisodes])
       }).then(() => {
         this.$router.push('/podcasts')
+
       })
     }
   }
