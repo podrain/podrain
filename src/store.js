@@ -22,7 +22,7 @@ export default createStore({
     getQueue(context) {
       context.commit('clearQueue')
 
-      Helpers.dexieDB.episodes.filter(ep => {
+      return Helpers.dexieDB.episodes.filter(ep => {
         return ep.queue > 0
       }).toArray().then(queuedEpisodes => {
         return queuedEpisodes.map(async (qe) => {
