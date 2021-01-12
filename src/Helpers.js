@@ -1,5 +1,6 @@
 export default {
   dexieDB: null,
+  playingAudio: null,
 
   cleanHTMLString(string) {
     return new DOMParser().parseFromString(string, 'text/html').body.textContent

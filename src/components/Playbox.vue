@@ -43,7 +43,7 @@
         />
       </div>
       <div>
-        00:00:00 / 00:00:00
+        {{ humanFriendlyPlayhead }} / {{ humanFriendlyDuration }}
       </div>
       <div>
         <div class="flex items-center justify-between">
@@ -53,8 +53,8 @@
               class="w-full appearance-none bg-gray-200"
               type="range"
               min="0"
-              max="100"
-              value="0"
+              :max="playingEpisode.duration"
+              :value="playingEpisode.playhead"
             />
           </div>
         </div>
@@ -64,11 +64,29 @@
 </template>
 
 <script>
+import Helpers from '../Helpers'
+
 export default {
   computed: {
     playingEpisode() {
       return this.$store.state.playingEpisode
+    },
+
+    humanFriendlyDuration() {
+      return Helpers.floatToISO(this.playingEpisode.duration)
+    },
+
+    humanFriendlyPlayhead() {
+      return Helpers.floatToISO(this.playingEpisode.playhead)
     }
+  },
+
+  created() {
+    Helpers.dexieDB.episodes
+      .filter(ep => ep.currently_playing == true)
+      .toArray().then(result => {
+        this.$store.dispatch('playEpisode', result[0]._id)
+      })
   }
 }
 </script>
