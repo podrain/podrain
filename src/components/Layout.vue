@@ -9,11 +9,16 @@
   <div class="flex-1 overflow-y-scroll bg-gray-800">
     <slot />
   </div>
+  <Playbox />
 </div>
 </template>
 
 <script>
+import Playbox from './Playbox.vue'
+
 export default {
-  
+  components: {
+    Playbox
+  }
 }
 </script>

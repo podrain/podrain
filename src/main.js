@@ -29,6 +29,13 @@ import {
   faSearch,
   faSync,
   faCheck,
+  faStepBackward,
+  faStepForward,
+  faUndo,
+  faRedo,
+  faPlay,
+  faPause,
+  faChevronDown,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -44,7 +51,14 @@ library.add(
   faTimes,
   faSearch,
   faSync,
-  faCheck
+  faCheck,
+  faStepBackward,
+  faStepForward,
+  faUndo,
+  faRedo,
+  faPlay,
+  faPause,
+  faChevronDown
 )
 
 // Dexie
