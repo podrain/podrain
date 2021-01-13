@@ -22,9 +22,7 @@ export default {
     Playbox
   },
 
-  created() {
-    this.$store.dispatch('getQueue')
-    
+  created() {  
     Helpers.playingAudio = new Audio
 
     Helpers.playingAudio.addEventListener('pause', (event) => {
@@ -35,11 +33,13 @@ export default {
       this.$store.state.paused = false
     })
 
-    Helpers.dexieDB.episodes
-      .filter(ep => ep.currently_playing == true)
-      .toArray().then(result => {
-        this.$store.dispatch('playEpisode', { id: result[0]._id })
-      })
+    this.$store.dispatch('getQueue').then(() => {
+      Helpers.dexieDB.episodes
+        .filter(ep => ep.currently_playing == true)
+        .toArray().then(result => {
+          this.$store.dispatch('playEpisode', { id: result[0]._id })
+        })
+    })
   }
 }
 </script>
