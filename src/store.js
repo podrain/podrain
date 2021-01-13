@@ -125,18 +125,27 @@ export default createStore({
       }
 
        return Helpers.dexieDB.episodes
-        .where({ _id: id })
-        .first()
-        .then(episode => {
-          return Helpers.dexieDB.podcasts
-            .where({ _id: episode.podcast_id })
+        .filter(ep => ep.currently_playing == true)
+        .modify({ currently_playing: false })
+        .then(() => {
+          return Helpers.dexieDB.episodes.where({ _id: id })
             .first()
-            .then(podcast => {
-              episode.podcast = podcast
-
-              context.commit('setPlayingEpisode', episode)
+            .then(episode => {
+              return Helpers.dexieDB.podcasts
+                .where({ _id: episode.podcast_id })
+                .first()
+                .then(podcast => {
+                  episode.podcast = podcast
+    
+                  context.commit('setPlayingEpisode', episode)
+    
+                  return Helpers.dexieDB.episodes
+                    .where({ _id: id })
+                    .modify({ currently_playing: true })
+                })
             })
-        }).then(() => {
+        })
+        .then(() => {
           Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
           Helpers.playingAudio.currentTime = context.state.playingEpisode.playhead
 
@@ -168,6 +177,29 @@ export default createStore({
 
     jumpBack() {
       Helpers.playingAudio.currentTime -= 15
+    },
+
+    playNext(context) {
+      let oldEpisodeId = _.clone(context.state.playingEpisode._id)
+      let firstInQueue = _.sortBy(context.state.queue, ['queue'])[0]
+      let lastInQueue = _.reverse(_.sortBy(context.state.queue, ['queue']))[0]
+      if (context.state.playingEpisode.queue == lastInQueue.queue) {
+        context.dispatch('playEpisode', { id: firstInQueue._id })
+      } else {
+        let nextInQueue = context.state.queue.filter(qe => qe.queue == context.state.playingEpisode.queue + 1)[0]
+        
+        context.dispatch('playEpisode', { id: nextInQueue._id })
+      }
+    },
+
+    playPrev(context) {
+      if (context.state.playingEpisode.queue == 1) {
+        let lastInQueue = _.reverse(_.sortBy(context.state.queue, ['queue']))[0]
+        context.dispatch('playEpisode', { id: lastInQueue._id })
+      } else {
+        let prevInQueue = context.state.queue.filter(qe => qe.queue == context.state.playingEpisode.queue - 1)[0]
+        context.dispatch('playEpisode', { id: prevInQueue._id })
+      }
     }
   }
 })

@@ -24,6 +24,7 @@
         <font-awesome-icon
           icon="step-backward" 
           class="text-4xl"
+          @click="playPrev"
         />
         <font-awesome-icon
           icon="undo" 
@@ -50,6 +51,7 @@
         <font-awesome-icon
           icon="step-forward" 
           class="text-4xl"
+          @click="playNext"
         />
       </div>
       <div>
@@ -106,6 +108,14 @@ export default {
 
     jumpBack() {
       this.$store.dispatch('jumpBack')
+    },
+
+    playNext() {
+      this.$store.dispatch('playNext')
+    },
+
+    playPrev() {
+      this.$store.dispatch('playPrev')
     }
   },
 }
