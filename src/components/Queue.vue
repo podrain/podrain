@@ -73,10 +73,6 @@ export default {
     playEpisode(id) {
       this.$store.dispatch('playEpisode', { id: id })
     }
-  },
-
-  created() {
-    this.$store.dispatch('getQueue')
   }
 }
 </script>

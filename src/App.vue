@@ -23,6 +23,8 @@ export default {
   },
 
   created() {
+    this.$store.dispatch('getQueue')
+    
     Helpers.playingAudio = new Audio
 
     Helpers.playingAudio.addEventListener('pause', (event) => {
