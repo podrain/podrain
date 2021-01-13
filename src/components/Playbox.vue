@@ -1,5 +1,5 @@
 <template>
-  <div class="h-48 bg-gray-200">
+  <div v-if="expanded" class="h-48 bg-gray-200">
     <div class="p-3 h-full flex flex-col justify-between">
       <div class="flex justify-between">
         <div class="flex flex-col w-4/5">
@@ -16,6 +16,7 @@
           <font-awesome-icon 
             icon="chevron-down"
             class="text-4xl"
+            @click="expanded = false"
           />
         </div>
       </div>
@@ -74,12 +75,26 @@
       </div>
     </div>
   </div>
+
+  <div 
+    v-else 
+    class="h-12 bg-gray-200 flex items-center justify-center"
+    @click="expanded = true"
+  >
+    <font-awesome-icon icon="chevron-up" class="text-4xl" />
+  </div>
 </template>
 
 <script>
 import Helpers from '../Helpers'
 
 export default {
+  data() {
+    return {
+      expanded: true
+    }
+  },
+
   computed: {
     playingEpisode() {
       return this.$store.state.playingEpisode
