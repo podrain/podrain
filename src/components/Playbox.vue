@@ -85,7 +85,7 @@ export default {
     Helpers.dexieDB.episodes
       .filter(ep => ep.currently_playing == true)
       .toArray().then(result => {
-        this.$store.dispatch('playEpisode', result[0]._id)
+        this.$store.dispatch('playEpisode', { id: result[0]._id })
       })
   }
 }

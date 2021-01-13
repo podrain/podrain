@@ -71,7 +71,7 @@ export default {
     },
 
     playEpisode(id) {
-      this.$store.dispatch('playEpisode', id)
+      this.$store.dispatch('playEpisode', { id: id })
     }
   },
 

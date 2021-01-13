@@ -110,12 +110,13 @@ export default createStore({
       })
     },
 
-    playEpisode(context, id) {
+    playEpisode(context, payload) {
+      console.log(payload.id)
        return Helpers.dexieDB.episodes
-        .where({ _id: id })
+        .where({ _id: payload.id })
         .first()
         .then(episode => {
-          Helpers.dexieDB.podcasts
+          return Helpers.dexieDB.podcasts
             .where({ _id: episode.podcast_id })
             .first()
             .then(podcast => {
@@ -123,6 +124,8 @@ export default createStore({
 
               context.commit('setPlayingEpisode', episode)
             })
+        }).then(() => {
+
         })
     }
   }
