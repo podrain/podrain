@@ -28,14 +28,24 @@
         <font-awesome-icon
           icon="undo" 
           class="text-4xl"
+          @click="jumpBack"
         />
         <font-awesome-icon
+          v-if="paused"
           icon="play" 
           class="text-4xl text-teal-500"
+          @click="playOrPause"
+        />
+        <font-awesome-icon
+          v-else
+          icon="pause" 
+          class="text-4xl text-teal-500"
+          @click="playOrPause"
         />
         <font-awesome-icon
           icon="redo" 
           class="text-4xl"
+          @click="jumpAhead"
         />
         <font-awesome-icon
           icon="step-forward" 
@@ -78,15 +88,25 @@ export default {
 
     humanFriendlyPlayhead() {
       return Helpers.floatToISO(this.playingEpisode.playhead)
-    }
+    },
+
+    paused() {
+      return this.$store.state.paused
+    },
   },
 
-  created() {
-    Helpers.dexieDB.episodes
-      .filter(ep => ep.currently_playing == true)
-      .toArray().then(result => {
-        this.$store.dispatch('playEpisode', { id: result[0]._id })
-      })
-  }
+  methods: {
+    playOrPause() {
+      this.$store.dispatch('playOrPause')
+    },
+
+    jumpAhead() {
+      this.$store.dispatch('jumpAhead')
+    },
+
+    jumpBack() {
+      this.$store.dispatch('jumpBack')
+    }
+  },
 }
 </script>

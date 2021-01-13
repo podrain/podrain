@@ -7,6 +7,7 @@ export default createStore({
     return {
       queue: [],
       playingEpisode: {},
+      paused: true
     }
   },
 
@@ -31,6 +32,10 @@ export default createStore({
 
     setPlayingEpisode(state, episode) {
       state.playingEpisode = episode
+    },
+
+    updatePlayhead(state, playhead) {
+      state.playingEpisode.playhead = playhead
     }
   },
 
@@ -111,6 +116,10 @@ export default createStore({
     },
 
     playEpisode(context, payload) {
+
+      let id = payload.hasOwnProperty('id') || null
+      let startPlaying = payload.hasOwnProperty('startPlaying') || false
+
       console.log(payload.id)
        return Helpers.dexieDB.episodes
         .where({ _id: payload.id })
@@ -125,8 +134,34 @@ export default createStore({
               context.commit('setPlayingEpisode', episode)
             })
         }).then(() => {
+          
+          Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
+          Helpers.playingAudio.currentTime = context.state.playingEpisode.playhead
 
+          Helpers.playingAudio.addEventListener('timeupdate', (event) => {
+            context.commit('updatePlayhead', Helpers.playingAudio.currentTime)
+          })
+
+          Helpers.playingAudio.load()
+
+          if (startPlaying) Helpers.playingAudio.play()
         })
+    },
+
+    playOrPause(context) {
+      if (Helpers.playingAudio.paused) {
+        Helpers.playingAudio.play()
+      } else {
+        Helpers.playingAudio.pause()
+      }
+    },
+
+    jumpAhead() {
+      Helpers.playingAudio.currentTime += 15
+    },
+
+    jumpBack() {
+      Helpers.playingAudio.currentTime -= 15
     }
   }
 })

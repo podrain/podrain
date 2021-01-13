@@ -15,10 +15,29 @@
 
 <script>
 import Playbox from './components/Playbox.vue'
+import Helpers from './Helpers'
 
 export default {
   components: {
     Playbox
+  },
+
+  created() {
+    Helpers.playingAudio = new Audio
+
+    Helpers.playingAudio.addEventListener('pause', (event) => {
+      this.$store.state.paused = true
+    })
+
+    Helpers.playingAudio.addEventListener('play', (event) => {
+      this.$store.state.paused = false
+    })
+
+    Helpers.dexieDB.episodes
+      .filter(ep => ep.currently_playing == true)
+      .toArray().then(result => {
+        this.$store.dispatch('playEpisode', { id: result[0]._id })
+      })
   }
 }
 </script>
