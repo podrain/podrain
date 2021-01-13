@@ -1,7 +1,49 @@
 <template>
     <div class="p-3">
       <div class="text-white text-2xl">Add Podcast</div>
-      <div class="flex-mt-3">
+      <div class="flex mt-3">
+        <button 
+          class="flex-1 p-3 text-white"
+          :class="[selectedTab == 'search' ? 'bg-orange-500' : 'bg-gray-900']"
+          @click="selectedTab = 'search'"
+        >
+          <font-awesome-icon icon="search" />
+          Search
+        </button>
+        <button 
+          class="flex-1 p-3 text-white"
+          :class="[selectedTab == 'rss' ? 'bg-orange-500' : 'bg-gray-900']"
+          @click="selectedTab = 'rss'"
+        >
+          <font-awesome-icon icon="rss" />
+          RSS
+        </button>
+      </div>
+
+      <div v-if="selectedTab == 'search'">
+        <input 
+            type="text"
+            class="w-full mt-3 p-1"
+            placeholder="Podcast title to search..."
+            v-model="search"
+          />
+
+          <ul class="mt-3">
+            <li 
+              class="text-white flex mt-3"
+              v-for="sr in searchResults"
+              :key="sr.collectionId"
+            >
+              <img class="w-1/5" :src="sr.artworkUrl100" />
+              <div class="w-4/5 p-2 bg-gray-700">
+                <h3>{{ sr.collectionName }}</h3>
+                <span class="text-gray-200 text-sm">{{ sr.trackCount }} episodes</span>
+              </div>
+            </li>
+          </ul>
+      </div>
+
+      <div v-if="selectedTab == 'rss'">
         <input 
           type="text" 
           class="w-full mt-3 p-1" 
@@ -25,8 +67,11 @@ import { v4 as uuidv4 } from 'uuid'
 export default {
   data() {
     return {
+      selectedTab: 'search',
       feedUrl: '',
       manualRssUrl: '',
+      search: '',
+      searchResults: [],
     }
   },
 
@@ -69,7 +114,25 @@ export default {
 
         return Promise.all([addPodcast, ...addPodcastEpisodes])
       })
-    }
+    },
+  },
+
+  watch: {
+    search: _.debounce(function(value) {
+      let searchURL = 'https://itunes.apple.com/search?' + new URLSearchParams({
+        term: value,
+        media: 'podcast',
+        entity: 'podcast'
+      })
+
+      fetch(searchURL)
+        .then(response => {
+          return response.json()
+        }).then(responseJSON => {
+          this.searchResults = responseJSON.results
+          console.log(this.searchResults)
+        })
+    }, 250)
   }
 }
 </script>
