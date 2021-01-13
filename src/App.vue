@@ -34,11 +34,16 @@ export default {
     })
 
     this.$store.dispatch('getQueue').then(() => {
-      Helpers.dexieDB.episodes
+      return Helpers.dexieDB.episodes
         .filter(ep => ep.currently_playing == true)
         .toArray().then(result => {
           this.$store.dispatch('playEpisode', { id: result[0]._id })
         })
+    }).then(() => {
+      setInterval(() => {
+        console.log('persisted')
+        Helpers.dexieDB.episodes.where({ _id: this.$store.state.playingEpisode._id }).modify({ playhead: this.$store.state.playingEpisode.playhead })
+      }, 5000)
     })
   }
 }

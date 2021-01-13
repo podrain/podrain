@@ -36,6 +36,17 @@ export default createStore({
 
     updatePlayhead(state, playhead) {
       state.playingEpisode.playhead = playhead
+    },
+
+    clearCurrentlyPlaying(state) {
+      for (let i = 0; i < state.queue.length; i++) {
+        state.queue[i].currently_playing = false
+      }
+    },
+
+    setCurrentlyPlaying(state, id) {
+      let episodeIndex = _.findIndex(state.queue, qe => qe._id == id)
+      state.queue[episodeIndex].currently_playing = true
     }
   },
 
@@ -115,7 +126,7 @@ export default createStore({
       })
     },
 
-    playEpisode(context, payload) {
+    async playEpisode(context, payload) {
       let alreadyPlaying = Helpers.playingAudio.paused ? false : true
       let id = payload.hasOwnProperty('id') ? payload.id : null
       let startPlaying = payload.hasOwnProperty('startPlaying') ? payload.startPlaying : false
@@ -124,43 +135,38 @@ export default createStore({
         Helpers.playingAudio.pause()
       }
 
-       return Helpers.dexieDB.episodes
+      await Helpers.dexieDB.episodes
         .filter(ep => ep.currently_playing == true)
         .modify({ currently_playing: false })
-        .then(() => {
-          return Helpers.dexieDB.episodes.where({ _id: id })
-            .first()
-            .then(episode => {
-              return Helpers.dexieDB.podcasts
-                .where({ _id: episode.podcast_id })
-                .first()
-                .then(podcast => {
-                  episode.podcast = podcast
-    
-                  context.commit('setPlayingEpisode', episode)
-    
-                  return Helpers.dexieDB.episodes
-                    .where({ _id: id })
-                    .modify({ currently_playing: true })
-                })
-            })
-        })
-        .then(() => {
-          Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
-          Helpers.playingAudio.currentTime = context.state.playingEpisode.playhead
+        
+      context.commit('clearCurrentlyPlaying')
 
-          Helpers.playingAudio.addEventListener('timeupdate', (event) => {
-            context.commit('updatePlayhead', Helpers.playingAudio.currentTime)
-          })
+      let episode = await Helpers.dexieDB.episodes.where({ _id: id }).first()
+            
+      let podcast = await Helpers.dexieDB.podcasts
+        .where({ _id: episode.podcast_id })
+        .first()
+        
+      episode.podcast = podcast
 
-          setInterval(() => {
-            Helpers.dexieDB.episodes.where({ _id: id }).modify({ playhead: context.state.playingEpisode.playhead })
-          }, 5000)
+      context.commit('setPlayingEpisode', episode)
 
-          Helpers.playingAudio.load()
+      await Helpers.dexieDB.episodes
+        .where({ _id: id })
+        .modify({ currently_playing: true })
+          
+      context.commit('setCurrentlyPlaying', id)
+         
+      Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
+      Helpers.playingAudio.currentTime = context.state.playingEpisode.playhead
 
-          if (alreadyPlaying || startPlaying) Helpers.playingAudio.play()
-        })
+      Helpers.playingAudio.addEventListener('timeupdate', (event) => {
+        context.commit('updatePlayhead', Helpers.playingAudio.currentTime)
+      })
+
+      Helpers.playingAudio.load()
+
+      if (alreadyPlaying || startPlaying) Helpers.playingAudio.play()
     },
 
     playOrPause(context) {

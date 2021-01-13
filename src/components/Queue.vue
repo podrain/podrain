@@ -6,7 +6,8 @@
       :key="ep._id"
     >
       <div 
-        class="p-3 relative bg-gray-700"
+        class="p-3 relative"
+        :class="[ ep.currently_playing ? 'bg-orange-500' : 'bg-gray-700' ]"
         @click="$router.push('/episodes/'+ep._id)"
       >
         <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
