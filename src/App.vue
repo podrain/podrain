@@ -33,6 +33,10 @@ export default {
       this.$store.state.paused = false
     })
 
+    Helpers.playingAudio.addEventListener('ended', (event) => {
+      this.$store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
+    })
+
     this.$store.dispatch('getQueue').then(() => {
       return Helpers.dexieDB.episodes
         .filter(ep => ep.currently_playing == true)
@@ -41,7 +45,6 @@ export default {
         })
     }).then(() => {
       setInterval(() => {
-        console.log('persisted')
         Helpers.dexieDB.episodes.where({ _id: this.$store.state.playingEpisode._id }).modify({ playhead: this.$store.state.playingEpisode.playhead })
       }, 5000)
     })

@@ -67,6 +67,7 @@
               min="0"
               :max="playingEpisode.duration"
               :value="playingEpisode.playhead"
+              @change="setPlayhead"
             />
           </div>
         </div>
@@ -116,6 +117,10 @@ export default {
 
     playPrev() {
       this.$store.dispatch('playPrev')
+    },
+
+    setPlayhead(e) {
+      this.$store.dispatch('setPlayhead', e.target.value)
     }
   },
 }

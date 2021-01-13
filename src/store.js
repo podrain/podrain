@@ -185,16 +185,30 @@ export default createStore({
       Helpers.playingAudio.currentTime -= 15
     },
 
-    playNext(context) {
+    setPlayhead(context, value) {
+      Helpers.playingAudio.currentTime = value
+      context.commit('updatePlayhead', Helpers.playingAudio.currentTime)
+    },
+
+    async playNext(context, payload = {}) {
+
+      let finishEpisode = payload.hasOwnProperty('finishEpisode') ? payload.finishEpisode : false
+      let startPlaying = payload.hasOwnProperty('startPlaying') ? payload.startPlaying : false
+
       let oldEpisodeId = _.clone(context.state.playingEpisode._id)
       let firstInQueue = _.sortBy(context.state.queue, ['queue'])[0]
       let lastInQueue = _.reverse(_.sortBy(context.state.queue, ['queue']))[0]
       if (context.state.playingEpisode.queue == lastInQueue.queue) {
-        context.dispatch('playEpisode', { id: firstInQueue._id })
+        await context.dispatch('playEpisode', { id: firstInQueue._id, startPlaying })
       } else {
         let nextInQueue = context.state.queue.filter(qe => qe.queue == context.state.playingEpisode.queue + 1)[0]
         
-        context.dispatch('playEpisode', { id: nextInQueue._id })
+        await context.dispatch('playEpisode', { id: nextInQueue._id, startPlaying })
+      }
+
+      if (finishEpisode) {
+        await context.dispatch('removeEpisodeFromQueue', oldEpisodeId)
+        await Helpers.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ playhead: 0, played: true })
       }
     },
 
