@@ -142,7 +142,6 @@ export default {
           return response.json()
         }).then(responseJSON => {
           this.searchResults = responseJSON.results
-          console.log(this.searchResults)
         })
     }, 250)
   }
