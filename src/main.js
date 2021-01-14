@@ -37,7 +37,8 @@ import {
   faPause,
   faChevronDown,
   faChevronUp,
-  faRss
+  faRss,
+  faBars
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -63,6 +64,7 @@ library.add(
   faChevronDown,
   faChevronUp,
   faRss,
+  faBars,
 )
 
 // Dexie

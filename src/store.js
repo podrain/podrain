@@ -11,6 +11,12 @@ export default createStore({
     }
   },
 
+  getters: {
+    currentlyPlayingInQueue(state) {
+      return state.queue.filter(qe => qe.currently_playing == true)[0]
+    }
+  },
+
   mutations: {
     addEpisodeToQueue(state, episode) {
       state.queue.push(episode)
@@ -31,6 +37,7 @@ export default createStore({
     },
 
     setPlayingEpisode(state, episode) {
+      delete episode.queue
       state.playingEpisode = episode
     },
 
@@ -198,10 +205,10 @@ export default createStore({
       let oldEpisodeId = _.clone(context.state.playingEpisode._id)
       let firstInQueue = _.sortBy(context.state.queue, ['queue'])[0]
       let lastInQueue = _.reverse(_.sortBy(context.state.queue, ['queue']))[0]
-      if (context.state.playingEpisode.queue == lastInQueue.queue) {
+      if (context.getters.currentlyPlayingInQueue.queue == lastInQueue.queue) {
         await context.dispatch('playEpisode', { id: firstInQueue._id, startPlaying })
       } else {
-        let nextInQueue = context.state.queue.filter(qe => qe.queue == context.state.playingEpisode.queue + 1)[0]
+        let nextInQueue = context.state.queue.filter(qe => qe.queue == context.getters.currentlyPlayingInQueue.queue + 1)[0]
         
         await context.dispatch('playEpisode', { id: nextInQueue._id, startPlaying })
       }
@@ -213,13 +220,72 @@ export default createStore({
     },
 
     playPrev(context) {
-      if (context.state.playingEpisode.queue == 1) {
+      if (context.getters.currentlyPlayingInQueue.queue == 1) {
         let lastInQueue = _.reverse(_.sortBy(context.state.queue, ['queue']))[0]
         context.dispatch('playEpisode', { id: lastInQueue._id })
       } else {
-        let prevInQueue = context.state.queue.filter(qe => qe.queue == context.state.playingEpisode.queue - 1)[0]
+        let prevInQueue = context.state.queue.filter(qe => qe.queue == context.getters.currentlyPlayingInQueue.queue - 1)[0]
         context.dispatch('playEpisode', { id: prevInQueue._id })
       }
+    },
+
+    reorderQueue(context, payload) {
+      let episodeID = payload.hasOwnProperty('episodeID') ? payload.episodeID : null
+      let newOrder = payload.hasOwnProperty('newOrder') ? payload.newOrder : null
+
+      let currentEpisode = context.state.queue.filter(qe => qe._id == episodeID)[0]
+      let reorderPromises = []
+
+      if (newOrder < currentEpisode.queue) {
+        let higherInQueue = context.state.queue.filter(ep => {
+          return ep.queue >= newOrder && ep.queue < currentEpisode.queue
+        })
+
+        for (let hiq of higherInQueue) {
+          reorderPromises.push(
+            Helpers.dexieDB.episodes
+              .where({ _id: hiq._id })
+              .modify({ queue: hiq.queue + 1 })
+              .then(() => {
+                context.commit('setQueueOfEpisode', {
+                  episodeID: hiq._id, 
+                  newQueue: hiq.queue + 1,
+                })
+              })
+          )
+        }
+      } else if (newOrder > currentEpisode.queue) {
+        let lowerInQueue = context.state.queue.filter(ep => {
+          return ep.queue <= newOrder && ep.queue > currentEpisode.queue
+        })
+
+        for (let liq of lowerInQueue) {
+          reorderPromises.push(
+            Helpers.dexieDB.episodes
+              .where({ _id: liq._id })
+              .modify({ queue: liq.queue - 1 })
+              .then(() => {
+                context.commit('setQueueOfEpisode', {
+                  episodeID: liq._id, 
+                  newQueue: liq.queue - 1,
+                })
+              })
+          )
+        }
+      }
+
+      return Promise.all([
+        Helpers.dexieDB.episodes
+          .where({ _id: episodeID })
+          .modify({ queue: newOrder })
+          .then(() => {
+            context.commit('setQueueOfEpisode', {
+              episodeID: episodeID, 
+              newQueue: newOrder,
+            })
+          }),
+        ...reorderPromises
+      ])
     }
   }
 })
