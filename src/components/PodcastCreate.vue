@@ -35,10 +35,18 @@
               :key="sr.collectionId"
             >
               <img class="w-1/5" :src="sr.artworkUrl100" />
-              <div class="w-4/5 p-2 bg-gray-700">
+              <div class="w-4/5 p-2 bg-gray-700 flex-1">
                 <h3>{{ sr.collectionName }}</h3>
                 <span class="text-gray-200 text-sm">{{ sr.trackCount }} episodes</span>
               </div>
+              <button 
+                class="bg-green-500 w-10"
+                @click="addSearchedPodcast(sr.feedUrl)"
+              >
+                <font-awesome-icon 
+                  icon="plus" 
+                />
+              </button>
             </li>
           </ul>
       </div>
@@ -68,7 +76,6 @@ export default {
   data() {
     return {
       selectedTab: 'search',
-      feedUrl: '',
       manualRssUrl: '',
       search: '',
       searchResults: [],
@@ -82,11 +89,16 @@ export default {
       })
     },
 
-    addPodcast(podcastUrl) {
-      let preUrl = podcastUrl
-      this.feedUrl = preUrl.replace(/(?!:\/\/):/g, '%3A')
+    addSearchedPodcast(url) {
+      this.addPodcast(url).then(() => {
+        this.$router.push('/podcasts')
+      })
+    },
 
-      return feedParser.parseURL(this.feedUrl, {
+    addPodcast(podcastUrl) {
+      let cleanedUrl = podcastUrl.replace(/(?!:\/\/):/g, '%3A')
+
+      return feedParser.parseURL(cleanedUrl, {
         proxyURL: localStorage.getItem('proxy_url'),
         getAllPages: true,
       }).then(podcast => {
@@ -97,7 +109,7 @@ export default {
 
         let addPodcast = Helpers.dexieDB.podcasts.add(_.merge(podcastOnly, {
           '_id': podcastID,
-          'feed_url': this.feedUrl
+          'feed_url': cleanedUrl
         }))
 
         let addPodcastEpisodes = []
