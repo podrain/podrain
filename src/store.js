@@ -114,23 +114,26 @@ export default createStore({
       })
     },
 
-    addEpisodeToQueue(context, id) {
-      return Helpers.dexieDB.episodes.filter(ep => {
+    async addEpisodeToQueue(context, id) {
+      let episodesInQueue = await Helpers.dexieDB.episodes.filter(ep => {
         return ep.queue > 0
-      }).toArray().then(episodesInQueue => {
-        let highestQueue = episodesInQueue.length > 0 ? Math.max(...episodesInQueue.map(ep => ep.queue)) : 0
+      }).toArray()
+      
+      let highestQueue = episodesInQueue.length > 0 ? Math.max(...episodesInQueue.map(ep => ep.queue)) : 0
+      let newHighestQueue = highestQueue + 1
+      await Helpers.dexieDB.episodes
+        .where({ _id: id })
+        .modify({ queue: newHighestQueue })
+    
+      let episode = await Helpers.dexieDB.episodes
+        .where({ _id: id })
+        .first()
 
-        let newHighestQueue = highestQueue + 1
-        return Helpers.dexieDB.episodes
-          .where({ _id: id })
-          .modify({ queue: newHighestQueue })
-      }).then(() => {
-        return Helpers.dexieDB.episodes
-          .where({ _id: id })
-          .first()
-      }).then(episode => {
-        context.commit('addEpisodeToQueue', episode)
-      })
+      episode.podcast = await Helpers.dexieDB.podcasts
+        .where({ _id: episode.podcast_id })
+        .first()
+    
+      context.commit('addEpisodeToQueue', episode)
     },
 
     async playEpisode(context, payload) {
