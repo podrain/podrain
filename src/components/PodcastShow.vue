@@ -12,15 +12,16 @@
                 class="text-white bg-indigo-500 p-2 text-sm flex-1"
                 @click="refreshEpisodes"
               >
-                <font-awesome-icon v-if="refreshing" class="mr-1" icon="sync" pulse />
-                <font-awesome-icon v-else class="mr-1" icon="sync" />
+                <font-awesome-icon class="mr-1" icon="sync" v-if="refreshing" pulse />
+                <font-awesome-icon class="mr-1" icon="sync" v-else />
                 Refresh
               </button>
               <button 
                 class="text-white bg-red-500 p-2 text-sm flex-1"
                 @click="deletePodcast"
               >
-                <font-awesome-icon class="mr-1" icon="times" />
+                <font-awesome-icon class="mr-1" icon="spinner" v-if="deleting" spin />
+                <font-awesome-icon class="mr-1" icon="times" v-else />
                 Delete
               </button>
             </div>
@@ -95,6 +96,7 @@ export default {
 
       episodes: [],
       refreshing: false,
+      deleting: false,
     }
   },
 
@@ -113,13 +115,14 @@ export default {
       })
     },
 
-    deletePodcast() {
+    async deletePodcast() {
+      this.deleting = true
       let deletePodcastOnly = Helpers.dexieDB.podcasts.where({ _id: this.podcast._id }).delete()
       let deleteEpisodes = Helpers.dexieDB.episodes.where({ podcast_id: this.podcast._id }).delete()
 
-      Promise.all([deletePodcastOnly, deleteEpisodes]).then(() => {
-        this.$router.push('/podcasts')
-      })
+      await Promise.all([deletePodcastOnly, deleteEpisodes])
+      this.deleting = false
+      this.$router.push('/podcasts')
     },
 
     prepareDescriptionString(string) {
