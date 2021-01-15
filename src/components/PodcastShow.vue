@@ -12,7 +12,8 @@
                 class="text-white bg-indigo-500 p-2 text-sm flex-1"
                 @click="refreshEpisodes"
               >
-                <font-awesome-icon class="mr-1" icon="sync" />
+                <font-awesome-icon v-if="refreshing" class="mr-1" icon="sync" pulse />
+                <font-awesome-icon v-else class="mr-1" icon="sync" />
                 Refresh
               </button>
               <button 
@@ -92,7 +93,8 @@ export default {
         }
       },
 
-      episodes: []
+      episodes: [],
+      refreshing: false,
     }
   },
 
@@ -142,6 +144,7 @@ export default {
     },
 
     async refreshEpisodes() {
+      this.refreshing = true
       let podcastRefreshed = await feedParser.parseURL(this.podcast.feed_url, {
         proxyURL: localStorage.getItem('proxy_url'),
         getAllPages: true
@@ -162,6 +165,7 @@ export default {
 
       await Helpers.dexieDB.episodes.bulkAdd(newEpisodes)
       await this.getEpisodes()
+      this.refreshing = false
     },
   },
 
