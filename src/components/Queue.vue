@@ -50,6 +50,14 @@
           class="w-3/4 bg-red-500 text-white p-1"
           @click="removeFromQueue(ep._id)"
         >Remove from queue</button>
+        <button
+          class="bg-teal-500 text-white px-4"
+          @click="downloadEpisode(ep._id)"
+        >
+          <span v-if="isDownloading(ep._id)">{{ downloadProgress(ep._id)+'%' }}</span>
+          <font-awesome-icon v-else-if="isDownloaded(ep._id)" icon="check" />
+          <font-awesome-icon v-else icon="download" />
+        </button>
       </div>
     </li>
   </ul>
@@ -65,6 +73,10 @@ export default {
   computed: {
     queue() {
       return this.$store.state.queue
+    },
+
+    downloading() {
+      return this.$store.state.downloading
     }
   },
   
@@ -88,7 +100,27 @@ export default {
 
     playEpisode(id) {
       this.$store.dispatch('playEpisode', { id: id, startPlaying: true })
-    }
+    },
+
+    async downloadEpisode(id) {
+      if (this.isDownloaded(id)) {
+        this.$store.dispatch('removeDownload', id)
+      } else {
+        this.$store.dispatch('downloadEpisode', id)
+      } 
+    },
+
+    isDownloading(id) {
+      return this.$store.state.downloading.map(dl => dl.id).includes(id)
+    },
+
+    downloadProgress(id) {
+      return this.$store.state.downloading.filter(dl => dl.id == id)[0].progress
+    },
+
+    isDownloaded(id) {
+      return this.$store.state.downloaded.includes(id)
+    },
   },
 
   mounted() {

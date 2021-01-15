@@ -22,7 +22,9 @@ export default {
     Playbox
   },
 
-  created() {  
+  created() {
+    this.$store.dispatch('syncDownloadedEpisodes')
+
     Helpers.playingAudio = new Audio
 
     Helpers.playingAudio.addEventListener('pause', (event) => {

@@ -1,19 +1,27 @@
 import { createStore } from 'vuex'
 import Helpers from './Helpers'
 import _ from 'lodash'
+import localforage from 'localforage'
+import axios from 'axios'
 
 export default createStore({
   state() {
     return {
       queue: [],
       playingEpisode: {},
-      paused: true
+      paused: true,
+      downloading: [],
+      downloaded: [],
     }
   },
 
   getters: {
     currentlyPlayingInQueue(state) {
       return state.queue.filter(qe => qe.currently_playing == true)[0]
+    },
+
+    getEpisodeInQueue: (state) => (id) => {
+      return state.queue.filter(qe => qe._id == id)[0]
     }
   },
 
@@ -54,6 +62,27 @@ export default createStore({
     setCurrentlyPlaying(state, id) {
       let episodeIndex = _.findIndex(state.queue, qe => qe._id == id)
       state.queue[episodeIndex].currently_playing = true
+    },
+
+    addEpisodeToDownloading(state, id) {
+      state.downloading.push({
+        id,
+        progress: 0
+      })
+    },
+
+    setEpisodeDownloadingProgress(state, payload) {
+      let episodeIndex = _.findIndex(state.downloading, dl => dl.id == payload.id)
+      state.downloading[episodeIndex].progress = payload.progress
+    },
+
+    removeEpisodeFromDownloading(state, id) {
+      let episodeIndex = _.findIndex(state.downloading, dl => dl.id == id)
+      state.downloading.splice(episodeIndex, 1)
+    },
+
+    addEpisodeToDownloaded(state, id) {
+      state.downloaded.push(id)
     }
   },
 
@@ -166,8 +195,16 @@ export default createStore({
         .modify({ currently_playing: true })
           
       context.commit('setCurrentlyPlaying', id)
-         
-      Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
+
+      let downloadedFile = await localforage.getItem('podrain_episode_'+id)
+      if (downloadedFile) {
+        let blobAB = await downloadedFile.arrayBuffer()
+        let newBlob = new Blob([blobAB], { type: episode.enclosure.type })
+        Helpers.playingAudio.src = URL.createObjectURL(newBlob)
+      } else {
+        Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
+      }
+        
       Helpers.playingAudio.currentTime = context.state.playingEpisode.playhead
 
       Helpers.playingAudio.addEventListener('timeupdate', (event) => {
@@ -219,6 +256,7 @@ export default createStore({
       if (finishEpisode) {
         await context.dispatch('removeEpisodeFromQueue', oldEpisodeId)
         await Helpers.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ playhead: 0, played: true })
+        context.dispatch('removeDownload', oldEpisodeId)
       }
     },
 
@@ -289,6 +327,53 @@ export default createStore({
           }),
         ...reorderPromises
       ])
+    },
+
+    async downloadEpisode(context, id) {
+      context.commit('addEpisodeToDownloading', id)
+      let proxyUrl = localStorage.getItem('proxy_url') || ""
+
+      let episodeAudio = await axios.get(
+        proxyUrl + context.getters.getEpisodeInQueue(id).enclosure.url,
+        {
+          onDownloadProgress(event) {
+            context.commit('setEpisodeDownloadingProgress', { 
+              id, 
+              progress: Math.floor((event.loaded / event.total) * 100)
+            })
+          },
+
+          headers: {
+            'Accept': 'audio/*'
+          },
+          responseType: 'arraybuffer'
+        }
+      )
+
+      let audioType = episodeAudio.headers['content-type']
+      let audioBlob = new Blob([episodeAudio.data], { type: audioType })
+      await localforage.setItem('podrain_episode_'+id, audioBlob)
+      context.dispatch('syncDownloadedEpisodes')
+      context.commit('removeEpisodeFromDownloading', id)
+    },
+
+    async removeDownload(context, id) {
+      if (await localforage.getItem('podrain_episode_'+id)) {
+        await localforage.removeItem('podrain_episode_'+id)
+        context.dispatch('syncDownloadedEpisodes')
+      }
+    },
+
+    async syncDownloadedEpisodes(context) {
+      let keys = await localforage.keys()
+
+      let episodes = keys.filter(key => {
+          return key.includes('podrain_episode_')
+        }).map(key => {
+          return key.substr('podrain_episode_'.length)
+        })
+    
+      context.state.downloaded = episodes
     }
   }
 })

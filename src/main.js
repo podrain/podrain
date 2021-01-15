@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import './css/app.css'
 import Dexie from 'dexie'
+import localforage from 'localforage'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import store from './store'
 
@@ -74,6 +75,12 @@ dexieDB.version(1).stores({
   episodes: '&_id,podcast_id,pubDate',
 })
 Helpers.dexieDB = dexieDB
+
+// localForage
+localforage.config({
+  driver: localforage.INDEXEDDB,
+  name: 'Podrain Episodes'
+})
 
 // Router
 const routes = [
