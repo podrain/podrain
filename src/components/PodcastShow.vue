@@ -10,6 +10,7 @@
             <div class="flex">
               <button 
                 class="text-white bg-indigo-500 p-2 text-sm flex-1"
+                @click="refreshEpisodes"
               >
                 <font-awesome-icon class="mr-1" icon="sync" />
                 Refresh
@@ -77,6 +78,9 @@
 <script>
 import Helpers from '../Helpers'
 import { DateTime } from 'luxon'
+import feedParser from 'https://jspm.dev/better-podcast-parser'
+import _ from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   data() {
@@ -100,7 +104,7 @@ export default {
 
   methods: {
     getEpisodes() {
-      Helpers.dexieDB.episodes.where({
+      return Helpers.dexieDB.episodes.where({
         podcast_id: this.podcast._id
       }).reverse().sortBy('pubDate').then(allEpisodes => {
         this.episodes = allEpisodes
@@ -135,7 +139,30 @@ export default {
 
     addToQueue(id) {
       this.$store.dispatch('addEpisodeToQueue', id)
-    }
+    },
+
+    async refreshEpisodes() {
+      let podcastRefreshed = await feedParser.parseURL(this.podcast.feed_url, {
+        proxyURL: localStorage.getItem('proxy_url'),
+        getAllPages: true
+      })
+
+      let newEpisodes = podcastRefreshed.episodes.filter(ep => {
+        return ep && ep.hasOwnProperty('pubDate') && ep.pubDate > _.max(this.episodes.map(epCurr => epCurr.pubDate))
+      }).map(ep => {
+        return _.merge(ep, {
+          '_id': uuidv4(),
+          'podcast_id': this.podcast._id,
+          'queue': 0,
+          'playhead': 0,
+          'currently_playing': false,
+          'played': false
+        })
+      })
+
+      await Helpers.dexieDB.episodes.bulkAdd(newEpisodes)
+      await this.getEpisodes()
+    },
   },
 
   created() {
