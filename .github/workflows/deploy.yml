@@ -1,0 +1,27 @@
+name: Build & Publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-site:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: yarn install
+    - name: Build Site
+      run: yarn build
+    - name: Stage Files
+      run: git add -f dist
+    - name: Commit files
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "GitHub Actions"
+        git commit -m "Build for deploy"
+    - name: Publish
+      run: |
+        git subtree split --prefix dist -b gh-pages
+        git push -f origin gh-pages:gh-pages
