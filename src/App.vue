@@ -39,6 +39,10 @@ export default {
       this.$store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
     })
 
+    Helpers.playingAudio.addEventListener('loadedmetadata', () => {
+      this.$store.state.playingEpisode.duration = Helpers.playingAudio.duration
+    })
+
     this.$store.dispatch('getQueue').then(() => {
       return Helpers.dexieDB.episodes
         .filter(ep => ep.currently_playing == true)
