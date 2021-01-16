@@ -68,7 +68,6 @@ export default {
 
   watch: {
     search: _.debounce(function(value) {
-      console.log(value)
       this.searchResults = this.episodes.filter(ep => {
         let lowerCaseDesc = ep.description.toLowerCase()
         let lowerCaseTitle = ep.title.toLowerCase()
