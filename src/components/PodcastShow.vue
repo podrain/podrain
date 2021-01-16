@@ -116,7 +116,23 @@ export default {
     },
 
     async deletePodcast() {
+      var self = this
       this.deleting = true
+
+      function removeEpisodesFromQueue(episodes) {
+        let sequence = Promise.resolve()
+
+        for (let ep of episodes) {
+          if (ep.podcast_id == self.podcast._id) {
+            sequence = sequence.then(() => self.$store.dispatch('removeEpisodeFromQueue', ep._id))
+          }
+        }
+
+        return sequence
+      }
+
+      await removeEpisodesFromQueue(this.$store.state.queue)
+
       let deletePodcastOnly = Helpers.dexieDB.podcasts.where({ _id: this.podcast._id }).delete()
       let deleteEpisodes = Helpers.dexieDB.episodes.where({ podcast_id: this.podcast._id }).delete()
 
