@@ -27,6 +27,7 @@
             </div>
             <button 
               class="bg-yellow-500 p-2 text-sm w-full"
+              @click="$router.push('/podcasts/'+podcast._id+'/search')"
             >
               <font-awesome-icon class="mr-1" icon="search" />
               Search episodes

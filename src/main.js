@@ -13,6 +13,7 @@ import PodcastShow from './components/PodcastShow.vue'
 import Settings from './components/Settings.vue'
 import Queue from './components/Queue.vue'
 import EpisodeShow from './components/EpisodeShow.vue'
+import EpisodeSearch from './components/EpisodeSearch.vue'
 import PodcastCreate from './components/PodcastCreate.vue'
 
 // FontAwesome setup
@@ -92,6 +93,11 @@ const routes = [
   {
     path: '/podcasts/create',
     component: PodcastCreate
+  },
+
+  {
+    path: '/podcasts/:id/search',
+    component: EpisodeSearch
   },
 
   {
