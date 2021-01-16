@@ -37,11 +37,24 @@
               <img class="w-1/5" :src="sr.artworkUrl100" />
               <div class="w-4/5 p-2 bg-gray-700 flex-1">
                 <h3>{{ sr.collectionName }}</h3>
-                <span class="text-gray-200 text-sm">{{ sr.trackCount }} episodes</span>
+                <span v-if="addingSearchedPodcast.url == sr.feedUrl" class="text-gray-200 text-sm">{{ addingSearchedPodcast.episodesAdded }} / {{ addingSearchedPodcast.episodesTotal }} episodes added</span>
+                <span v-else class="text-gray-200 text-sm">{{ sr.trackCount }} episodes</span>
               </div>
+              <button
+                v-if="addingSearchedPodcast.url == sr.feedUrl" 
+                class="bg-green-500 w-10"
+                disabled
+              >
+                <font-awesome-icon 
+                  icon="spinner" 
+                  spin
+                />
+              </button>
               <button 
+                v-else
                 class="bg-green-500 w-10"
                 @click="addSearchedPodcast(sr.feedUrl)"
+                :disabled="addingSearchedPodcast.url != '' && (addingSearchedPodcast.url != sr.feedUrl)"
               >
                 <font-awesome-icon 
                   icon="plus" 
@@ -79,6 +92,12 @@ export default {
       manualRssUrl: '',
       search: '',
       searchResults: [],
+      addingSearchedPodcast: {
+        url: '',
+        adding: false,
+        episodesAdded: 0,
+        episodesTotal: 0,
+      }
     }
   },
 
@@ -96,6 +115,7 @@ export default {
     },
 
     addPodcast(podcastUrl) {
+      this.addingSearchedPodcast.url = podcastUrl
       let cleanedUrl = podcastUrl.replace(/(?!:\/\/):/g, '%3A')
 
       return feedParser.parseURL(cleanedUrl, {
@@ -106,7 +126,7 @@ export default {
         delete podcastOnly.episodes
 
         let podcastID = uuidv4()
-
+        this.addingSearchedPodcast.episodesTotal = podcast.episodes.length
         let addPodcast = Helpers.dexieDB.podcasts.add(_.merge(podcastOnly, {
           '_id': podcastID,
           'feed_url': cleanedUrl
@@ -121,10 +141,17 @@ export default {
             'playhead': 0,
             'currently_playing': false,
             'played': false
-          })))
+          })).then(() => {
+            this.addingSearchedPodcast.episodesAdded += 1
+          }))
         }
 
-        return Promise.all([addPodcast, ...addPodcastEpisodes])
+        return Promise.all([addPodcast, ...addPodcastEpisodes]).then(() => {
+          this.addingSearchedPodcast.url = ''
+          this.addingSearchedPodcast.adding = false
+          this.addingSearchedPodcast.episodesAdded = 0
+          this.addingSearchedPodcast.episodesTotal = 0
+        })
       })
     },
   },
