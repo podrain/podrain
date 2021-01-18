@@ -66,12 +66,15 @@
           </template>
         </button>
         <button
-          class="bg-teal-500 text-white px-4"
+          class="text-white w-1/3"
+          :class="[isDownloading(ep._id) ? 'bg-gray-500' : isDownloaded(ep._id) ? 'bg-green-500' : 'bg-blue-500']"
           @click="downloadEpisode(ep._id)"
         >
           <span v-if="isDownloading(ep._id)">{{ downloadProgress(ep._id)+'%' }}</span>
-          <font-awesome-icon v-else-if="isDownloaded(ep._id)" icon="check" />
-          <font-awesome-icon v-else icon="download" />
+          <!-- <font-awesome-icon v-else-if="isDownloaded(ep._id)" icon="check" /> -->
+          <span v-else-if="isDownloaded(ep._id)">Downloaded</span>
+          <!-- <font-awesome-icon v-else icon="download" /> -->
+          <span v-else>Download</span>
         </button>
       </div>
     </li>
