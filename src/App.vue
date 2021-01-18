@@ -72,7 +72,6 @@ export default {
     }).then(() => {
       setInterval(() => {
         Helpers.dexieDB.episodes.where({ _id: this.$store.state.playingEpisode._id }).modify({ playhead: this.$store.state.playingEpisode.playhead })
-        console.log(this.$store.state.playingEpisode.playhead)
       }, 5000)
     })
   }
