@@ -34,7 +34,7 @@ export default createStore({
     },
 
     isPlaying: (state) => (id) => {
-      return state.playingEpisode._id == id && !state.paused
+      return state.playingEpisode?._id == id && !state.paused
     }
   },
 
@@ -411,7 +411,7 @@ export default createStore({
     },
 
     playOrPauseEpisode(context, id) {
-      if (id == context.state.playingEpisode._id) {
+      if (id == context.state.playingEpisode?._id) {
         if (context.state.paused) {
           Helpers.playingAudio.play()
         } else {
