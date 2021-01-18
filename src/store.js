@@ -18,7 +18,7 @@ export default createStore({
 
   getters: {
     currentlyPlayingInQueue(state) {
-      return state.queue.filter(qe => qe.currently_playing == true)[0]
+      return state.queue.filter(qe => qe.currently_playing == 1)[0]
     },
 
     getEpisodeInQueue: (state) => (id) => {
@@ -68,13 +68,13 @@ export default createStore({
 
     clearCurrentlyPlaying(state) {
       for (let i = 0; i < state.queue.length; i++) {
-        state.queue[i].currently_playing = false
+        state.queue[i].currently_playing = 0
       }
     },
 
     setCurrentlyPlaying(state, id) {
       let episodeIndex = _.findIndex(state.queue, qe => qe._id == id)
-      state.queue[episodeIndex].currently_playing = true
+      state.queue[episodeIndex].currently_playing = 1
     },
 
     addEpisodeToDownloading(state, id) {
@@ -107,9 +107,7 @@ export default createStore({
     getQueue(context) {
       context.commit('clearQueue')
 
-      return Helpers.dexieDB.episodes.filter(ep => {
-        return ep.queue > 0
-      }).toArray().then(queuedEpisodes => {
+      return Helpers.dexieDB.episodes.where('queue').above(0).toArray().then(queuedEpisodes => {
         return queuedEpisodes.map(async (qe) => {
           qe.podcast = await Helpers.dexieDB.podcasts.where({ _id: qe.podcast_id }).first()
           return qe
@@ -132,9 +130,7 @@ export default createStore({
       return Helpers.dexieDB.episodes.where({ _id: id }).modify({ queue: 0 }).then(() => {
         context.commit('removeEpisodeFromQueue', id)
 
-        return Helpers.dexieDB.episodes.filter(ep => {
-          return ep.queue > currentEpisode.queue
-        }).toArray()
+        return Helpers.dexieDB.episodes.where('queue').above(currentEpisode.queue).toArray()
       }).then(higherInQueue => {
         let queuePromises = []
 
@@ -167,9 +163,7 @@ export default createStore({
 
     async addEpisodeToQueue(context, id) {
       context.commit('setQueueChanging', true)
-      let episodesInQueue = await Helpers.dexieDB.episodes.filter(ep => {
-        return ep.queue > 0
-      }).toArray()
+      let episodesInQueue = await Helpers.dexieDB.episodes.where('queue').above(0).toArray()
       
       let highestQueue = episodesInQueue.length > 0 ? Math.max(...episodesInQueue.map(ep => ep.queue)) : 0
       let newHighestQueue = highestQueue + 1
@@ -199,8 +193,8 @@ export default createStore({
       }
 
       await Helpers.dexieDB.episodes
-        .filter(ep => ep.currently_playing == true)
-        .modify({ currently_playing: false })
+        .filter(ep => ep.currently_playing == 1)
+        .modify({ currently_playing: 0 })
         
       context.commit('clearCurrentlyPlaying')
 
@@ -221,7 +215,7 @@ export default createStore({
 
       await Helpers.dexieDB.episodes
         .where({ _id: id })
-        .modify({ currently_playing: true })
+        .modify({ currently_playing: 1 })
           
       context.commit('setCurrentlyPlaying', id)
 

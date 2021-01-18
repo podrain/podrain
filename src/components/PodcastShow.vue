@@ -204,7 +204,7 @@ export default {
           'podcast_id': this.podcast._id,
           'queue': 0,
           'playhead': 0,
-          'currently_playing': false,
+          'currently_playing': 0,
           'played': false
         })
       })

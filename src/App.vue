@@ -62,7 +62,7 @@ export default {
     this.$store.dispatch('getQueue').then(() => {
       if (this.$store.state.queue.length > 0) {
         return Helpers.dexieDB.episodes
-          .filter(ep => ep.currently_playing == true)
+          .filter(ep => ep.currently_playing == 1)
           .toArray().then(result => {
             this.$store.dispatch('playEpisode', { id: result[0]._id })
           }) 

@@ -75,6 +75,16 @@ dexieDB.version(1).stores({
   podcasts: '&_id',
   episodes: '&_id,podcast_id,pubDate',
 })
+
+dexieDB.version(2).stores({
+  podcasts: '&_id',
+  episodes: '&_id,podcast_id,pubDate,queue,currently_playing',
+}).upgrade(tx => {
+  return tx.table('episodes').modify(ep => {
+    ep.currently_playing = ep.currently_playing === true ? 1 : 0
+  })
+})
+
 Helpers.dexieDB = dexieDB
 
 // localForage

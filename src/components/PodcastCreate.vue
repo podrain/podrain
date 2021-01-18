@@ -139,7 +139,7 @@ export default {
             'podcast_id': podcastID,
             'queue': 0,
             'playhead': 0,
-            'currently_playing': false,
+            'currently_playing': 0,
             'played': false
           })).then(() => {
             this.addingSearchedPodcast.episodesAdded += 1
