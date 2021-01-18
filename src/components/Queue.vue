@@ -67,6 +67,7 @@
           </template>
         </button>
         <button
+          v-if="!iOS()"
           class="text-white w-1/3"
           :class="[isDownloading(ep._id) ? 'bg-gray-500' : isDownloaded(ep._id) ? 'bg-green-500' : 'bg-blue-500']"
           @click="downloadEpisode(ep._id)"
@@ -146,6 +147,10 @@ export default {
     isPlaying(id) {
       return this.$store.getters.isPlaying(id)
     },
+
+    iOS() {
+      return Helpers.iOS()
+    }
   },
 
   mounted() {
