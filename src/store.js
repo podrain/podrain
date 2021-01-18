@@ -8,7 +8,7 @@ export default createStore({
   state() {
     return {
       queue: [],
-      playingEpisode: {},
+      playingEpisode: null,
       paused: true,
       downloading: [],
       downloaded: [],

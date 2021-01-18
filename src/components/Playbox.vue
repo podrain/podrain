@@ -1,6 +1,6 @@
 <template>
   <div v-if="expanded" class="h-48 bg-gray-200">
-    <div class="p-3 h-full flex flex-col justify-between">
+    <div v-if="playingEpisode" class="p-3 h-full flex flex-col justify-between">
       <div class="flex justify-between">
         <div class="flex flex-col w-4/5">
           <div class="w-full text-gray-800 text-sm">
@@ -73,6 +73,10 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-else class="flex justify-center items-center h-full text-6xl">
+      <font-awesome-icon icon="spinner" spin />
     </div>
   </div>
 
