@@ -13,7 +13,7 @@ jobs:
     - name: Install Dependencies
       run: yarn install
     - name: Build Site
-      run: NODE_ENV=production npx vite build --base=/podrain-vue/
+      run: NODE_ENV=production npx vite build --base=./
     - name: Stage Files
       run: git add -f dist
     - name: Commit files
