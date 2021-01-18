@@ -71,9 +71,7 @@
           @click="downloadEpisode(ep._id)"
         >
           <span v-if="isDownloading(ep._id)">{{ downloadProgress(ep._id)+'%' }}</span>
-          <!-- <font-awesome-icon v-else-if="isDownloaded(ep._id)" icon="check" /> -->
           <span v-else-if="isDownloaded(ep._id)">Downloaded</span>
-          <!-- <font-awesome-icon v-else icon="download" /> -->
           <span v-else>Download</span>
         </button>
       </div>
