@@ -12,6 +12,7 @@ export default createStore({
       paused: true,
       downloading: [],
       downloaded: [],
+      queueChanging: false,
     }
   },
 
@@ -22,6 +23,10 @@ export default createStore({
 
     getEpisodeInQueue: (state) => (id) => {
       return state.queue.filter(qe => qe._id == id)[0]
+    },
+
+    queueInOrder(state) {
+      return _.sortBy(state.queue, ['queue'])
     }
   },
 
@@ -83,6 +88,10 @@ export default createStore({
 
     addEpisodeToDownloaded(state, id) {
       state.downloaded.push(id)
+    },
+
+    setQueueChanging(state, isQueueChanging) {
+      state.queueChanging = isQueueChanging
     }
   },
 
@@ -109,6 +118,7 @@ export default createStore({
     },
 
     removeEpisodeFromQueue(context, id) {
+      context.commit('setQueueChanging', true)
       let currentEpisode = context.state.queue.filter(qe => id == qe._id)[0]
       
       return Helpers.dexieDB.episodes.where({ _id: id }).modify({ queue: 0 }).then(() => {
@@ -136,14 +146,19 @@ export default createStore({
             )
           }
 
-          return Promise.all(queuePromises)
+          return Promise.all(queuePromises).then(() => {
+            context.commit('setQueueChanging', false)
+          })
         } else {
-          return Promise.resolve()
+          return Promise.resolve().then(() => {
+            context.commit('setQueueChanging', false)
+          })
         }
       })
     },
 
     async addEpisodeToQueue(context, id) {
+      context.commit('setQueueChanging', true)
       let episodesInQueue = await Helpers.dexieDB.episodes.filter(ep => {
         return ep.queue > 0
       }).toArray()
@@ -163,6 +178,7 @@ export default createStore({
         .first()
     
       context.commit('addEpisodeToQueue', episode)
+      context.commit('setQueueChanging', false)
     },
 
     async playEpisode(context, payload) {
@@ -254,7 +270,9 @@ export default createStore({
       }
 
       if (finishEpisode) {
+        context.commit('setQueueChanging', true)
         await context.dispatch('removeEpisodeFromQueue', oldEpisodeId)
+        context.commit('setQueueChanging', false)
         await Helpers.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ playhead: 0, played: true })
         context.dispatch('removeDownload', oldEpisodeId)
       }
@@ -271,6 +289,7 @@ export default createStore({
     },
 
     reorderQueue(context, payload) {
+      context.commit('setQueueChanging', true)
       let episodeID = payload.hasOwnProperty('episodeID') ? payload.episodeID : null
       let newOrder = payload.hasOwnProperty('newOrder') ? payload.newOrder : null
 
@@ -326,7 +345,9 @@ export default createStore({
             })
           }),
         ...reorderPromises
-      ])
+      ]).then(() => 
+        context.commit('setQueueChanging', false)
+      )
     },
 
     async downloadEpisode(context, id) {

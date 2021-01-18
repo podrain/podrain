@@ -34,22 +34,37 @@
           </div>
         </div>
 
-        <button class="queue-dragbar bg-purple-500 w-10 text-white">
-          <font-awesome-icon icon="bars" />
+        <button 
+          class="queue-dragbar bg-purple-500 w-10 text-white"
+          :disabled="queueChanging"
+        >
+          <template v-if="queueChanging">
+            <font-awesome-icon icon="spinner" spin />
+          </template>
+          <template v-else>
+            <font-awesome-icon icon="bars" />
+          </template>
         </button>
       </div>
 
       <div class="flex">
         <button 
-          class="w-1/4 bg-blue-500 text-white p-1"
+          class="bg-blue-500 text-white px-4"
           @click="playEpisode(ep._id)"
         >
           <font-awesome-icon icon="play" />
         </button>
         <button 
-          class="w-3/4 bg-red-500 text-white p-1"
+          class="flex-1 bg-red-500 text-white p-1"
           @click="removeFromQueue(ep._id)"
-        >Remove from queue</button>
+        >
+          <template v-if="queueChanging">
+            <font-awesome-icon icon="spinner" spin />
+          </template>
+          <template v-else>
+            Remove from queue
+          </template>
+        </button>
         <button
           class="bg-teal-500 text-white px-4"
           @click="downloadEpisode(ep._id)"
@@ -72,11 +87,15 @@ import Sortable from 'sortablejs'
 export default {
   computed: {
     queue() {
-      return this.$store.state.queue
+      return this.$store.getters.queueInOrder
     },
 
     downloading() {
       return this.$store.state.downloading
+    },
+
+    queueChanging() {
+      return this.$store.state.queueChanging
     }
   },
   

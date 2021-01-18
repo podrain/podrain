@@ -63,16 +63,26 @@
             </div>
           </div>
 
-          <button 
-            v-if="queue.map(qe => qe._id).includes(ep._id)"
-            class="bg-red-500 text-white p-1"
-            @click="removeFromQueue(ep._id)"
-          >Remove from queue</button>
-          <button
+          <div
+            v-if="queueChanging"
+            class="bg-gray-500 text-white text-center p-1"
+          >
+            queue changing
+          </div>
+          <template
             v-else
-            class="bg-green-500 text-white p-1"
-            @click="addToQueue(ep._id)"
-          >Add to queue</button>
+          >
+            <button 
+              v-if="queue.map(qe => qe._id).includes(ep._id)"
+              class="bg-red-500 text-white p-1"
+              @click="removeFromQueue(ep._id)"
+            >Remove from queue</button>
+            <button
+              v-else
+              class="bg-green-500 text-white p-1"
+              @click="addToQueue(ep._id)"
+            >Add to queue</button>
+          </template>
         </li>
       </ul>
     </div>
@@ -104,6 +114,10 @@ export default {
   computed: {
     queue() {
       return this.$store.state.queue
+    },
+
+    queueChanging() {
+      return this.$store.state.queueChanging
     }
   },
 
