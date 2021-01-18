@@ -25,8 +25,16 @@ export default createStore({
       return state.queue.filter(qe => qe._id == id)[0]
     },
 
+    isInQueue: (state) => (id) => {
+      return state.queue.map(qe => qe._id).includes(id)
+    },
+
     queueInOrder(state) {
       return _.sortBy(state.queue, ['queue'])
+    },
+
+    isPlaying: (state) => (id) => {
+      return state.playingEpisode._id == id && !state.paused
     }
   },
 
@@ -195,6 +203,11 @@ export default createStore({
         .modify({ currently_playing: false })
         
       context.commit('clearCurrentlyPlaying')
+
+      // If not in queue already, add episode to queue
+      if(!context.getters.isInQueue(id)) {
+        await context.dispatch('addEpisodeToQueue', id)
+      }
 
       let episode = await Helpers.dexieDB.episodes.where({ _id: id }).first()
             
@@ -395,6 +408,21 @@ export default createStore({
         })
     
       context.state.downloaded = episodes
+    },
+
+    playOrPauseEpisode(context, id) {
+      if (id == context.state.playingEpisode._id) {
+        if (context.state.paused) {
+          Helpers.playingAudio.play()
+        } else {
+          Helpers.playingAudio.pause()
+        }
+      } else {
+        context.dispatch('playEpisode', {
+          id,
+          startPlaying: true
+        })
+      }
     }
   }
 })

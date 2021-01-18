@@ -50,9 +50,10 @@
       <div class="flex">
         <button 
           class="bg-blue-500 text-white px-4"
-          @click="playEpisode(ep._id)"
+          @click="playOrPauseEpisode(ep._id)"
         >
-          <font-awesome-icon icon="play" />
+          <font-awesome-icon v-if="isPlaying(ep._id)" icon="pause" />
+          <font-awesome-icon v-else icon="play" />
         </button>
         <button 
           class="flex-1 bg-red-500 text-white p-1"
@@ -118,10 +119,6 @@ export default {
       this.$store.dispatch('removeEpisodeFromQueue', episodeID)
     },
 
-    playEpisode(id) {
-      this.$store.dispatch('playEpisode', { id: id, startPlaying: true })
-    },
-
     async downloadEpisode(id) {
       if (this.isDownloaded(id)) {
         this.$store.dispatch('removeDownload', id)
@@ -140,6 +137,14 @@ export default {
 
     isDownloaded(id) {
       return this.$store.state.downloaded.includes(id)
+    },
+
+    playOrPauseEpisode(id) {
+      this.$store.dispatch('playOrPauseEpisode', id)
+    },
+
+    isPlaying(id) {
+      return this.$store.getters.isPlaying(id)
     },
   },
 

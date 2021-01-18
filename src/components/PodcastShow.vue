@@ -63,26 +63,38 @@
             </div>
           </div>
 
-          <div
-            v-if="queueChanging"
-            class="bg-gray-500 text-white text-center p-1"
-          >
-            queue changing
-          </div>
-          <template
-            v-else
-          >
+          <div class="flex">
             <button 
-              v-if="queue.map(qe => qe._id).includes(ep._id)"
-              class="bg-red-500 text-white p-1"
-              @click="removeFromQueue(ep._id)"
-            >Remove from queue</button>
-            <button
-              v-else
-              class="bg-green-500 text-white p-1"
-              @click="addToQueue(ep._id)"
-            >Add to queue</button>
-          </template>
+              class="w-1/5 bg-blue-500"
+              @click="playOrPauseEpisode(ep._id)"
+            >
+              <font-awesome-icon v-if="isPlaying(ep._id)" class="text-white" icon="pause" />
+              <font-awesome-icon v-else class="text-white" icon="play" />
+            </button>
+
+            <div class="flex-1">
+              <div
+                v-if="queueChanging"
+                class="bg-gray-500 text-white text-center p-1"
+              >
+                queue changing
+              </div>
+              <template
+                v-else
+              >
+                <button 
+                  v-if="queue.map(qe => qe._id).includes(ep._id)"
+                  class="w-full bg-red-500 text-white p-1"
+                  @click="removeFromQueue(ep._id)"
+                >Remove from queue</button>
+                <button
+                  v-else
+                  class="w-full bg-green-500 text-white p-1"
+                  @click="addToQueue(ep._id)"
+                >Add to queue</button>
+              </template>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -118,7 +130,7 @@ export default {
 
     queueChanging() {
       return this.$store.state.queueChanging
-    }
+    },
   },
 
   methods: {
@@ -200,6 +212,14 @@ export default {
       await Helpers.dexieDB.episodes.bulkAdd(newEpisodes)
       await this.getEpisodes()
       this.refreshing = false
+    },
+
+    playOrPauseEpisode(id) {
+      this.$store.dispatch('playOrPauseEpisode', id)
+    },
+
+    isPlaying(id) {
+      return this.$store.getters.isPlaying(id)
     },
   },
 
