@@ -1,4 +1,5 @@
 <template>
+  <div class="w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
     <div class="p-3 text-white">
       <h1 class="text-xl text-center">Settings</h1>
       Proxy URL
@@ -47,6 +48,7 @@
         </template>
       </button>
     </div>
+  </div>
 </template>
 
 <script>
