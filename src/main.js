@@ -4,7 +4,7 @@ import './css/app.css'
 import Dexie from 'dexie'
 import localforage from 'localforage'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { VuexStore as store, Shared } from './store'
+import { VuexStore as store, Shared } from './State'
 
 import PodcastList from './components/PodcastList.vue'
 import PodcastShow from './components/PodcastShow.vue'

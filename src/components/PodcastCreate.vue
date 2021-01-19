@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { Shared } from '../store'
+import { Shared } from '../State'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'

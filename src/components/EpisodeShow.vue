@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { Shared } from '../store'
+import { Shared } from '../State'
 
 export default {
 

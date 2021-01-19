@@ -38,7 +38,7 @@
 
 <script>
 import Playbox from './components/Playbox.vue'
-import { Shared } from './store'
+import { Shared } from './State'
 
 export default {
   components: {

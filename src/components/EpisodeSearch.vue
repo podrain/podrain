@@ -31,7 +31,7 @@
 
 <script>
 import { cleanHTMLString, truncateString } from '../Helpers'
-import { Shared } from '../store'
+import { Shared } from '../State'
 import _ from 'lodash'
 
 export default {

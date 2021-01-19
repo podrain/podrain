@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { Shared } from '../store'
+import { Shared } from '../State'
 import { cleanHTMLString, truncateString } from '../Helpers'
 import { DateTime } from 'luxon'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
