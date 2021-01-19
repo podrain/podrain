@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import Helpers from '../Helpers'
+import { Shared } from '../store'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
@@ -129,14 +129,14 @@ export default {
 
         let podcastID = uuidv4()
         this.addingSearchedPodcast.episodesTotal = podcast.episodes.length
-        let addPodcast = Helpers.dexieDB.podcasts.add(_.merge(podcastOnly, {
+        let addPodcast = Shared.dexieDB.podcasts.add(_.merge(podcastOnly, {
           '_id': podcastID,
           'feed_url': cleanedUrl
         }))
 
         let addPodcastEpisodes = []
         for (let ep of podcast.episodes) {
-          addPodcastEpisodes.push(Helpers.dexieDB.episodes.add(_.merge(ep, {
+          addPodcastEpisodes.push(Shared.dexieDB.episodes.add(_.merge(ep, {
             '_id': uuidv4(),
             'podcast_id': podcastID,
             'queue': 0,

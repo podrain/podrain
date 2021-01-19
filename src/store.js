@@ -1,10 +1,14 @@
 import { createStore } from 'vuex'
-import Helpers from './Helpers'
 import _ from 'lodash'
 import localforage from 'localforage'
 import axios from 'axios'
 
-export default createStore({
+export let Shared = {
+  dexieDB: null,
+  playingAudio: null,
+}
+
+export let VuexStore = createStore({
   state() {
     return {
       queue: [],
@@ -107,9 +111,9 @@ export default createStore({
     getQueue(context) {
       context.commit('clearQueue')
 
-      return Helpers.dexieDB.episodes.where('queue').above(0).toArray().then(queuedEpisodes => {
+      return Shared.dexieDB.episodes.where('queue').above(0).toArray().then(queuedEpisodes => {
         return queuedEpisodes.map(async (qe) => {
-          qe.podcast = await Helpers.dexieDB.podcasts.where({ _id: qe.podcast_id }).first()
+          qe.podcast = await Shared.dexieDB.podcasts.where({ _id: qe.podcast_id }).first()
           return qe
         })
       }).then(episodesWithPodcastsPromises => {
@@ -127,10 +131,10 @@ export default createStore({
       context.commit('setQueueChanging', true)
       let currentEpisode = context.state.queue.filter(qe => id == qe._id)[0]
       
-      return Helpers.dexieDB.episodes.where({ _id: id }).modify({ queue: 0 }).then(() => {
+      return Shared.dexieDB.episodes.where({ _id: id }).modify({ queue: 0 }).then(() => {
         context.commit('removeEpisodeFromQueue', id)
 
-        return Helpers.dexieDB.episodes.where('queue').above(currentEpisode.queue).toArray()
+        return Shared.dexieDB.episodes.where('queue').above(currentEpisode.queue).toArray()
       }).then(higherInQueue => {
         let queuePromises = []
 
@@ -138,7 +142,7 @@ export default createStore({
           for (let hiq of higherInQueue) {
             hiq.queue -= 1
             queuePromises.push(
-              Helpers.dexieDB.episodes
+              Shared.dexieDB.episodes
                 .where({ _id: hiq._id })
                 .modify({ queue: hiq.queue })
                 .then(() => {
@@ -163,19 +167,19 @@ export default createStore({
 
     async addEpisodeToQueue(context, id) {
       context.commit('setQueueChanging', true)
-      let episodesInQueue = await Helpers.dexieDB.episodes.where('queue').above(0).toArray()
+      let episodesInQueue = await Shared.dexieDB.episodes.where('queue').above(0).toArray()
       
       let highestQueue = episodesInQueue.length > 0 ? Math.max(...episodesInQueue.map(ep => ep.queue)) : 0
       let newHighestQueue = highestQueue + 1
-      await Helpers.dexieDB.episodes
+      await Shared.dexieDB.episodes
         .where({ _id: id })
         .modify({ queue: newHighestQueue })
     
-      let episode = await Helpers.dexieDB.episodes
+      let episode = await Shared.dexieDB.episodes
         .where({ _id: id })
         .first()
 
-      episode.podcast = await Helpers.dexieDB.podcasts
+      episode.podcast = await Shared.dexieDB.podcasts
         .where({ _id: episode.podcast_id })
         .first()
     
@@ -184,15 +188,15 @@ export default createStore({
     },
 
     async playEpisode(context, payload) {
-      let alreadyPlaying = Helpers.playingAudio.paused ? false : true
+      let alreadyPlaying = Shared.playingAudio.paused ? false : true
       let id = payload.hasOwnProperty('id') ? payload.id : null
       let startPlaying = payload.hasOwnProperty('startPlaying') ? payload.startPlaying : false
 
-      if (Helpers.playingAudio && !Helpers.playingAudio.paused) {
-        Helpers.playingAudio.pause()
+      if (Shared.playingAudio && !Shared.playingAudio.paused) {
+        Shared.playingAudio.pause()
       }
 
-      await Helpers.dexieDB.episodes
+      await Shared.dexieDB.episodes
         .filter(ep => ep.currently_playing == 1)
         .modify({ currently_playing: 0 })
         
@@ -203,9 +207,9 @@ export default createStore({
         await context.dispatch('addEpisodeToQueue', id)
       }
 
-      let episode = await Helpers.dexieDB.episodes.where({ _id: id }).first()
+      let episode = await Shared.dexieDB.episodes.where({ _id: id }).first()
             
-      let podcast = await Helpers.dexieDB.podcasts
+      let podcast = await Shared.dexieDB.podcasts
         .where({ _id: episode.podcast_id })
         .first()
         
@@ -213,7 +217,7 @@ export default createStore({
 
       context.commit('setPlayingEpisode', episode)
 
-      await Helpers.dexieDB.episodes
+      await Shared.dexieDB.episodes
         .where({ _id: id })
         .modify({ currently_playing: 1 })
           
@@ -223,41 +227,41 @@ export default createStore({
       if (downloadedFile) {
         let blobAB = await downloadedFile.arrayBuffer()
         let newBlob = new Blob([blobAB], { type: episode.enclosure.type })
-        Helpers.playingAudio.src = URL.createObjectURL(newBlob)
+        Shared.playingAudio.src = URL.createObjectURL(newBlob)
       } else {
-        Helpers.playingAudio.src = context.state.playingEpisode.enclosure.url
+        Shared.playingAudio.src = context.state.playingEpisode.enclosure.url
       }
         
-      Helpers.playingAudio.currentTime = context.state.playingEpisode.playhead
+      Shared.playingAudio.currentTime = context.state.playingEpisode.playhead
 
-      Helpers.playingAudio.addEventListener('timeupdate', (event) => {
-        context.commit('updatePlayhead', Helpers.playingAudio.currentTime)
+      Shared.playingAudio.addEventListener('timeupdate', (event) => {
+        context.commit('updatePlayhead', Shared.playingAudio.currentTime)
       })
 
-      Helpers.playingAudio.load()
+      Shared.playingAudio.load()
 
-      if (alreadyPlaying || startPlaying) Helpers.playingAudio.play()
+      if (alreadyPlaying || startPlaying) Shared.playingAudio.play()
     },
 
     playOrPause(context) {
-      if (Helpers.playingAudio.paused) {
-        Helpers.playingAudio.play()
+      if (Shared.playingAudio.paused) {
+        Shared.playingAudio.play()
       } else {
-        Helpers.playingAudio.pause()
+        Shared.playingAudio.pause()
       }
     },
 
     jumpAhead() {
-      Helpers.playingAudio.currentTime += 15
+      Shared.playingAudio.currentTime += 15
     },
 
     jumpBack() {
-      Helpers.playingAudio.currentTime -= 15
+      Shared.playingAudio.currentTime -= 15
     },
 
     setPlayhead(context, value) {
-      Helpers.playingAudio.currentTime = value
-      context.commit('updatePlayhead', Helpers.playingAudio.currentTime)
+      Shared.playingAudio.currentTime = value
+      context.commit('updatePlayhead', Shared.playingAudio.currentTime)
     },
 
     async playNext(context, payload = {}) {
@@ -280,7 +284,7 @@ export default createStore({
         context.commit('setQueueChanging', true)
         await context.dispatch('removeEpisodeFromQueue', oldEpisodeId)
         context.commit('setQueueChanging', false)
-        await Helpers.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ playhead: 0, played: true })
+        await Shared.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ playhead: 0, played: true })
         context.dispatch('removeDownload', oldEpisodeId)
       }
     },
@@ -310,7 +314,7 @@ export default createStore({
 
         for (let hiq of higherInQueue) {
           reorderPromises.push(
-            Helpers.dexieDB.episodes
+            Shared.dexieDB.episodes
               .where({ _id: hiq._id })
               .modify({ queue: hiq.queue + 1 })
               .then(() => {
@@ -328,7 +332,7 @@ export default createStore({
 
         for (let liq of lowerInQueue) {
           reorderPromises.push(
-            Helpers.dexieDB.episodes
+            Shared.dexieDB.episodes
               .where({ _id: liq._id })
               .modify({ queue: liq.queue - 1 })
               .then(() => {
@@ -342,7 +346,7 @@ export default createStore({
       }
 
       return Promise.all([
-        Helpers.dexieDB.episodes
+        Shared.dexieDB.episodes
           .where({ _id: episodeID })
           .modify({ queue: newOrder })
           .then(() => {
@@ -407,9 +411,9 @@ export default createStore({
     playOrPauseEpisode(context, id) {
       if (id == context.state.playingEpisode?._id) {
         if (context.state.paused) {
-          Helpers.playingAudio.play()
+          Shared.playingAudio.play()
         } else {
-          Helpers.playingAudio.pause()
+          Shared.playingAudio.pause()
         }
       } else {
         context.dispatch('playEpisode', {

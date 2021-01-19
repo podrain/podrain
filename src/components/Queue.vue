@@ -90,7 +90,7 @@ ul#queue-list > li:first-child {
 </style>
 
 <script>
-import Helpers from '../Helpers'
+import { cleanHTMLString, truncateString, iOS } from '../Helpers'
 import { DateTime } from 'luxon'
 import _ from 'lodash'
 import Sortable from 'sortablejs'
@@ -113,8 +113,8 @@ export default {
   methods: {
     prepareDescriptionString(string) {
       if (string) {
-        let parsedString = Helpers.cleanHTMLString(string)
-        return Helpers.truncateString(parsedString)
+        let parsedString = cleanHTMLString(string)
+        return truncateString(parsedString)
       } else {
         return 'No description available.'
       }
@@ -157,7 +157,7 @@ export default {
     },
 
     iOS() {
-      return Helpers.iOS()
+      return iOS()
     }
   },
 

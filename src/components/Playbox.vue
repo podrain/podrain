@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import Helpers from '../Helpers'
+import { floatToISO } from '../Helpers'
 
 export default {
   data() {
@@ -111,11 +111,11 @@ export default {
     },
 
     humanFriendlyDuration() {
-      return Helpers.floatToISO(this.playingEpisode.duration)
+      return floatToISO(this.playingEpisode.duration)
     },
 
     humanFriendlyPlayhead() {
-      return Helpers.floatToISO(this.playingEpisode.playhead)
+      return floatToISO(this.playingEpisode.playhead)
     },
 
     paused() {

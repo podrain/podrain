@@ -4,9 +4,7 @@ import './css/app.css'
 import Dexie from 'dexie'
 import localforage from 'localforage'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import store from './store'
-
-import Helpers from './Helpers'
+import { VuexStore as store, Shared } from './store'
 
 import PodcastList from './components/PodcastList.vue'
 import PodcastShow from './components/PodcastShow.vue'
@@ -85,7 +83,7 @@ dexieDB.version(2).stores({
   })
 })
 
-Helpers.dexieDB = dexieDB
+Shared.dexieDB = dexieDB
 
 // localForage
 localforage.config({

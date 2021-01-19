@@ -103,7 +103,8 @@
 </template>
 
 <script>
-import Helpers from '../Helpers'
+import { Shared } from '../store'
+import { cleanHTMLString, truncateString } from '../Helpers'
 import { DateTime } from 'luxon'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
 import _ from 'lodash'
@@ -137,7 +138,7 @@ export default {
 
   methods: {
     getEpisodes() {
-      return Helpers.dexieDB.episodes.where({
+      return Shared.dexieDB.episodes.where({
         podcast_id: this.podcast._id
       }).reverse().sortBy('pubDate').then(allEpisodes => {
         this.episodes = allEpisodes
@@ -162,8 +163,8 @@ export default {
 
       await removeEpisodesFromQueue(this.$store.state.queue)
 
-      let deletePodcastOnly = Helpers.dexieDB.podcasts.where({ _id: this.podcast._id }).delete()
-      let deleteEpisodes = Helpers.dexieDB.episodes.where({ podcast_id: this.podcast._id }).delete()
+      let deletePodcastOnly = Shared.dexieDB.podcasts.where({ _id: this.podcast._id }).delete()
+      let deleteEpisodes = Shared.dexieDB.episodes.where({ podcast_id: this.podcast._id }).delete()
 
       await Promise.all([deletePodcastOnly, deleteEpisodes])
       this.deleting = false
@@ -172,8 +173,8 @@ export default {
 
     prepareDescriptionString(string) {
       if (string) {
-        let parsedString = Helpers.cleanHTMLString(string)
-        return Helpers.truncateString(parsedString)
+        let parsedString = cleanHTMLString(string)
+        return truncateString(parsedString)
       } else {
         return 'No description available.'
       }
@@ -211,7 +212,7 @@ export default {
         })
       })
 
-      await Helpers.dexieDB.episodes.bulkAdd(newEpisodes)
+      await Shared.dexieDB.episodes.bulkAdd(newEpisodes)
       await this.getEpisodes()
       this.refreshing = false
     },
@@ -226,7 +227,7 @@ export default {
   },
 
   created() {
-    Helpers.dexieDB.podcasts.where({ _id: this.$route.params.id }).toArray().then(result => {
+    Shared.dexieDB.podcasts.where({ _id: this.$route.params.id }).toArray().then(result => {
       this.podcast = result[0]
 
       return this.getEpisodes()

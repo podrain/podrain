@@ -38,7 +38,7 @@
 
 <script>
 import Playbox from './components/Playbox.vue'
-import Helpers from './Helpers'
+import { Shared } from './store'
 
 export default {
   components: {
@@ -48,27 +48,27 @@ export default {
   created() {
     this.$store.dispatch('syncDownloadedEpisodes')
 
-    Helpers.playingAudio = new Audio
+    Shared.playingAudio = new Audio
 
-    Helpers.playingAudio.addEventListener('pause', (event) => {
+    Shared.playingAudio.addEventListener('pause', (event) => {
       this.$store.state.paused = true
     })
 
-    Helpers.playingAudio.addEventListener('play', (event) => {
+    Shared.playingAudio.addEventListener('play', (event) => {
       this.$store.state.paused = false
     })
 
-    Helpers.playingAudio.addEventListener('ended', (event) => {
+    Shared.playingAudio.addEventListener('ended', (event) => {
       this.$store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
     })
 
-    Helpers.playingAudio.addEventListener('loadedmetadata', () => {
-      this.$store.state.playingEpisode.duration = Helpers.playingAudio.duration
+    Shared.playingAudio.addEventListener('loadedmetadata', () => {
+      this.$store.state.playingEpisode.duration = Shared.playingAudio.duration
     })
 
     this.$store.dispatch('getQueue').then(() => {
       if (this.$store.state.queue.length > 0) {
-        return Helpers.dexieDB.episodes
+        return Shared.dexieDB.episodes
           .where({ currently_playing: 1 })
           .toArray().then(result => {
             this.$store.dispatch('playEpisode', { id: result[0]._id })
@@ -78,7 +78,7 @@ export default {
       }
     }).then(() => {
       setInterval(() => {
-        Helpers.dexieDB.episodes.where({ _id: this.$store.state.playingEpisode._id }).modify({ playhead: this.$store.state.playingEpisode.playhead })
+        Shared.dexieDB.episodes.where({ _id: this.$store.state.playingEpisode._id }).modify({ playhead: this.$store.state.playingEpisode.playhead })
       }, 5000)
     })
   }

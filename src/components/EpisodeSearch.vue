@@ -30,7 +30,8 @@
 </template>
 
 <script>
-import Helpers from '../Helpers'
+import { cleanHTMLString, truncateString } from '../Helpers'
+import { Shared } from '../store'
 import _ from 'lodash'
 
 export default {
@@ -52,8 +53,8 @@ export default {
   methods: {
     prepareDescriptionString(string) {
       if (string) {
-        let parsedString = Helpers.cleanHTMLString(string)
-        return Helpers.truncateString(parsedString, 150)
+        let parsedString = cleanHTMLString(string)
+        return truncateString(parsedString, 150)
       } else {
         return 'No description available.'
       }
@@ -79,14 +80,14 @@ export default {
   },
 
   created() {
-    let getPodcasts = Helpers.dexieDB.podcasts
+    let getPodcasts = Shared.dexieDB.podcasts
       .where({ _id: this.$route.params.id })
       .first()
       .then(podcast => {
         this.podcast = podcast
       })
 
-    let getEpisodes = Helpers.dexieDB.episodes
+    let getEpisodes = Shared.dexieDB.episodes
       .where({ podcast_id: this.$route.params.id })
       .toArray()
       .then(episodes => {

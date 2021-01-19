@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import Helpers from '../Helpers'
+import { Shared } from '../store'
 
 export default {
 
@@ -21,7 +21,7 @@ export default {
   },
 
   created() {
-    Helpers.dexieDB.episodes.where({ _id: this.$route.params.id }).toArray().then(result => {
+    Shared.dexieDB.episodes.where({ _id: this.$route.params.id }).toArray().then(result => {
       this.episode = result[0]
     })
   }

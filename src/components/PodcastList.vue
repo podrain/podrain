@@ -27,7 +27,7 @@
 </template>
 
 <script>
-  import Helpers from '../Helpers'
+  import { Shared } from '../store'
 
   export default {
     data() {
@@ -37,7 +37,7 @@
     },
 
     created() {
-      Helpers.dexieDB.podcasts.toArray().then(result => {
+      Shared.dexieDB.podcasts.toArray().then(result => {
         this.podcasts = result
       })
     }

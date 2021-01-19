@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import Helpers from '../Helpers'
+import { Shared } from '../store'
 import FileSaver from 'file-saver'
 
 export default {
@@ -81,13 +81,13 @@ export default {
         let parsedResult = JSON.parse(result)
         this.restoreStatus = 'Clearing podcasts...'
         return Promise.all([
-          Helpers.dexieDB.podcasts.clear(),
-          Helpers.dexieDB.episodes.clear()
+          Shared.dexieDB.podcasts.clear(),
+          Shared.dexieDB.episodes.clear()
         ]).then(() => {
           this.restoreStatus = 'Loading new podcasts...'
           return Promise.all([
-            Helpers.dexieDB.podcasts.bulkAdd(parsedResult.podcasts),
-            Helpers.dexieDB.episodes.bulkAdd(parsedResult.episodes)
+            Shared.dexieDB.podcasts.bulkAdd(parsedResult.podcasts),
+            Shared.dexieDB.episodes.bulkAdd(parsedResult.episodes)
           ])
         }).then(() => {
           this.restoring = false
@@ -97,8 +97,8 @@ export default {
     },
 
     downloadBackup() {
-      let getPodcasts = Helpers.dexieDB.podcasts.toArray()
-      let getEpisodes = Helpers.dexieDB.episodes.toArray()
+      let getPodcasts = Shared.dexieDB.podcasts.toArray()
+      let getEpisodes = Shared.dexieDB.episodes.toArray()
 
       Promise.all([getPodcasts, getEpisodes]).then(result => {
         let downloadPayload = {
