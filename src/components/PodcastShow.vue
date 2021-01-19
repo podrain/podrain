@@ -98,6 +98,13 @@
           </div>
         </li>
       </ul>
+
+      <button
+        class="bg-purple-500 text-white mx-3 mb-3 p-3"
+        @click="getMoreEpisodes"
+      >
+        Show More
+      </button>
     </div>
   </div>
 </template>
@@ -119,7 +126,7 @@ export default {
           imageURL: '',
         }
       },
-
+      allEpisodes: [],
       episodes: [],
       refreshing: false,
       deleting: false,
@@ -141,8 +148,14 @@ export default {
       return Shared.dexieDB.episodes.where({
         podcast_id: this.podcast._id
       }).reverse().sortBy('pubDate').then(allEpisodes => {
-        this.episodes = allEpisodes
+        this.allEpisodes = allEpisodes
+        this.episodes = this.allEpisodes.slice(0, 10)
       })
+    },
+
+    getMoreEpisodes() {
+      let newBatch = this.allEpisodes.slice(this.episodes.length, this.episodes.length + 10)
+      this.episodes = this.episodes.concat(newBatch)
     },
 
     async deletePodcast() {
