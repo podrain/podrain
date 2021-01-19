@@ -1,14 +1,21 @@
 <template>
 
-    <div v-if="podcasts.length > 0" class="flex flex-wrap">
-      <div 
-        class="w-1/3 flex-none"
-        v-for="pc in podcasts"
-        :key="pc._id"
-        @click="$router.push(`/podcasts/${pc._id}`)"
-      >
-        <img :src="pc.meta.imageURL">
-      </div>
+    <div v-if="podcasts.length > 0" class="
+        grid 
+        grid-cols-3 
+        sm:grid-cols-4 
+        md:grid-cols-6 
+        lg:grid-cols-8
+        xl:grid-cols-10
+        2xl:grid-cols-12
+        auto-rows-max
+      ">
+        <img 
+          :src="pc.meta.imageURL"
+          v-for="pc in podcasts"
+          :key="pc._id"
+          @click="$router.push(`/podcasts/${pc._id}`)"
+        />
     </div>
 
     <div v-else class="text-white h-full flex-1 flex justify-center items-center">
