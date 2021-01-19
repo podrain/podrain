@@ -1,4 +1,5 @@
 <template>
+  <div class="w-full sm:w-2/3 lg:w-2/5">
     <div class="p-3">
       <div class="text-white text-2xl">Add Podcast</div>
       <div class="flex mt-3">
@@ -77,6 +78,7 @@
         >Submit</button>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
