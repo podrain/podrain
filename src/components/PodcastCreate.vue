@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
+  <div class="responsive-width">
     <div class="p-3">
       <div class="text-white text-2xl">Add Podcast</div>
       <div class="flex mt-3">

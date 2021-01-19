@@ -1,5 +1,5 @@
 <template>
-  <div class="sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
+  <div class="responsive-width">
     <ul 
       id="queue-list"
       class="p-3"

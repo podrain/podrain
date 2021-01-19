@@ -1,7 +1,7 @@
 <template>
 <div class="flex flex-col h-screen">
   <div class="flex justify-center bg-teal-800">
-    <div class="flex items-center justify-between px-4 text-white h-16 w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+    <div class="flex items-center justify-between px-4 text-white h-16 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
       <router-link to="/"><font-awesome-icon class="text-4xl" icon="home" /></router-link>
       <router-link to="/queue"><font-awesome-icon class="text-4xl" icon="list-ol" /></router-link>
       <router-link to="/podcasts/create"><font-awesome-icon class="text-4xl" icon="plus" /></router-link>
@@ -29,6 +29,11 @@
 .fade-leave-to {
   opacity: 0;
 }
+
+.responsive-width {
+  @apply w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3;
+}
+
 </style>
 
 <script>

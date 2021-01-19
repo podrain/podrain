@@ -1,4 +1,5 @@
 <template>
+  <div class="responsive-width">
     <div class="flex flex-col">
       <div class="flex">
         <div class="w-1/3 m-3">
@@ -98,6 +99,7 @@
         </li>
       </ul>
     </div>
+  </div>
 </template>
 
 <script>
