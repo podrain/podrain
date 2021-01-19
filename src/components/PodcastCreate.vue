@@ -29,7 +29,9 @@
             v-model="search"
           />
 
-          <ul class="mt-3">
+          <div v-if="searching" class="text-white text-center text-4xl mt-6"><font-awesome-icon icon="spinner" spin /></div>
+
+          <ul else class="mt-3">
             <li 
               class="text-white flex mt-3"
               v-for="sr in searchResults"
@@ -94,6 +96,7 @@ export default {
       manualRssUrl: '',
       search: '',
       searchResults: [],
+      searching: false,
       addingSearchedPodcast: {
         url: '',
         adding: false,
@@ -160,6 +163,7 @@ export default {
 
   watch: {
     search: _.debounce(function(value) {
+      this.searching = true
       let searchURL = 'https://itunes.apple.com/search?' + new URLSearchParams({
         term: value,
         media: 'podcast',
@@ -171,6 +175,7 @@ export default {
           return response.json()
         }).then(responseJSON => {
           this.searchResults = responseJSON.results
+          this.searching = false
         })
     }, 250)
   }
