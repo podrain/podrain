@@ -12,6 +12,7 @@
       ">
         <img 
           :src="pc.meta.imageURL"
+          :alt="pc.meta.title"
           v-for="pc in podcasts"
           :key="pc._id"
           @click="$router.push(`/podcasts/${pc._id}`)"
