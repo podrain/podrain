@@ -6,6 +6,7 @@ import axios from 'axios'
 export let Shared = {
   dexieDB: null,
   playingAudio: null,
+  wakeLock: null,
 }
 
 export let VuexStore = createStore({

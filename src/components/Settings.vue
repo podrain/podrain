@@ -2,19 +2,27 @@
   <div class="responsive-width">
     <div class="p-3 text-white">
       <h1 class="text-xl text-center">Settings</h1>
-      Proxy URL
-      <input 
-        type="text" 
-        class="w-full p-1 mt-1 text-black"
-        v-model="proxyURL"
-      />
-      <button 
-        class="w-full bg-green-500 h-8 text-white"
-        @click="saveProxyURL"
-      >
-        <font-awesome-icon icon="save" class="mr-1" />
-        Save
-      </button>
+
+      <div class="mt-2">
+        <input type="checkbox" class="mr-2" v-model="wakeLock" id="wakelock-id">
+        <label for="wakelock-id">Keep awake</label>
+      </div>
+
+      <div class="mt-2">
+        Proxy URL
+        <input 
+          type="text" 
+          class="w-full p-1 mt-1 text-black"
+          v-model="proxyURL"
+        />
+        <button 
+          class="w-full bg-green-500 h-8 text-white"
+          @click="saveProxyURL"
+        >
+          <font-awesome-icon icon="save" class="mr-1" />
+          Save
+        </button>
+      </div>
 
       <div class="mt-6">
         <button 
@@ -62,6 +70,7 @@ export default {
       restoreStatus: '',
       restoring: false,
       restoreFile: null,
+      wakeLock: Shared.wakeLock,
     }
   },
 
@@ -112,6 +121,26 @@ export default {
 
         FileSaver.saveAs(downloadBlob, 'backup.json')
       })
+    },
+  },
+
+  watch: {
+    wakeLock(wlActive) {
+      if ('wakeLock' in navigator) {
+        if (wlActive && !Shared.wakeLock) {
+          navigator.wakeLock.request('screen').then(wl => {
+            Shared.wakeLock = wl
+          })
+        }
+
+        if (!wlActive && Shared.wakeLock) {
+          Shared.wakeLock.release().then(() => {
+            Shared.wakeLock = null
+          })
+        }
+      } else {
+        alert('Cannot keep this device awake. \'Keep awake\' setting is ignored.')
+      }
     }
   }
 }
