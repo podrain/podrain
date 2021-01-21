@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <div class="sm:flex sm:items-center">
+        <div class="flex flex-col justify-between h-full sm:flex-row sm:items-center">
           <div class="flex justify-between sm:w-2/5 lg:w-1/4">
             <font-awesome-icon
               icon="step-backward" 
