@@ -70,7 +70,7 @@ export default {
       restoreStatus: '',
       restoring: false,
       restoreFile: null,
-      wakeLock: Shared.wakeLock,
+      wakeLock: Shared.wakeLock ? true : false,
     }
   },
 
