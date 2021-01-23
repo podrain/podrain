@@ -78,7 +78,15 @@ export default {
       }
     }).then(() => {
       setInterval(() => {
-        Shared.dexieDB.episodes.where({ _id: this.$store.state.playingEpisode._id }).modify({ playhead: this.$store.state.playingEpisode.playhead })
+        Shared.dexieDB.episodes
+          .where({ _id: this.$store.state.playingEpisode._id })
+          .modify({ playhead: this.$store.state.playingEpisode.playhead })
+          .then(() => {
+            this.$store.commit('setPlayheadOfEpisode', {
+              episodeID: this.$store.state.playingEpisode._id,
+              newPlayhead: this.$store.state.playingEpisode.playhead
+            })
+          })
       }, 5000)
     })
   }

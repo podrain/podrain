@@ -18,6 +18,8 @@
             class="p-3 relative w-full"
             @click="$router.push('/episodes/'+ep._id)"
           >
+            <div class="absolute top-0 left-0 h-1 bg-teal-500" :style="`width: ${playedPercent(ep.playhead, ep.duration)}%`"></div>
+
             <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
               <font-awesome-icon icon="check" />
             </div>
@@ -90,7 +92,7 @@ ul#queue-list > li:first-child {
 </style>
 
 <script>
-import { cleanHTMLString, truncateString, iOS } from '../Helpers'
+import { cleanHTMLString, truncateString, iOS, getPercent } from '../Helpers'
 import { DateTime } from 'luxon'
 import _ from 'lodash'
 import Sortable from 'sortablejs'
@@ -158,6 +160,10 @@ export default {
 
     iOS() {
       return iOS()
+    },
+
+    playedPercent(playhead, length) {
+      return getPercent(playhead, length)
     }
   },
 

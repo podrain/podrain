@@ -25,3 +25,7 @@ export function iOS() {
   ].includes(navigator.platform)
   || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 }
+
+export function getPercent(value, total) {
+  return Math.floor((value / total) * 100)
+}

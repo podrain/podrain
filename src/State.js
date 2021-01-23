@@ -71,6 +71,11 @@ export let VuexStore = createStore({
       state.playingEpisode.playhead = playhead
     },
 
+    setPlayheadOfEpisode(state, args) {
+      let episodeIndex = _.findIndex(state.queue, qe => qe._id == args.episodeID)
+      state.queue[episodeIndex].playhead = args.newPlayhead
+    },
+
     clearCurrentlyPlaying(state) {
       for (let i = 0; i < state.queue.length; i++) {
         state.queue[i].currently_playing = 0
@@ -221,7 +226,8 @@ export let VuexStore = createStore({
       await Shared.dexieDB.episodes
         .where({ _id: id })
         .modify({ currently_playing: 1 })
-          
+      
+      context.commit('clearCurrentlyPlaying')
       context.commit('setCurrentlyPlaying', id)
 
       let downloadedFile = await localforage.getItem('podrain_episode_'+id)
@@ -237,6 +243,10 @@ export let VuexStore = createStore({
 
       Shared.playingAudio.addEventListener('timeupdate', (event) => {
         context.commit('updatePlayhead', Shared.playingAudio.currentTime)
+        context.commit('setPlayheadOfEpisode', {
+          episodeID: context.state.playingEpisode._id,
+          newPlayhead: Shared.playingAudio.currentTime
+        })
       })
 
       Shared.playingAudio.load()
