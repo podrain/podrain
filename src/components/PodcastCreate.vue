@@ -85,7 +85,7 @@
 
 <script>
 import { Shared } from '../State'
-import feedParser from 'https://jspm.dev/better-podcast-parser'
+import feedParser from 'https://jspm.dev/better-podcast-parser@0.1.16'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
