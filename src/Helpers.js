@@ -1,3 +1,5 @@
+import { Duration } from 'luxon'
+
 export function cleanHTMLString(string) {
   return new DOMParser().parseFromString(string, 'text/html').body.textContent
 }
@@ -28,4 +30,24 @@ export function iOS() {
 
 export function getPercent(value, total) {
   return Math.floor((value / total) * 100)
+}
+
+export function humanFriendlyDuration(value) {
+  let hoursMinutesSeconds = Duration.fromObject({ seconds: value }).shiftTo('hours', 'minutes', 'seconds').toObject()
+
+  let timeString = ''
+
+  if (hoursMinutesSeconds.hours > 0) {
+    timeString += hoursMinutesSeconds.hours + ' hr'
+  }
+
+  if (hoursMinutesSeconds.minutes > 0) {
+    timeString += ' ' + hoursMinutesSeconds.minutes + ' min'
+  }
+
+  if (hoursMinutesSeconds.seconds > 0) {
+    timeString += ' ' + hoursMinutesSeconds.seconds + ' sec'
+  }
+
+  return timeString
 }

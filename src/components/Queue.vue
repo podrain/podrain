@@ -33,6 +33,9 @@
               <div class="w-4/5 text-xs font-light ml-3 text-gray-300">
                 <span class="italic">{{ prepareDateString(ep.pubDate) }}</span>&nbsp;—&nbsp;
                 {{ prepareDescriptionString(ep.description) }}
+                <div class="mt-2 font-bold">
+                  <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(ep.duration) }}
+                </div>
               </div>
             </div>
           </div>
@@ -92,7 +95,7 @@ ul#queue-list > li:first-child {
 </style>
 
 <script>
-import { cleanHTMLString, truncateString, iOS, getPercent } from '../Helpers'
+import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration } from '../Helpers'
 import { DateTime } from 'luxon'
 import _ from 'lodash'
 import Sortable from 'sortablejs'
@@ -124,6 +127,10 @@ export default {
 
     prepareDateString(string) {
       return DateTime.fromISO(string).toFormat('D')
+    },
+
+    prepareHumanFriendlyDuration(seconds) {
+      return humanFriendlyDuration(seconds)
     },
 
     removeFromQueue(episodeID) {

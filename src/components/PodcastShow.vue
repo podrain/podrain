@@ -60,6 +60,9 @@
               <div class="w-4/5 text-xs font-light ml-3 text-gray-300">
                 <span class="italic">{{ prepareDateString(ep.pubDate) }}</span>&nbsp;—&nbsp;
                 {{ prepareDescriptionString(ep.description) }}
+                <div class="mt-2 font-bold">
+                  <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(ep.duration) }}
+                </div>
               </div>
             </div>
           </div>
@@ -111,7 +114,7 @@
 
 <script>
 import { Shared } from '../State'
-import { cleanHTMLString, truncateString } from '../Helpers'
+import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
 import { DateTime } from 'luxon'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
 import _ from 'lodash'
@@ -195,6 +198,10 @@ export default {
 
     prepareDateString(string) {
       return DateTime.fromISO(string).toFormat('D')
+    },
+
+    prepareHumanFriendlyDuration(seconds) {
+      return humanFriendlyDuration(seconds)
     },
 
     removeFromQueue(id) {

@@ -11,6 +11,9 @@
           <div class="bg-gray-700 p-3">
             <h2>{{ sr.title }}</h2>
             <p class="text-xs text-gray-300">{{ prepareDescriptionString(sr.description) }}</p>
+            <div class="text-sm mt-2">
+              <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(sr.duration) }}
+            </div>
           </div>
           <button 
             v-if="queue.map(qe => qe._id).includes(sr._id)"
@@ -30,7 +33,7 @@
 </template>
 
 <script>
-import { cleanHTMLString, truncateString } from '../Helpers'
+import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
 import { Shared } from '../State'
 import _ from 'lodash'
 
@@ -58,6 +61,10 @@ export default {
       } else {
         return 'No description available.'
       }
+    },
+
+    prepareHumanFriendlyDuration(seconds) {
+      return humanFriendlyDuration(seconds)
     },
 
     addToQueue(id) {
