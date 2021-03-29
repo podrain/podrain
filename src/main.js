@@ -66,7 +66,8 @@ library.add(
   faChevronUp,
   faRss,
   faBars,
-  faClock
+  faClock,
+  faCheck,
 )
 
 // Dexie
