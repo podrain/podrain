@@ -45,7 +45,7 @@
         >
           <div 
             class="p-3 relative bg-gray-700"
-            @click="$router.push(`/episodes/${ep._id}`)"
+            @click="showEpisodeModal(ep._id)"
           >
             <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
               <font-awesome-icon icon="check" />
@@ -109,6 +109,20 @@
         Show More
       </button>
     </div>
+
+    <o-modal 
+      :active="episodeModalShowing" 
+      :onCancel="hideEpisodeModal"
+      content-class="bg-gray-700 text-white p-3"
+      scroll="clip"
+    >
+    <div class="p-3">
+      <h1 class="text-white text-xl">{{ episodeModalContent.title }}</h1>
+      <div class="flex mt-3">
+        <div class="prose-sm prose-episode-details" v-html="episodeModalContent.description"></div>
+      </div>
+    </div>
+    </o-modal>
   </div>
 </template>
 
@@ -133,6 +147,8 @@ export default {
       episodes: [],
       refreshing: false,
       deleting: false,
+      episodeModalShowing: false,
+      episodeModalContent: {}
     }
   },
 
@@ -244,6 +260,16 @@ export default {
     isPlaying(id) {
       return this.$store.getters.isPlaying(id)
     },
+
+    showEpisodeModal(id) {
+      this.episodeModalShowing = true
+      this.episodeModalContent = this.episodes.filter(ep => ep._id == id)[0]
+    },
+
+    hideEpisodeModal() {
+      this.episodeModalShowing = false
+      this.episodeModalContent = ''
+    }
   },
 
   created() {

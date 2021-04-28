@@ -918,6 +918,11 @@
     "@nodelib/fs.scandir" "2.1.4"
     fastq "^1.6.0"
 
+"@oruga-ui/oruga-next@^0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@oruga-ui/oruga-next/-/oruga-next-0.3.6.tgz#2fd4f6e1a10f3692389cae950e72e7763bb626fb"
+  integrity sha512-PFJ6ghwz6ztrENsbj1d3f9igDsGBJZhsb9EfxjUqf1oMXKpOoQj96tsQ0zmQizdTFXYi3fcVoGsiCLN7aYfJEg==
+
 "@rollup/plugin-babel@^5.2.0":
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/@rollup/plugin-babel/-/plugin-babel-5.2.2.tgz#e5623a01dd8e37e004ba87f2de218c611727d9b2"

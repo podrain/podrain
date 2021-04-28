@@ -1,10 +1,16 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import '@oruga-ui/oruga-next/dist/oruga.css'
 import './css/app.css'
 import Dexie from 'dexie'
 import localforage from 'localforage'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { VuexStore as store, Shared } from './State'
+import {
+  Config, 
+  Icon, 
+  Modal, 
+} from '@oruga-ui/oruga-next'
 
 import PodcastList from './components/PodcastList.vue'
 import PodcastShow from './components/PodcastShow.vue'
@@ -145,6 +151,12 @@ const router = createRouter({
 const app = createApp(App)
 app
   .component('font-awesome-icon', FontAwesomeIcon)
+  .use(Icon)
+  .use(Modal)
+  .use(Config, {
+    iconPack: 'fas',
+    iconComponent: 'font-awesome-icon',
+  })
   .use(router)
   .use(store)
   .mount('#app')
