@@ -55,6 +55,20 @@
           Restore backup
         </template>
       </button>
+
+      <button
+        v-if="!iOS()" 
+        class="bg-blue-500 p-3 mt-3"
+        @click="downloadPodcastImages"
+        :disabled="podcastImagesDownloading"
+      >
+        <template v-if="podcastImagesDownloading">
+          <font-awesome-icon icon="spinner" spin class="mr-1" />Downloading images
+        </template>
+        <template v-else>
+          <font-awesome-icon icon="image" class="mr-1" />Download images for podcasts
+        </template>
+      </button>
     </div>
   </div>
 </template>
@@ -62,6 +76,8 @@
 <script>
 import { Shared } from '../State'
 import FileSaver from 'file-saver'
+import axios from 'axios'
+import { iOS } from '../Helpers'
 
 export default {
   data() {
@@ -71,10 +87,15 @@ export default {
       restoring: false,
       restoreFile: null,
       wakeLock: Shared.wakeLock ? true : false,
+      podcastImagesDownloading: false,
     }
   },
 
   methods: {
+    iOS() {
+      return iOS()
+    },
+
     saveProxyURL() {
       localStorage.setItem('proxy_url', this.proxyURL)
     },
@@ -122,6 +143,29 @@ export default {
         FileSaver.saveAs(downloadBlob, 'backup.json')
       })
     },
+
+    async downloadPodcastImages() {
+      this.podcastImagesDownloading = true
+      let podcasts = await Shared.dexieDB.podcasts.toArray()
+
+      for (let pc of podcasts) {
+        let response = await axios.get(
+          localStorage.getItem('proxy_url') + pc.meta.imageURL,
+          {
+            headers: {
+              'Accept': 'image/*'
+            },
+            responseType: 'arraybuffer'
+          },
+        )
+
+        let imageType = response.headers['content-type']
+        let imageBlob = new Blob([response.data], { type: imageType })
+        Shared.downloadedImageFiles.setItem('podrain_image_'+pc._id, imageBlob)
+      }
+      
+      this.podcastImagesDownloading = false
+    }
   },
 
   watch: {

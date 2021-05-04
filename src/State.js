@@ -1,12 +1,13 @@
 import { createStore } from 'vuex'
 import _ from 'lodash'
-import localforage from 'localforage'
 import axios from 'axios'
 
 export let Shared = {
   dexieDB: null,
   playingAudio: null,
   wakeLock: null,
+  downloadedEpisodeFiles: null,
+  downloadedImageFiles: null,
 }
 
 export let VuexStore = createStore({
@@ -230,7 +231,7 @@ export let VuexStore = createStore({
       context.commit('clearCurrentlyPlaying')
       context.commit('setCurrentlyPlaying', id)
 
-      let downloadedFile = await localforage.getItem('podrain_episode_'+id)
+      let downloadedFile = await Shared.downloadedEpisodeFiles.getItem('podrain_episode_'+id)
       if (downloadedFile) {
         let blobAB = await downloadedFile.arrayBuffer()
         let newBlob = new Blob([blobAB], { type: episode.enclosure.type })
@@ -395,20 +396,20 @@ export let VuexStore = createStore({
 
       let audioType = episodeAudio.headers['content-type']
       let audioBlob = new Blob([episodeAudio.data], { type: audioType })
-      await localforage.setItem('podrain_episode_'+id, audioBlob)
+      await Shared.downloadedEpisodeFiles.setItem('podrain_episode_'+id, audioBlob)
       context.dispatch('syncDownloadedEpisodes')
       context.commit('removeEpisodeFromDownloading', id)
     },
 
     async removeDownload(context, id) {
-      if (await localforage.getItem('podrain_episode_'+id)) {
-        await localforage.removeItem('podrain_episode_'+id)
+      if (await Shared.downloadedEpisodeFiles.getItem('podrain_episode_'+id)) {
+        await Shared.downloadedEpisodeFiles.removeItem('podrain_episode_'+id)
         context.dispatch('syncDownloadedEpisodes')
       }
     },
 
     async syncDownloadedEpisodes(context) {
-      let keys = await localforage.keys()
+      let keys = await Shared.downloadedEpisodeFiles.keys()
 
       let episodes = keys.filter(key => {
           return key.includes('podrain_episode_')

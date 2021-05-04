@@ -3,7 +3,7 @@
     <div class="flex flex-col">
       <div class="flex">
         <div class="w-1/3 m-3">
-          <img v-if="podcast" :src="podcast.meta.imageURL" />
+          <StoredImage v-if="podcast._id" :id="podcast._id" :backupURL="podcast.meta.imageURL" />
         </div>
         <div class="w-2/3 flex flex-col justify-center text-lg py-3 pr-3">
           <h1 class="text-white font-bold leading-snug">{{ podcast.meta.title }}</h1>
@@ -133,8 +133,13 @@ import { DateTime } from 'luxon'
 import feedParser from 'https://jspm.dev/better-podcast-parser'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
+import StoredImage from './StoredImage.vue'
 
 export default {
+  components: {
+    StoredImage
+  },
+
   data() {
     return {
       podcast: {

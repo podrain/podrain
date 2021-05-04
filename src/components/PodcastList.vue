@@ -10,9 +10,10 @@
         2xl:grid-cols-12
         auto-rows-max
       ">
-        <img 
-          :src="pc.meta.imageURL"
+        <StoredImage 
+          :id="pc._id"
           :alt="pc.meta.title"
+          :backupURL="pc.meta.imageURL"
           v-for="pc in podcasts"
           :key="pc._id"
           @click="$router.push(`/podcasts/${pc._id}`)"
@@ -29,8 +30,13 @@
 
 <script>
   import { Shared } from '../State'
+  import StoredImage from './StoredImage.vue'
 
   export default {
+    components: {
+      StoredImage
+    },
+
     data() {
       return {
         podcasts: []

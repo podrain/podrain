@@ -46,6 +46,7 @@ import {
   faRss,
   faBars,
   faClock,
+  faImage,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -74,6 +75,7 @@ library.add(
   faBars,
   faClock,
   faCheck,
+  faImage,
 )
 
 // Dexie
@@ -95,9 +97,14 @@ dexieDB.version(2).stores({
 Shared.dexieDB = dexieDB
 
 // localForage
-localforage.config({
+Shared.downloadedEpisodeFiles = localforage.createInstance({
   driver: localforage.INDEXEDDB,
   name: 'Podrain Episodes'
+})
+
+Shared.downloadedImageFiles = localforage.createInstance({
+  driver: localforage.INDEXEDDB,
+  name: 'Podrain Images'
 })
 
 // Router

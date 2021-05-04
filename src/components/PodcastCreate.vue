@@ -96,6 +96,8 @@ import { Shared } from '../State'
 import feedParser from 'https://jspm.dev/better-podcast-parser@0.1.16'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
+import axios from 'axios'
+import { iOS } from '../Helpers'
 
 export default {
   data() {
@@ -144,20 +146,44 @@ export default {
         let addPodcast = Shared.dexieDB.podcasts.add(_.merge(podcastOnly, {
           '_id': podcastID,
           'feed_url': cleanedUrl
-        }))
+        })).then(() => {
+          if (iOS()) {
+            return Promise.resolve()
+          }
+
+          return axios.get(
+            localStorage.getItem('proxy_url') + podcastOnly.meta.imageURL,
+            {
+              headers: {
+                'Accept': 'image/*'
+              },
+              responseType: 'arraybuffer'
+            }
+          )
+        }).then(response => {
+          if (iOS()) {
+            return Promise.resolve()
+          }
+
+          let imageType = response.headers['content-type']
+          let imageBlob = new Blob([response.data], { type: imageType })
+          Shared.downloadedImageFiles.setItem('podrain_image_'+podcastID, imageBlob)
+        })
 
         let addPodcastEpisodes = []
         for (let ep of podcast.episodes) {
-          addPodcastEpisodes.push(Shared.dexieDB.episodes.add(_.merge(ep, {
-            '_id': uuidv4(),
-            'podcast_id': podcastID,
-            'queue': 0,
-            'playhead': 0,
-            'currently_playing': 0,
-            'played': false
-          })).then(() => {
-            this.addingPodcast.episodesAdded += 1
-          }))
+          addPodcastEpisodes.push(
+            Shared.dexieDB.episodes.add(_.merge(ep, {
+              '_id': uuidv4(),
+              'podcast_id': podcastID,
+              'queue': 0,
+              'playhead': 0,
+              'currently_playing': 0,
+              'played': false
+            })).then(() => {
+              this.addingPodcast.episodesAdded += 1
+            })
+          )
         }
 
         return Promise.all([addPodcast, ...addPodcastEpisodes]).then(() => {
