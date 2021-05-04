@@ -1,0 +1,21 @@
+{
+  "name": "Podrain",
+  "short_name": "Podrain",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "lang": "en",
+  "theme_color": "#2d3748",
+  "icons": [
+    {
+      "src": "./podrain-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./podrain-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
