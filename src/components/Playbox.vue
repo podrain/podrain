@@ -26,7 +26,7 @@
         </div>
 
         <div class="flex flex-col justify-between h-full sm:flex-row sm:items-center">
-          <div class="flex justify-between sm:w-2/5 lg:w-1/4">
+          <div class="flex justify-between items-center sm:w-2/5 lg:w-1/4">
             <font-awesome-icon
               icon="step-backward" 
               class="text-4xl"
@@ -37,18 +37,20 @@
               class="text-4xl"
               @click="jumpBack"
             />
-            <font-awesome-icon
-              v-if="paused"
-              icon="play" 
-              class="text-4xl text-teal-500"
-              @click="playOrPause"
-            />
-            <font-awesome-icon
-              v-else
-              icon="pause" 
-              class="text-4xl text-teal-500"
-              @click="playOrPause"
-            />
+            <div 
+              class="text-5xl text-teal-500 flex justify-center items-center"
+              @click="playOrPause"  
+            >
+              <font-awesome-icon
+                v-if="paused"
+                icon="play" 
+              />
+              <font-awesome-icon
+                v-else
+                icon="pause"
+              />
+            </div>
+            
             <font-awesome-icon
               icon="redo" 
               class="text-4xl"
