@@ -64,6 +64,10 @@ export default {
           icon: 'list-ol',
         },
         {
+          link: '/history',
+          icon: 'history',
+        },
+        {
           link: '/podcasts/create',
           icon: 'plus',
         },

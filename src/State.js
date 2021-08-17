@@ -1,4 +1,5 @@
 import { createStore } from 'vuex'
+import { DateTime } from 'luxon'
 import _ from 'lodash'
 import axios from 'axios'
 
@@ -296,7 +297,10 @@ export let VuexStore = createStore({
         context.commit('setQueueChanging', true)
         await context.dispatch('removeEpisodeFromQueue', oldEpisodeId)
         context.commit('setQueueChanging', false)
-        await Shared.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ playhead: 0, played: true })
+        await Shared.dexieDB.episodes.where({ _id: oldEpisodeId }).modify({ 
+          playhead: 0, 
+          played: DateTime.now().setZone('utc').toISO()
+        })
         context.dispatch('removeDownload', oldEpisodeId)
       }
     },

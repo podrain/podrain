@@ -179,7 +179,7 @@ export default {
               'queue': 0,
               'playhead': 0,
               'currently_playing': 0,
-              'played': false
+              'played': ''
             })).then(() => {
               this.addingPodcast.episodesAdded += 1
             })

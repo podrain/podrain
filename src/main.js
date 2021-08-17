@@ -19,6 +19,7 @@ import Queue from './components/Queue.vue'
 import EpisodeShow from './components/EpisodeShow.vue'
 import EpisodeSearch from './components/EpisodeSearch.vue'
 import PodcastCreate from './components/PodcastCreate.vue'
+import History from './components/History.vue'
 
 // FontAwesome setup
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -47,6 +48,7 @@ import {
   faBars,
   faClock,
   faImage,
+  faHistory,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -76,6 +78,7 @@ library.add(
   faClock,
   faCheck,
   faImage,
+  faHistory,
 )
 
 // Dexie
@@ -94,6 +97,15 @@ dexieDB.version(2).stores({
   })
 })
 
+dexieDB.version(3).stores({
+  podcasts: '&_id',
+  episodes: '&_id,podcast_id,pubDate,queue,currently_playing,played',
+}).upgrade(tx => {
+  return tx.table('episodes').toCollection().modify(ep => {
+    ep.played = ep.played === true ? ep.pubDate : ''
+  })
+})
+
 Shared.dexieDB = dexieDB
 
 // localForage
@@ -109,6 +121,11 @@ Shared.downloadedImageFiles = localforage.createInstance({
 
 // Router
 const routes = [
+  {
+    path: '/history',
+    component: History,
+  },
+  
   {
     path: '/queue',
     component: Queue
