@@ -1,11 +1,27 @@
 <template>
 <div class="flex flex-col h-screen">
-  <div class="flex justify-center bg-teal-800">
-    <div class="flex items-center justify-between px-4 text-white h-16 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
-      <router-link to="/"><font-awesome-icon class="text-4xl" icon="home" /></router-link>
-      <router-link to="/queue"><font-awesome-icon class="text-4xl" icon="list-ol" /></router-link>
-      <router-link to="/podcasts/create"><font-awesome-icon class="text-4xl" icon="plus" /></router-link>
-      <router-link to="/settings"><font-awesome-icon class="text-4xl" icon="cog" /></router-link>
+  <div class="flex justify-center bg-teal-700">
+    <div class="flex text-white h-16 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
+      <router-link to="/podcasts" class="flex-1" active-class="bg-teal-800">
+        <div class="h-full flex justify-center items-center">
+          <font-awesome-icon class="text-4xl" icon="home" />
+        </div>
+      </router-link>
+      <router-link to="/queue" class="flex-1" active-class="bg-teal-800">
+        <div class="h-full flex justify-center items-center">
+          <font-awesome-icon class="text-4xl" icon="list-ol" />
+        </div>
+      </router-link>
+      <router-link to="/podcasts/create" class="flex-1" active-class="bg-teal-800">
+        <div class="h-full flex justify-center items-center">
+          <font-awesome-icon class="text-4xl" icon="plus" />
+        </div>
+      </router-link>
+      <router-link to="/settings" class="flex-1" active-class="bg-teal-800">
+        <div class="h-full flex justify-center items-center">
+          <font-awesome-icon class="text-4xl" icon="cog" />
+        </div>
+      </router-link>
     </div>
   </div>
   <div class="flex-1 flex justify-center overflow-y-scroll bg-gray-800">
