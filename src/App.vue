@@ -2,24 +2,15 @@
 <div class="flex flex-col h-screen">
   <div class="flex justify-center bg-teal-700">
     <div class="flex text-white h-16 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
-      <router-link to="/podcasts" class="flex-1" active-class="bg-teal-800">
+      <router-link 
+        v-for="mn in menu" 
+        :key="mn.link"
+        :to="mn.link"
+        class="flex-1" 
+        active-class="bg-teal-800"
+      >
         <div class="h-full flex justify-center items-center">
-          <font-awesome-icon class="text-4xl" icon="home" />
-        </div>
-      </router-link>
-      <router-link to="/queue" class="flex-1" active-class="bg-teal-800">
-        <div class="h-full flex justify-center items-center">
-          <font-awesome-icon class="text-4xl" icon="list-ol" />
-        </div>
-      </router-link>
-      <router-link to="/podcasts/create" class="flex-1" active-class="bg-teal-800">
-        <div class="h-full flex justify-center items-center">
-          <font-awesome-icon class="text-4xl" icon="plus" />
-        </div>
-      </router-link>
-      <router-link to="/settings" class="flex-1" active-class="bg-teal-800">
-        <div class="h-full flex justify-center items-center">
-          <font-awesome-icon class="text-4xl" icon="cog" />
+          <font-awesome-icon class="text-4xl" :icon="mn.icon" />
         </div>
       </router-link>
     </div>
@@ -59,6 +50,29 @@ import { Shared } from './State'
 export default {
   components: {
     Playbox
+  },
+
+  data() {
+    return {
+      menu: [
+        {
+          link: '/podcasts',
+          icon: 'home',
+        },
+        {
+          link: '/queue',
+          icon: 'list-ol',
+        },
+        {
+          link: '/podcasts/create',
+          icon: 'plus',
+        },
+        {
+          link: '/settings',
+          icon: 'cog',
+        }
+      ]
+    }
   },
 
   created() {
