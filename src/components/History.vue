@@ -1,7 +1,7 @@
 <template>
   <div class="responsive-width">
     <div class="p-3">
-      <h1 class="text-white text-xl">Your episode history</h1>
+      <h1 class="text-white text-xl text-center">Your episode history</h1>
 
       <div v-if="loading" class="flex justify-center mt-4">
         <font-awesome-icon class="text-white text-4xl" icon="spinner" spin/>
