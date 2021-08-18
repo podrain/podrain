@@ -51,7 +51,6 @@ export default {
   data() {
     return {
       loading: false,
-      allPlayHistory: [],
       playHistory: [],
     }
   },
@@ -85,8 +84,15 @@ export default {
     },
 
     getMorePlayHistory() {
-      let newBatch = this.allPlayHistory.slice(this.playHistory.length, this.playHistory.length + 10)
-      this.playHistory = this.playHistory.concat(newBatch)
+      Shared.dexieDB.episodes.where('played')
+        .notEqual('')
+        .reverse()
+        .offset(this.playHistory.length)
+        .limit(10)
+        .sortBy('played')
+        .then(result => {
+          this.playHistory = this.playHistory.concat(result)
+        })
     },
 
     visitEpisodeShow(id) {
@@ -100,10 +106,10 @@ export default {
     Shared.dexieDB.episodes.where('played')
       .notEqual('')
       .reverse()
+      .limit(10)
       .sortBy('played')
       .then(result => {
-        this.allPlayHistory = result
-        this.playHistory = this.allPlayHistory.slice(0, 10)
+        this.playHistory = result
         this.loading = false
       })
   }
