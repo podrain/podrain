@@ -113,7 +113,8 @@
     <o-modal 
       :active="episodeModalShowing" 
       :onCancel="hideEpisodeModal"
-      content-class="bg-gray-700 text-white p-3"
+      contentClass="bg-gray-700 text-white p-3"
+      mobileClass="px-3"
       scroll="clip"
     >
     <div class="p-3">
