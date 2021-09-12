@@ -109,6 +109,10 @@ ul#queue-list > li:first-child {
   const downloading = computed(() => store.state.downloading)
   const queueChanging = computed(() => store.state.queueChanging)
 
+  const isDownloading = (id) => store.state.downloading.map(dl => dl.id).includes(id)
+  const downloadProgress = (id) => store.state.downloading.filter(dl => dl.id == id)[0].progress
+  const isDownloaded = (id) => store.state.downloaded.includes(id)
+
   const prepareDescriptionString = (string) => {
     if (string) {
       let parsedString = cleanHTMLString(string)
@@ -127,16 +131,12 @@ ul#queue-list > li:first-child {
   }
 
   const downloadEpisode = (id) => {
-    if (this.isDownloaded(id)) {
+    if (isDownloaded(id)) {
       store.dispatch('removeDownload', id)
     } else {
       store.dispatch('downloadEpisode', id)
     } 
   }
-
-  const isDownloading = (id) => store.state.downloading.map(dl => dl.id).includes(id)
-  const downloadProgress = (id) => store.state.downloading.filter(dl => dl.id == id)[0].progress
-  const isDownloaded = (id) => store.state.downloaded.includes(id)
 
   const playOrPauseEpisode = (id) => {
     store.dispatch('playOrPauseEpisode', id)

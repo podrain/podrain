@@ -16,22 +16,24 @@
           :backupURL="pc.meta.imageURL"
           v-for="pc in podcasts"
           :key="pc._id"
-          @click="$router.push(`/podcasts/${pc._id}`)"
+          @click="router.push(`/podcasts/${pc._id}`)"
         />
     </div>
 
     <div v-else class="text-white h-full flex-1 flex justify-center items-center">
       <div class="flex flex-col">
         There are no podcasts.
-        <button @click="$router.push('/podcasts/create')" class="mt-2 p-2 bg-green-500">Add some!</button>
+        <button @click="router.push('/podcasts/create')" class="mt-2 p-2 bg-green-500">Add some!</button>
       </div>
     </div>
 </template>
 
 <script setup>
   import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
   import { Shared } from '../State'
   import StoredImage from './StoredImage.vue'
+  const router = useRouter()
 
   const podcasts = ref([])
 
