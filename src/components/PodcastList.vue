@@ -28,25 +28,14 @@
     </div>
 </template>
 
-<script>
+<script setup>
+  import { ref } from 'vue'
   import { Shared } from '../State'
   import StoredImage from './StoredImage.vue'
 
-  export default {
-    components: {
-      StoredImage
-    },
+  const podcasts = ref([])
 
-    data() {
-      return {
-        podcasts: []
-      }
-    },
-
-    created() {
-      Shared.dexieDB.podcasts.toArray().then(result => {
-        this.podcasts = result
-      })
-    }
-  }
+  Shared.dexieDB.podcasts.toArray().then(result => {
+    podcasts.value = result
+  })
 </script>

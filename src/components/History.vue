@@ -16,7 +16,7 @@
               <h2>{{ ep.title }}</h2>
               <p class="text-xs text-gray-300">{{ prepareDescriptionString(ep.description) }}</p>
               <div class="text-sm mt-2">
-                <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(ep.duration) }}
+                <font-awesome-icon icon="clock" /> {{ humanFriendlyDuration(ep.duration) }}
               </div>
             </div>
             <button 
@@ -43,75 +43,62 @@
   </div>
 </template>
 
-<script>
-import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
-import { Shared } from '../State'
+<script setup>
+  import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
+  import { Shared } from '../State'
+  import { ref, computed } from 'vue'
+  import { useStore } from 'vuex'
+  import { useRouter } from 'vue-router'
 
-export default {
-  data() {
-    return {
-      loading: false,
-      playHistory: [],
+  const loading = ref(false)
+  const playHistory = ref([])
+  const store = useStore()
+  const router = useRouter()
+
+  const queue = computed(() => store.state.queue)
+
+  loading.value = true
+
+  Shared.dexieDB.episodes.where('played')
+    .notEqual('')
+    .reverse()
+    .limit(10)
+    .sortBy('played')
+    .then(result => {
+      playHistory.value = result
+      loading.value = false
+    })
+
+  const prepareDescriptionString = (string) => {
+    if (string) {
+      let parsedString = cleanHTMLString(string)
+      return truncateString(parsedString, 150)
+    } else {
+      return 'No description available.'
     }
-  },
+  }
 
-  computed: {
-    queue() {
-      return this.$store.state.queue
-    }
-  },
+  const addToQueue = (id) => {
+    store.dispatch('addEpisodeToQueue', id)
+  }
 
-  methods: {
-    prepareDescriptionString(string) {
-      if (string) {
-        let parsedString = cleanHTMLString(string)
-        return truncateString(parsedString, 150)
-      } else {
-        return 'No description available.'
-      }
-    },
+  const removeFromQueue = (id) => {
+    store.dispatch('removeEpisodeFromQueue', id)
+  }
 
-    prepareHumanFriendlyDuration(seconds) {
-      return humanFriendlyDuration(seconds)
-    },
-
-    addToQueue(id) {
-      this.$store.dispatch('addEpisodeToQueue', id)
-    },
-
-    removeFromQueue(id) {
-      this.$store.dispatch('removeEpisodeFromQueue', id)
-    },
-
-    getMorePlayHistory() {
-      Shared.dexieDB.episodes.where('played')
-        .notEqual('')
-        .reverse()
-        .offset(this.playHistory.length)
-        .limit(10)
-        .sortBy('played')
-        .then(result => {
-          this.playHistory = this.playHistory.concat(result)
-        })
-    },
-
-    visitEpisodeShow(id) {
-      this.$router.push('/episodes/'+id)
-    }
-  },
-
-  created() {
-    this.loading = true
-
+  const getMorePlayHistory = () => {
     Shared.dexieDB.episodes.where('played')
       .notEqual('')
       .reverse()
+      .offset(playHistory.value.length)
       .limit(10)
       .sortBy('played')
       .then(result => {
-        this.playHistory = result
-        this.loading = false
-      })
+        playHistory.value = playHistory.value.concat(result)
+    })
   }
-}
+
+  const visitEpisodeShow = (id) => {
+    router.push('/episodes/'+id)
+  }
 </script>

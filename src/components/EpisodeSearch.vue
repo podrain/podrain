@@ -12,7 +12,7 @@
             <h2>{{ sr.title }}</h2>
             <p class="text-xs text-gray-300">{{ prepareDescriptionString(sr.description) }}</p>
             <div class="text-sm mt-2">
-              <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(sr.duration) }}
+              <font-awesome-icon icon="clock" /> {{ humanFriendlyDuration(sr.duration) }}
             </div>
           </div>
           <button 
@@ -32,79 +32,65 @@
   </div>
 </template>
 
-<script>
-import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
-import { Shared } from '../State'
-import _ from 'lodash'
+<script setup>
+  import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
+  import { Shared } from '../State'
+  import _ from 'lodash'
+  import { ref, computed, watch } from 'vue'
+  import { useStore } from 'vuex'
+  import { useRoute } from 'vue-router'
 
-export default {
-  data() {
-    return {
-      podcast: {},
-      search: '',
-      episodes: [],
-      searchResults: []
+  const store = useStore()
+  const route = useRoute()
+
+  const podcast = ref({})
+  const search = ref('')
+  const episodes = ref([])
+  const searchResults = ref([])
+
+  const queue = computed(() => store.state.queue)
+
+  const getPodcasts = Shared.dexieDB.podcasts
+    .where({ _id: route.params.id })
+    .first()
+    .then(pc => {
+      podcast.value = pc
+    })
+
+  const getEpisodes = Shared.dexieDB.episodes
+    .where({ podcast_id: route.params.id })
+    .toArray()
+    .then(eps => {
+      episodes.value = eps
+    })
+
+  Promise.all([
+    getPodcasts,
+    getEpisodes
+  ])
+
+  const prepareDescriptionString = (string) => {
+    if (string) {
+      let parsedString = cleanHTMLString(string)
+      return truncateString(parsedString, 150)
+    } else {
+      return 'No description available.'
     }
-  },
-
-  computed: {
-    queue() {
-      return this.$store.state.queue
-    }
-  },
-
-  methods: {
-    prepareDescriptionString(string) {
-      if (string) {
-        let parsedString = cleanHTMLString(string)
-        return truncateString(parsedString, 150)
-      } else {
-        return 'No description available.'
-      }
-    },
-
-    prepareHumanFriendlyDuration(seconds) {
-      return humanFriendlyDuration(seconds)
-    },
-
-    addToQueue(id) {
-      this.$store.dispatch('addEpisodeToQueue', id)
-    },
-
-    removeFromQueue(id) {
-      this.$store.dispatch('removeEpisodeFromQueue', id)
-    },
-  },
-
-  watch: {
-    search: _.debounce(function(value) {
-      this.searchResults = this.episodes.filter(ep => {
-        let lowerCaseDesc = ep.description.toLowerCase()
-        let lowerCaseTitle = ep.title.toLowerCase()
-        return lowerCaseDesc.includes(value.toLowerCase()) || lowerCaseTitle.includes(value.toLowerCase())
-      })
-    }, 1000)
-  },
-
-  created() {
-    let getPodcasts = Shared.dexieDB.podcasts
-      .where({ _id: this.$route.params.id })
-      .first()
-      .then(podcast => {
-        this.podcast = podcast
-      })
-
-    let getEpisodes = Shared.dexieDB.episodes
-      .where({ podcast_id: this.$route.params.id })
-      .toArray()
-      .then(episodes => {
-        this.episodes = episodes
-      })
-
-    Promise.all([
-      getPodcasts,
-      getEpisodes
-    ])
   }
-}
+
+  const addToQueue = (id) => {
+    store.dispatch('addEpisodeToQueue', id)
+  }
+
+  const removeFromQueue = (id) => {
+    store.dispatch('removeEpisodeFromQueue', id)
+  }
+
+  watch(search, _.debounce(function(value) {
+    searchResults.value = episodes.value.filter(ep => {
+      let lowerCaseDesc = ep.description.toLowerCase()
+      let lowerCaseTitle = ep.title.toLowerCase()
+      return lowerCaseDesc.includes(value.toLowerCase()) || lowerCaseTitle.includes(value.toLowerCase())
+    })
+  }, 1000))
 </script>

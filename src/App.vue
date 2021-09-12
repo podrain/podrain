@@ -43,86 +43,77 @@
 
 </style>
 
-<script>
-import Playbox from './components/Playbox.vue'
-import { Shared } from './State'
+<script setup>
+  import Playbox from './components/Playbox.vue'
+  import { Shared } from './State'
+  import { useStore } from 'vuex'
 
-export default {
-  components: {
-    Playbox
-  },
-
-  data() {
-    return {
-      menu: [
-        {
-          link: '/podcasts',
-          icon: 'home',
-        },
-        {
-          link: '/queue',
-          icon: 'list-ol',
-        },
-        {
-          link: '/history',
-          icon: 'history',
-        },
-        {
-          link: '/podcasts/create',
-          icon: 'plus',
-        },
-        {
-          link: '/settings',
-          icon: 'cog',
-        }
-      ]
+  const menu = [
+    {
+      link: '/podcasts',
+      icon: 'home',
+    },
+    {
+      link: '/queue',
+      icon: 'list-ol',
+    },
+    {
+      link: '/history',
+      icon: 'history',
+    },
+    {
+      link: '/podcasts/create',
+      icon: 'plus',
+    },
+    {
+      link: '/settings',
+      icon: 'cog',
     }
-  },
+  ]
 
-  created() {
-    this.$store.dispatch('syncDownloadedEpisodes')
+  const store = useStore()
 
-    Shared.playingAudio = new Audio
+  store.dispatch('syncDownloadedEpisodes')
 
-    Shared.playingAudio.addEventListener('pause', (event) => {
-      this.$store.state.paused = true
-    })
+  Shared.playingAudio = new Audio
 
-    Shared.playingAudio.addEventListener('play', (event) => {
-      this.$store.state.paused = false
-    })
+  Shared.playingAudio.addEventListener('pause', (event) => {
+    store.state.paused = true
+  })
 
-    Shared.playingAudio.addEventListener('ended', (event) => {
-      this.$store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
-    })
+  Shared.playingAudio.addEventListener('play', (event) => {
+    store.state.paused = false
+  })
 
-    Shared.playingAudio.addEventListener('loadedmetadata', () => {
-      this.$store.state.playingEpisode.duration = Shared.playingAudio.duration
-    })
+  Shared.playingAudio.addEventListener('ended', (event) => {
+    store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
+  })
 
-    this.$store.dispatch('getQueue').then(() => {
-      if (this.$store.state.queue.length > 0) {
-        return Shared.dexieDB.episodes
-          .where({ currently_playing: 1 })
-          .toArray().then(result => {
-            this.$store.dispatch('playEpisode', { id: result[0]._id })
-          }) 
-      } else {
-        return Promise.resolve()
-      }
-    }).then(() => {
-      setInterval(() => {
-        Shared.dexieDB.episodes
-          .where({ _id: this.$store.state.playingEpisode._id })
-          .modify({ playhead: this.$store.state.playingEpisode.playhead })
-          .then(() => {
-            this.$store.commit('setPlayheadOfEpisode', {
-              episodeID: this.$store.state.playingEpisode._id,
-              newPlayhead: this.$store.state.playingEpisode.playhead
-            })
+  Shared.playingAudio.addEventListener('loadedmetadata', () => {
+    store.state.playingEpisode.duration = Shared.playingAudio.duration
+  })
+
+  store.dispatch('getQueue').then(() => {
+    if (store.state.queue.length > 0) {
+      return Shared.dexieDB.episodes
+        .where({ currently_playing: 1 })
+        .toArray().then(result => {
+          store.dispatch('playEpisode', { id: result[0]._id })
+        }) 
+    } else {
+      return Promise.resolve()
+    }
+  }).then(() => {
+    setInterval(() => {
+      Shared.dexieDB.episodes
+        .where({ _id: store.state.playingEpisode._id })
+        .modify({ playhead: store.state.playingEpisode.playhead })
+        .then(() => {
+          store.commit('setPlayheadOfEpisode', {
+            episodeID: store.state.playingEpisode._id,
+            newPlayhead: store.state.playingEpisode.playhead
           })
-      }, 5000)
-    })
-  }
-}
+        })
+    }, 5000)
+  })
 </script>

@@ -28,7 +28,7 @@
             </div>
             <button 
               class="bg-yellow-500 p-2 text-sm w-full"
-              @click="$router.push('/podcasts/'+podcast._id+'/search')"
+              @click="router.push('/podcasts/'+podcast._id+'/search')"
             >
               <font-awesome-icon class="mr-1" icon="search" />
               Search episodes
@@ -61,7 +61,7 @@
                 <span class="italic">{{ prepareDateString(ep.pubDate) }}</span>&nbsp;—&nbsp;
                 {{ prepareDescriptionString(ep.description) }}
                 <div class="mt-2 font-bold">
-                  <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(ep.duration) }}
+                  <font-awesome-icon icon="clock" /> {{ humanFriendlyDuration(ep.duration) }}
                 </div>
               </div>
             </div>
@@ -127,163 +127,134 @@
   </div>
 </template>
 
-<script>
-import { Shared } from '../State'
-import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
-import { DateTime } from 'luxon'
-import feedParser from 'https://jspm.dev/better-podcast-parser'
-import _ from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
-import StoredImage from './StoredImage.vue'
+<script setup>
+  import { ref, computed } from 'vue'
+  import { useStore } from 'vuex'
+  import { useRouter, useRoute } from 'vue-router'
+  import { Shared } from '../State'
+  import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
+  import { DateTime } from 'luxon'
+  import feedParser from 'https://jspm.dev/better-podcast-parser'
+  import _ from 'lodash'
+  import { v4 as uuidv4 } from 'uuid'
+  import StoredImage from './StoredImage.vue'
 
-export default {
-  components: {
-    StoredImage
-  },
-
-  data() {
-    return {
-      podcast: {
-        meta: {
-          title: '',
-          imageURL: '',
-        }
-      },
-      allEpisodes: [],
-      episodes: [],
-      refreshing: false,
-      deleting: false,
-      episodeModalShowing: false,
-      episodeModalContent: {}
+  const store = useStore()
+  const router = useRouter()
+  const route = useRoute()
+  const podcast = ref({
+    meta: {
+      title: '',
+      imageURL: '',
     }
-  },
+  })
 
-  computed: {
-    queue() {
-      return this.$store.state.queue
-    },
+  const allEpisodes = ref([])
+  const episodes = ref([])
+  const refreshing = ref(false)
+  const deleting = ref(false)
+  const episodeModalShowing = ref(false)
+  const episodeModalContent = ref({})
 
-    queueChanging() {
-      return this.$store.state.queueChanging
-    },
-  },
+  const queue = computed(() => store.state.queue)
+  const queueChanging = computed(() => store.state.queueChanging)
 
-  methods: {
-    getEpisodes() {
-      return Shared.dexieDB.episodes.where({
-        podcast_id: this.podcast._id
-      }).reverse().sortBy('pubDate').then(allEpisodes => {
-        this.allEpisodes = allEpisodes
-        this.episodes = this.allEpisodes.slice(0, 10)
-      })
-    },
+  Shared.dexieDB.podcasts.where({ _id: route.params.id }).toArray().then(result => {
+    podcast.value = result[0]
+    return getEpisodes()
+  })
 
-    getMoreEpisodes() {
-      let newBatch = this.allEpisodes.slice(this.episodes.length, this.episodes.length + 10)
-      this.episodes = this.episodes.concat(newBatch)
-    },
-
-    async deletePodcast() {
-      var self = this
-      this.deleting = true
-
-      function removeEpisodesFromQueue(episodes) {
-        let sequence = Promise.resolve()
-
-        for (let ep of episodes) {
-          if (ep.podcast_id == self.podcast._id) {
-            sequence = sequence.then(() => self.$store.dispatch('removeEpisodeFromQueue', ep._id))
-          }
-        }
-
-        return sequence
-      }
-
-      await removeEpisodesFromQueue(this.$store.state.queue)
-
-      let deletePodcastOnly = Shared.dexieDB.podcasts.where({ _id: this.podcast._id }).delete()
-      let deleteEpisodes = Shared.dexieDB.episodes.where({ podcast_id: this.podcast._id }).delete()
-
-      await Promise.all([deletePodcastOnly, deleteEpisodes])
-      this.deleting = false
-      this.$router.push('/podcasts')
-    },
-
-    prepareDescriptionString(string) {
-      if (string) {
-        let parsedString = cleanHTMLString(string)
-        return truncateString(parsedString)
-      } else {
-        return 'No description available.'
-      }
-    },
-
-    prepareDateString(string) {
-      return DateTime.fromISO(string).toFormat('D')
-    },
-
-    prepareHumanFriendlyDuration(seconds) {
-      return humanFriendlyDuration(seconds)
-    },
-
-    removeFromQueue(id) {
-      this.$store.dispatch('removeEpisodeFromQueue', id)
-    },
-
-    addToQueue(id) {
-      this.$store.dispatch('addEpisodeToQueue', id)
-    },
-
-    async refreshEpisodes() {
-      this.refreshing = true
-      let podcastRefreshed = await feedParser.parseURL(this.podcast.feed_url, {
-        proxyURL: localStorage.getItem('proxy_url'),
-        getAllPages: true
-      })
-
-      let newEpisodes = podcastRefreshed.episodes.filter(ep => {
-        return ep && ep.hasOwnProperty('pubDate') && ep.pubDate > _.max(this.episodes.map(epCurr => epCurr.pubDate))
-      }).map(ep => {
-        return _.merge(ep, {
-          '_id': uuidv4(),
-          'podcast_id': this.podcast._id,
-          'queue': 0,
-          'playhead': 0,
-          'currently_playing': 0,
-          'played': ''
-        })
-      })
-
-      await Shared.dexieDB.episodes.bulkAdd(newEpisodes)
-      await this.getEpisodes()
-      this.refreshing = false
-    },
-
-    playOrPauseEpisode(id) {
-      this.$store.dispatch('playOrPauseEpisode', id)
-    },
-
-    isPlaying(id) {
-      return this.$store.getters.isPlaying(id)
-    },
-
-    showEpisodeModal(id) {
-      this.episodeModalShowing = true
-      this.episodeModalContent = this.episodes.filter(ep => ep._id == id)[0]
-    },
-
-    hideEpisodeModal() {
-      this.episodeModalShowing = false
-      this.episodeModalContent = ''
-    }
-  },
-
-  created() {
-    Shared.dexieDB.podcasts.where({ _id: this.$route.params.id }).toArray().then(result => {
-      this.podcast = result[0]
-
-      return this.getEpisodes()
+  const getEpisodes = () => {
+    return Shared.dexieDB.episodes.where({
+      podcast_id: podcast.value._id
+    }).reverse().sortBy('pubDate').then(ae => {
+      allEpisodes.value = ae
+      episodes.value = allEpisodes.value.slice(0, 10)
     })
-  },
-}
+  }
+
+  const getMoreEpisodes = () => {
+    const newBatch = allEpisodes.value.slice(episodes.value.length, episodes.value.length + 10)
+    episodes.value = episodes.value.concat(newBatch)
+  }
+
+  const deletePodcast = async () => {
+    deleting.value = true
+
+    function removeEpisodesFromQueue(episodes) {
+      let sequence = Promise.resolve()
+
+      for (let ep of episodes) {
+        if (ep.podcast_id == podcast.value._id) {
+          sequence = sequence.then(() => store.dispatch('removeEpisodeFromQueue', ep._id))
+        }
+      }
+
+      return sequence
+    }
+
+    await removeEpisodesFromQueue(store.state.queue)
+
+    let deletePodcastOnly = Shared.dexieDB.podcasts.where({ _id: podcast.value._id }).delete()
+    let deleteEpisodes = Shared.dexieDB.episodes.where({ podcast_id: podcast.value._id }).delete()
+
+    await Promise.all([deletePodcastOnly, deleteEpisodes])
+    deleting.value = false
+    router.push('/podcasts')
+  }
+
+  const prepareDescriptionString = (string) => {
+    if (string) {
+      let parsedString = cleanHTMLString(string)
+      return truncateString(parsedString)
+    } else {
+      return 'No description available.'
+    }
+  }
+
+  const prepareDateString = (string) => DateTime.fromISO(string).toFormat('D')
+
+  const removeFromQueue = (id) => store.dispatch('removeEpisodeFromQueue', id)
+  const addToQueue = (id) => store.dispatch('addEpisodeToQueue', id)
+
+  const refreshEpisodes = async () => {
+    refreshing.value = true
+    let podcastRefreshed = await feedParser.parseURL(podcast.value.feed_url, {
+      proxyURL: localStorage.getItem('proxy_url'),
+      getAllPages: true
+    })
+
+    let newEpisodes = podcastRefreshed.episodes.filter(ep => {
+      return ep && ep.hasOwnProperty('pubDate') && ep.pubDate > _.max(episodes.value.map(epCurr => epCurr.pubDate))
+    }).map(ep => {
+      return _.merge(ep, {
+        '_id': uuidv4(),
+        'podcast_id': podcast.value._id,
+        'queue': 0,
+        'playhead': 0,
+        'currently_playing': 0,
+        'played': ''
+      })
+    })
+
+    await Shared.dexieDB.episodes.bulkAdd(newEpisodes)
+    await getEpisodes()
+    refreshing.value = false
+  }
+
+  const playOrPauseEpisode = (id) => {
+    store.dispatch('playOrPauseEpisode', id)
+  }
+
+  const isPlaying = (id) => store.getters.isPlaying(id)
+
+  const showEpisodeModal = (id) => {
+    episodeModalShowing.value = true
+    episodeModalContent.value = episodes.value.filter(ep => ep._id == id)[0]
+  }
+
+  const hideEpisodeModal = () => {
+    episodeModalShowing.value = false
+    episodeModalContent.value = ''
+  }
 </script>

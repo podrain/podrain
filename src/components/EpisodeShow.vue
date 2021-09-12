@@ -9,21 +9,15 @@
   </div>
 </template>
 
-<script>
-import { Shared } from '../State'
+<script setup>
+  import { Shared } from '../State'
+  import { ref } from 'vue'
+  import { useRoute } from 'vue-router'
 
-export default {
+  const episode = ref({})
+  const route = useRoute()
 
-  data() {
-    return {
-      episode: {}
-    }
-  },
-
-  created() {
-    Shared.dexieDB.episodes.where({ _id: this.$route.params.id }).toArray().then(result => {
-      this.episode = result[0]
-    })
-  }
-}
+  Shared.dexieDB.episodes.where({ _id: route.params.id }).toArray().then(result => {
+    episode.value = result[0]
+  })
 </script>

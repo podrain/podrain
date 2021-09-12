@@ -92,6 +92,8 @@
 </template>
 
 <script>
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { Shared } from '../State'
 import feedParser from 'https://jspm.dev/better-podcast-parser@0.1.16'
 import _ from 'lodash'
@@ -100,38 +102,24 @@ import axios from 'axios'
 import { iOS } from '../Helpers'
 
 export default {
-  data() {
-    return {
-      selectedTab: 'search',
-      manualRssUrl: '',
-      search: '',
-      searchResults: [],
-      searching: false,
-      addingPodcast: {
-        url: '',
-        adding: false,
-        episodesAdded: 0,
-        episodesTotal: 0,
-      }
-    }
-  },
+  setup() {
+    const router = useRouter()
 
-  methods: {
-    addManualRssUrl() {
-      this.addPodcast(this.manualRssUrl).then(() => {
-        this.$router.push('/podcasts')
-      })
-    },
+    const selectedTab = ref('search')
+    const manualRssUrl = ref('')
+    const search = ref('')
+    const searchResults = ref([])
+    const searching = ref(false)
+    const addingPodcast = ref({
+      url: '',
+      adding: false,
+      episodesAdded: 0,
+      episodesTotal: 0,
+    })
 
-    addSearchedPodcast(url) {
-      this.addPodcast(url).then(() => {
-        this.$router.push('/podcasts')
-      })
-    },
-
-    addPodcast(podcastUrl) {
-      this.addingPodcast.adding = true
-      this.addingPodcast.url = podcastUrl
+    const addPodcast = (podcastUrl) => {
+      addingPodcast.value.adding = true
+      addingPodcast.value.url = podcastUrl
       let cleanedUrl = podcastUrl.replace(/(?!:\/\/):/g, '%3A')
 
       return feedParser.parseURL(cleanedUrl, {
@@ -142,7 +130,7 @@ export default {
         delete podcastOnly.episodes
 
         let podcastID = uuidv4()
-        this.addingPodcast.episodesTotal = podcast.episodes.length
+        addingPodcast.value.episodesTotal = podcast.episodes.length
         let addPodcast = Shared.dexieDB.podcasts.add(_.merge(podcastOnly, {
           '_id': podcastID,
           'feed_url': cleanedUrl
@@ -181,24 +169,34 @@ export default {
               'currently_playing': 0,
               'played': ''
             })).then(() => {
-              this.addingPodcast.episodesAdded += 1
+              addingPodcast.value.episodesAdded += 1
             })
           )
         }
 
         return Promise.all([addPodcast, ...addPodcastEpisodes]).then(() => {
-          this.addingPodcast.url = ''
-          this.addingPodcast.adding = false
-          this.addingPodcast.episodesAdded = 0
-          this.addingPodcast.episodesTotal = 0
+          addingPodcast.value.url = ''
+          addingPodcast.value.adding = false
+          addingPodcast.value.episodesAdded = 0
+          addingPodcast.value.episodesTotal = 0
         })
       })
-    },
-  },
+    }
 
-  watch: {
-    search: _.debounce(function(value) {
-      this.searching = true
+    const addManualRssUrl = () => {
+      addPodcast(manualRssUrl.value).then(() => {
+        router.push('/podcasts')
+      })
+    }
+
+    const addSearchedPodcast = (url) => {
+      addPodcast(url).then(() => {
+        router.push('/podcasts')
+      })
+    }
+
+    watch(search, _.debounce(function(value) {
+      searching.value = true
       let searchURL = 'https://itunes.apple.com/search?' + new URLSearchParams({
         term: value,
         media: 'podcast',
@@ -209,10 +207,23 @@ export default {
         .then(response => {
           return response.json()
         }).then(responseJSON => {
-          this.searchResults = responseJSON.results
-          this.searching = false
+          searchResults.value = responseJSON.results
+          searching.value = false
         })
-    }, 250)
-  }
+      }, 250)
+    )
+
+    return {
+      selectedTab,
+      manualRssUrl,
+      search,
+      searchResults,
+      searching,
+      addingPodcast,
+      addManualRssUrl,
+      addPodcast,
+      addSearchedPodcast,
+    }
+  },
 }
 </script>

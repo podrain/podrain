@@ -97,58 +97,40 @@
   </div>
 </template>
 
-<script>
-import { floatToISO } from '../Helpers'
+<script setup>
+  import { computed, ref } from 'vue'
+  import { useStore } from 'vuex'
+  import { floatToISO } from '../Helpers'
 
-export default {
-  data() {
-    return {
-      expanded: true
-    }
-  },
+  const store = useStore()
+  const expanded = ref(true)
 
-  computed: {
-    playingEpisode() {
-      return this.$store.state.playingEpisode
-    },
+  const playingEpisode = computed(() => store.state.playingEpisode)
+  const humanFriendlyDuration = computed(() => floatToISO(playingEpisode.value.duration))
+  const humanFriendlyPlayhead = computed(() => floatToISO(playingEpisode.value.playhead))
+  const paused = computed(() => store.state.paused)
 
-    humanFriendlyDuration() {
-      return floatToISO(this.playingEpisode.duration)
-    },
+  const playOrPause = () => {
+    store.dispatch('playOrPause')
+  }
 
-    humanFriendlyPlayhead() {
-      return floatToISO(this.playingEpisode.playhead)
-    },
+  const jumpAhead = () => {
+    store.dispatch('jumpAhead')
+  }
 
-    paused() {
-      return this.$store.state.paused
-    },
-  },
+  const jumpBack = () => {
+    store.dispatch('jumpBack')
+  }
 
-  methods: {
-    playOrPause() {
-      this.$store.dispatch('playOrPause')
-    },
+  const playNext = () => {
+    store.dispatch('playNext')
+  }
 
-    jumpAhead() {
-      this.$store.dispatch('jumpAhead')
-    },
+  const playPrev = () => {
+    store.dispatch('playPrev')
+  }
 
-    jumpBack() {
-      this.$store.dispatch('jumpBack')
-    },
-
-    playNext() {
-      this.$store.dispatch('playNext')
-    },
-
-    playPrev() {
-      this.$store.dispatch('playPrev')
-    },
-
-    setPlayhead(e) {
-      this.$store.dispatch('setPlayhead', e.target.value)
-    }
-  },
-}
+  const setPlayhead = (e) => {
+    store.dispatch('setPlayhead', e.target.value)
+  }
 </script>

@@ -73,119 +73,107 @@
   </div>
 </template>
 
-<script>
-import { Shared } from '../State'
-import FileSaver from 'file-saver'
-import axios from 'axios'
-import { iOS } from '../Helpers'
+<script setup>
+  import { ref, watch } from 'vue'
+  import { Shared } from '../State'
+  import FileSaver from 'file-saver'
+  import axios from 'axios'
+  import { iOS } from '../Helpers'
 
-export default {
-  data() {
-    return {
-      proxyURL: localStorage.getItem('proxy_url') || '',
-      restoreStatus: '',
-      restoring: false,
-      restoreFile: null,
-      wakeLock: Shared.wakeLock ? true : false,
-      podcastImagesDownloading: false,
-    }
-  },
+  const proxyURL = ref(localStorage.getItem('proxy_url') || '')
+  const restoreStatus = ref('')
+  const restoring = ref(false)
+  const restoreFile = ref(null)
+  const wakeLock = ref(Shared.wakeLock ? true : false)
+  const podcastImagesDownloading = ref(false)
 
-  methods: {
-    iOS() {
-      return iOS()
-    },
-
-    saveProxyURL() {
-      localStorage.setItem('proxy_url', this.proxyURL)
-    },
-
-    setRestoreFile(e) {
-      this.restoreFile = e.target.files[0]
-    },
-
-    restoreBackup() {
-      this.restoring = true
-      this.restoreStatus = 'Starting restore...'
-      this.restoreFile.text().then(result => {
-        let parsedResult = JSON.parse(result)
-        this.restoreStatus = 'Clearing podcasts...'
-        return Promise.all([
-          Shared.dexieDB.podcasts.clear(),
-          Shared.dexieDB.episodes.clear()
-        ]).then(() => {
-          this.restoreStatus = 'Loading new podcasts...'
-          return Promise.all([
-            Shared.dexieDB.podcasts.bulkAdd(parsedResult.podcasts),
-            Shared.dexieDB.episodes.bulkAdd(parsedResult.episodes)
-          ])
-        }).then(() => {
-          this.restoring = false
-          this.restoreStatus = 'Podcasts loaded!'
-        })
-      })
-    },
-
-    downloadBackup() {
-      let getPodcasts = Shared.dexieDB.podcasts.toArray()
-      let getEpisodes = Shared.dexieDB.episodes.toArray()
-
-      Promise.all([getPodcasts, getEpisodes]).then(result => {
-        let downloadPayload = {
-          podcasts: result[0],
-          episodes: result[1]
-        }
-
-        let downloadBlob = new Blob([JSON.stringify(downloadPayload)], {
-          type: 'text/plain;charset=utf8'
-        })
-
-        FileSaver.saveAs(downloadBlob, 'backup.json')
-      })
-    },
-
-    async downloadPodcastImages() {
-      this.podcastImagesDownloading = true
-      let podcasts = await Shared.dexieDB.podcasts.toArray()
-
-      for (let pc of podcasts) {
-        let response = await axios.get(
-          localStorage.getItem('proxy_url') + pc.meta.imageURL,
-          {
-            headers: {
-              'Accept': 'image/*'
-            },
-            responseType: 'arraybuffer'
-          },
-        )
-
-        let imageType = response.headers['content-type']
-        let imageBlob = new Blob([response.data], { type: imageType })
-        Shared.downloadedImageFiles.setItem('podrain_image_'+pc._id, imageBlob)
-      }
-      
-      this.podcastImagesDownloading = false
-    }
-  },
-
-  watch: {
-    wakeLock(wlActive) {
-      if ('wakeLock' in navigator) {
-        if (wlActive && !Shared.wakeLock) {
-          navigator.wakeLock.request('screen').then(wl => {
-            Shared.wakeLock = wl
-          })
-        }
-
-        if (!wlActive && Shared.wakeLock) {
-          Shared.wakeLock.release().then(() => {
-            Shared.wakeLock = null
-          })
-        }
-      } else {
-        alert('Cannot keep this device awake. \'Keep awake\' setting is ignored.')
-      }
-    }
+  const saveProxyURL = () => {
+    localStorage.setItem('proxy_url', proxyURL.value)
   }
-}
+
+  const setRestoreFile = (e) => {
+    restoreFile.value = e.target.files[0]
+  }
+
+  const restoreBackup = () => {
+    restoring.value = true
+    restoreStatus.value = 'Starting restore...'
+    restoreFile.value.text().then(result => {
+      let parsedResult = JSON.parse(result)
+      restoreStatus.value = 'Clearing podcasts...'
+      return Promise.all([
+        Shared.dexieDB.podcasts.clear(),
+        Shared.dexieDB.episodes.clear()
+      ]).then(() => {
+        restoreStatus.value = 'Loading new podcasts...'
+        return Promise.all([
+          Shared.dexieDB.podcasts.bulkAdd(parsedResult.podcasts),
+          Shared.dexieDB.episodes.bulkAdd(parsedResult.episodes)
+        ])
+      }).then(() => {
+        restoring.value = false
+        restoreStatus.value = 'Podcasts loaded!'
+      })
+    })
+  }
+
+  const downloadBackup = () => {
+    let getPodcasts = Shared.dexieDB.podcasts.toArray()
+    let getEpisodes = Shared.dexieDB.episodes.toArray()
+
+    Promise.all([getPodcasts, getEpisodes]).then(result => {
+      let downloadPayload = {
+        podcasts: result[0],
+        episodes: result[1]
+      }
+
+      let downloadBlob = new Blob([JSON.stringify(downloadPayload)], {
+        type: 'text/plain;charset=utf8'
+      })
+
+      FileSaver.saveAs(downloadBlob, 'backup.json')
+    })
+  }
+
+  const downloadPodcastImages = async () => {
+    podcastImagesDownloading.value = true
+    let podcasts = await Shared.dexieDB.podcasts.toArray()
+
+    for (let pc of podcasts) {
+      console.log('downloading ' +pc._id)
+      let response = await axios.get(
+        localStorage.getItem('proxy_url') + pc.meta.imageURL,
+        {
+          headers: {
+            'Accept': 'image/*'
+          },
+          responseType: 'arraybuffer'
+        },
+      )
+
+      let imageType = response.headers['content-type']
+      let imageBlob = new Blob([response.data], { type: imageType })
+      Shared.downloadedImageFiles.setItem('podrain_image_'+pc._id, imageBlob)
+    }
+    
+    podcastImagesDownloading.value = false
+  }
+
+  watch(wakeLock, (wlActive) => {
+    if ('wakeLock' in navigator) {
+      if (wlActive && !Shared.wakeLock) {
+        navigator.wakeLock.request('screen').then(wl => {
+          Shared.wakeLock = wl
+        })
+      }
+
+      if (!wlActive && Shared.wakeLock) {
+        Shared.wakeLock.release().then(() => {
+          Shared.wakeLock = null
+        })
+      }
+    } else {
+      alert('Cannot keep this device awake. \'Keep awake\' setting is ignored.')
+    }
+  })
 </script>

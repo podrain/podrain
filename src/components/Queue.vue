@@ -16,9 +16,9 @@
         >
           <div 
             class="p-3 relative w-full"
-            @click="$router.push('/episodes/'+ep._id)"
+            @click="router.push('/episodes/'+ep._id)"
           >
-            <div class="absolute top-0 left-0 h-1 bg-teal-500" :style="`width: ${playedPercent(ep.playhead, ep.duration)}%`"></div>
+            <div class="absolute top-0 left-0 h-1 bg-teal-500" :style="`width: ${getPercent(ep.playhead, ep.duration)}%`"></div>
 
             <div v-if="ep.played" class="w-8 h-8 bg-yellow-500 absolute bottom-0 left-0 flex justify-center items-center">
               <font-awesome-icon icon="check" />
@@ -34,7 +34,7 @@
                 <span class="italic">{{ prepareDateString(ep.pubDate) }}</span>&nbsp;—&nbsp;
                 {{ prepareDescriptionString(ep.description) }}
                 <div class="mt-2 font-bold">
-                  <font-awesome-icon icon="clock" /> {{ prepareHumanFriendlyDuration(ep.duration) }}
+                  <font-awesome-icon icon="clock" /> {{ humanFriendlyDuration(ep.duration) }}
                 </div>
               </div>
             </div>
@@ -94,89 +94,57 @@ ul#queue-list > li:first-child {
 }
 </style>
 
-<script>
-import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration } from '../Helpers'
-import { DateTime } from 'luxon'
-import _ from 'lodash'
-import Sortable from 'sortablejs'
+<script setup>
+  import { computed, onMounted } from 'vue'
+  import { useStore } from 'vuex'
+  import { useRouter } from 'vue-router'
+  import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration } from '../Helpers'
+  import { DateTime } from 'luxon'
+  import _ from 'lodash'
+  import Sortable from 'sortablejs'
 
-export default {
-  computed: {
-    queue() {
-      return this.$store.getters.queueInOrder
-    },
+  const store = useStore()
+  const router = useRouter()
+  const queue = computed(() => store.getters.queueInOrder)
+  const downloading = computed(() => store.state.downloading)
+  const queueChanging = computed(() => store.state.queueChanging)
 
-    downloading() {
-      return this.$store.state.downloading
-    },
-
-    queueChanging() {
-      return this.$store.state.queueChanging
+  const prepareDescriptionString = (string) => {
+    if (string) {
+      let parsedString = cleanHTMLString(string)
+      return truncateString(parsedString)
+    } else {
+      return 'No description available.'
     }
-  },
-  
-  methods: {
-    prepareDescriptionString(string) {
-      if (string) {
-        let parsedString = cleanHTMLString(string)
-        return truncateString(parsedString)
-      } else {
-        return 'No description available.'
-      }
-    },
+  }
 
-    prepareDateString(string) {
-      return DateTime.fromISO(string).toFormat('D')
-    },
+  const prepareDateString = (string) => {
+    return DateTime.fromISO(string).toFormat('D')
+  }
 
-    prepareHumanFriendlyDuration(seconds) {
-      return humanFriendlyDuration(seconds)
-    },
+  const removeFromQueue = (episodeID) => {
+    store.dispatch('removeEpisodeFromQueue', episodeID)
+  }
 
-    removeFromQueue(episodeID) {
-      this.$store.dispatch('removeEpisodeFromQueue', episodeID)
-    },
+  const downloadEpisode = (id) => {
+    if (this.isDownloaded(id)) {
+      store.dispatch('removeDownload', id)
+    } else {
+      store.dispatch('downloadEpisode', id)
+    } 
+  }
 
-    async downloadEpisode(id) {
-      if (this.isDownloaded(id)) {
-        this.$store.dispatch('removeDownload', id)
-      } else {
-        this.$store.dispatch('downloadEpisode', id)
-      } 
-    },
+  const isDownloading = (id) => store.state.downloading.map(dl => dl.id).includes(id)
+  const downloadProgress = (id) => store.state.downloading.filter(dl => dl.id == id)[0].progress
+  const isDownloaded = (id) => store.state.downloaded.includes(id)
 
-    isDownloading(id) {
-      return this.$store.state.downloading.map(dl => dl.id).includes(id)
-    },
+  const playOrPauseEpisode = (id) => {
+    store.dispatch('playOrPauseEpisode', id)
+  }
 
-    downloadProgress(id) {
-      return this.$store.state.downloading.filter(dl => dl.id == id)[0].progress
-    },
+  const isPlaying = (id) => store.getters.isPlaying(id)
 
-    isDownloaded(id) {
-      return this.$store.state.downloaded.includes(id)
-    },
-
-    playOrPauseEpisode(id) {
-      this.$store.dispatch('playOrPauseEpisode', id)
-    },
-
-    isPlaying(id) {
-      return this.$store.getters.isPlaying(id)
-    },
-
-    iOS() {
-      return iOS()
-    },
-
-    playedPercent(playhead, length) {
-      return getPercent(playhead, length)
-    }
-  },
-
-  mounted() {
-    var self = this
-
+  onMounted(() => {
     let queueList = document.getElementById('queue-list')
     let sortable = Sortable.create(queueList, {
       handle: '.queue-dragbar',
@@ -186,12 +154,11 @@ export default {
       onUpdate(evt) {
         let newOrder = evt.newIndex + 1
         let episodeID = evt.item.dataset.id
-        self.$store.dispatch('reorderQueue', {
+        store.dispatch('reorderQueue', {
           episodeID,
           newOrder
         })
       }
     })
-  }
-}
+  })
 </script>
