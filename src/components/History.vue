@@ -14,7 +14,8 @@
               @click="visitEpisodeShow(ep._id)"
             >
               <h2>{{ ep.title }}</h2>
-              <p class="text-xs text-gray-300">{{ prepareDescriptionString(ep.description) }}</p>
+              <p class="text-sm text-gray-400 italic mt-2">Last played: {{ prepareDateString(ep.played) }}</p>
+              <p class="text-xs text-gray-300 mt-2">{{ prepareDescriptionString(ep.description) }}</p>
               <div class="text-sm mt-2">
                 <font-awesome-icon icon="clock" /> {{ humanFriendlyDuration(ep.duration) }}
               </div>
@@ -49,6 +50,7 @@
   import { ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
+  import { DateTime } from 'luxon'
 
   const loading = ref(false)
   const playHistory = ref([])
@@ -68,6 +70,10 @@
       playHistory.value = result
       loading.value = false
     })
+
+  const prepareDateString = (string) => {
+    return DateTime.fromISO(string).toFormat('ff')
+  }
 
   const prepareDescriptionString = (string) => {
     if (string) {
