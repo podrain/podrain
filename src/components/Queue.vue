@@ -73,14 +73,19 @@
             </template>
           </button>
           <button
-            v-if="!iOS()"
-            class="text-white w-1/3"
-            :class="[isDownloading(ep._id) ? 'bg-gray-500' : isDownloaded(ep._id) ? 'bg-green-500' : 'bg-blue-500']"
+            v-if="!iOS()" 
+            class="flex-1 relative bg-blue-500"
             @click="downloadEpisode(ep._id)"
+            :disabled="isDownloading(ep._id)"
           >
-            <span v-if="isDownloading(ep._id)">{{ downloadProgress(ep._id)+'%' }}</span>
-            <span v-else-if="isDownloaded(ep._id)">Downloaded</span>
-            <span v-else>Download</span>
+            <div
+              v-if="isDownloading(ep._id) || isDownloaded(ep._id)" 
+              class="h-full bg-green-500 absolute"
+              :style="`width: ${ isDownloaded(ep._id) ? '100' : downloadProgress(ep._id) }%`"
+            ></div>
+            <div 
+              class="flex h-full justify-center items-center relative text-white"
+            >{{ isDownloaded(ep._id) ? 'Downloaded' : isDownloading(ep._id) ? `${ downloadProgress(ep._id) }%` : 'Download' }}</div>
           </button>
         </div>
       </li>
