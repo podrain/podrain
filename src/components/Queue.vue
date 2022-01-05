@@ -74,7 +74,8 @@
           </button>
           <button
             v-if="!iOS()" 
-            class="flex-1 relative bg-blue-500"
+            class="flex-1 relative"
+            :class="[isDownloading(ep._id) ? 'bg-gray-600' : 'bg-blue-500']"
             @click="downloadEpisode(ep._id)"
             :disabled="isDownloading(ep._id)"
           >
@@ -85,7 +86,7 @@
             ></div>
             <div 
               class="flex h-full justify-center items-center relative text-white"
-            >{{ isDownloaded(ep._id) ? 'Downloaded' : isDownloading(ep._id) ? `${ downloadProgress(ep._id) }%` : 'Download' }}</div>
+            >{{ isDownloaded(ep._id) ? 'Downloaded' : isDownloading(ep._id) ? (downloadProgress(ep._id) > 0 ? `${ downloadProgress(ep._id) }%` : 'Starting download...') : 'Download' }}</div>
           </button>
         </div>
       </li>
