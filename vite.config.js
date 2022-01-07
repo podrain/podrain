@@ -13,6 +13,7 @@ export default {
         short_name: 'Podrain',
         start_url: '.',
         theme_color: '#2d3748',
+        display: 'standalone',
         icons: [
           {
             src: './podrain-logo-192.png',
