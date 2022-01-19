@@ -95,12 +95,20 @@
       <font-awesome-icon icon="chevron-up" class="text-4xl" />
     </div>
   </div>
+
+  <div 
+    v-else
+    class="h-36 bg-gray-200 flex justify-center items-center"
+  >
+    Loading player<LoadingEllipsis />
+  </div>
 </template>
 
 <script setup>
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
   import { floatToISO } from '../Helpers'
+  import LoadingEllipsis from './LoadingEllipsis.vue'
 
   const store = useStore()
   const expanded = ref(true)
