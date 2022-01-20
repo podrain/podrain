@@ -7,7 +7,7 @@
         <font-awesome-icon class="text-white text-4xl" icon="spinner" spin/>
       </div>
       <div v-else>
-        <ul>
+        <ul v-if="playHistory.length > 0">
           <li class="text-white mt-3" v-for="ep in playHistory" :key="ep._id">
             <div 
               class="bg-gray-700 p-3"
@@ -33,7 +33,10 @@
           </li>
         </ul>
 
+        <div v-else class="text-white italic mt-3">You haven't listened to any episodes yet! They'll show up here when you do.</div>
+
         <button
+          v-if="playHistory.length > maxNumEpisodesShowing"
           class="bg-purple-500 text-white mt-3 p-3 w-full"
           @click="getMorePlayHistory"
         >
@@ -52,6 +55,8 @@
   import { useRouter } from 'vue-router'
   import { DateTime } from 'luxon'
 
+  const maxNumEpisodesShowing = 10
+
   const loading = ref(false)
   const playHistory = ref([])
   const store = useStore()
@@ -64,7 +69,7 @@
   Shared.dexieDB.episodes.where('played')
     .notEqual('')
     .reverse()
-    .limit(10)
+    .limit(maxNumEpisodesShowing)
     .sortBy('played')
     .then(result => {
       playHistory.value = result
@@ -97,7 +102,7 @@
       .notEqual('')
       .reverse()
       .offset(playHistory.value.length)
-      .limit(10)
+      .limit(maxNumEpisodesShowing)
       .sortBy('played')
       .then(result => {
         playHistory.value = playHistory.value.concat(result)
