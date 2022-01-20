@@ -47,6 +47,7 @@
   import Playbox from './components/Playbox.vue'
   import { Shared } from './State'
   import { useStore } from 'vuex'
+  import { useDownloadsStore } from './stores/downloads'
 
   const menu = [
     {
@@ -72,8 +73,9 @@
   ]
 
   const store = useStore()
+  const downloads = useDownloadsStore()
 
-  store.dispatch('syncDownloadedEpisodes')
+  downloads.syncDownloadedEpisodes()
 
   Shared.playingAudio = new Audio
 
@@ -86,7 +88,9 @@
   })
 
   Shared.playingAudio.addEventListener('ended', (event) => {
+    const oldEpisodeID = store.state.playingEpisode._id
     store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
+    downloads.removeDownload(oldEpisodeID)
   })
 
   Shared.playingAudio.addEventListener('loadedmetadata', () => {

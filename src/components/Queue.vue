@@ -103,21 +103,23 @@ ul#queue-list > li:first-child {
 <script setup>
   import { computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
+  import { useDownloadsStore } from '../stores/downloads'
   import { useRouter } from 'vue-router'
   import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration } from '../Helpers'
   import { DateTime } from 'luxon'
   import _ from 'lodash'
   import Sortable from 'sortablejs'
 
+  const downloads = useDownloadsStore()
   const store = useStore()
   const router = useRouter()
   const queue = computed(() => store.getters.queueInOrder)
-  const downloading = computed(() => store.state.downloading)
+  const downloading = downloads.downloading
   const queueChanging = computed(() => store.state.queueChanging)
 
-  const isDownloading = (id) => store.state.downloading.map(dl => dl.id).includes(id)
-  const downloadProgress = (id) => store.state.downloading.filter(dl => dl.id == id)[0].progress
-  const isDownloaded = (id) => store.state.downloaded.includes(id)
+  const isDownloading = (id) => downloads.downloading.map(dl => dl.id).includes(id)
+  const downloadProgress = (id) => downloads.downloading.filter(dl => dl.id == id)[0].progress
+  const isDownloaded = (id) => downloads.downloaded.includes(id)
 
   const prepareDescriptionString = (string) => {
     if (string) {
@@ -138,9 +140,9 @@ ul#queue-list > li:first-child {
 
   const downloadEpisode = (id) => {
     if (isDownloaded(id)) {
-      store.dispatch('removeDownload', id)
+      downloads.removeDownload(id)
     } else {
-      store.dispatch('downloadEpisode', id)
+      downloads.downloadEpisode(id)
     } 
   }
 

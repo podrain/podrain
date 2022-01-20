@@ -11,7 +11,7 @@ import {
   Icon, 
   Modal, 
 } from '@oruga-ui/oruga-next'
-
+import { createPinia } from 'pinia'
 import PodcastList from './components/PodcastList.vue'
 import PodcastShow from './components/PodcastShow.vue'
 import Settings from './components/Settings.vue'
@@ -183,6 +183,7 @@ app
   })
   .use(router)
   .use(store)
+  .use(createPinia())
   .mount('#app')
 
 if (!localStorage.getItem('proxy_url')) {

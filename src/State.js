@@ -1,7 +1,6 @@
 import { createStore } from 'vuex'
 import { DateTime } from 'luxon'
 import _ from 'lodash'
-import axios from 'axios'
 
 export let Shared = {
   dexieDB: null,
@@ -17,8 +16,6 @@ export let VuexStore = createStore({
       queue: [],
       playingEpisode: null,
       paused: true,
-      downloading: [],
-      downloaded: [],
       queueChanging: false,
     }
   },
@@ -87,27 +84,6 @@ export let VuexStore = createStore({
     setCurrentlyPlaying(state, id) {
       let episodeIndex = _.findIndex(state.queue, qe => qe._id == id)
       state.queue[episodeIndex].currently_playing = 1
-    },
-
-    addEpisodeToDownloading(state, id) {
-      state.downloading.push({
-        id,
-        progress: 0
-      })
-    },
-
-    setEpisodeDownloadingProgress(state, payload) {
-      let episodeIndex = _.findIndex(state.downloading, dl => dl.id == payload.id)
-      state.downloading[episodeIndex].progress = payload.progress
-    },
-
-    removeEpisodeFromDownloading(state, id) {
-      let episodeIndex = _.findIndex(state.downloading, dl => dl.id == id)
-      state.downloading.splice(episodeIndex, 1)
-    },
-
-    addEpisodeToDownloaded(state, id) {
-      state.downloaded.push(id)
     },
 
     setQueueChanging(state, isQueueChanging) {
@@ -301,7 +277,6 @@ export let VuexStore = createStore({
           playhead: 0, 
           played: DateTime.now().setZone('utc').toISO()
         })
-        context.dispatch('removeDownload', oldEpisodeId)
       }
     },
 
@@ -375,53 +350,6 @@ export let VuexStore = createStore({
       ]).then(() => 
         context.commit('setQueueChanging', false)
       )
-    },
-
-    async downloadEpisode(context, id) {
-      context.commit('addEpisodeToDownloading', id)
-      let proxyUrl = localStorage.getItem('proxy_url') || ""
-
-      let episodeAudio = await axios.get(
-        proxyUrl + context.getters.getEpisodeInQueue(id).enclosure.url,
-        {
-          onDownloadProgress(event) {
-            context.commit('setEpisodeDownloadingProgress', { 
-              id, 
-              progress: Math.floor((event.loaded / event.total) * 100)
-            })
-          },
-
-          headers: {
-            'Accept': 'audio/*'
-          },
-          responseType: 'arraybuffer'
-        }
-      )
-
-      let audioType = episodeAudio.headers['content-type']
-      let audioBlob = new Blob([episodeAudio.data], { type: audioType })
-      await Shared.downloadedEpisodeFiles.setItem('podrain_episode_'+id, audioBlob)
-      context.dispatch('syncDownloadedEpisodes')
-      context.commit('removeEpisodeFromDownloading', id)
-    },
-
-    async removeDownload(context, id) {
-      if (await Shared.downloadedEpisodeFiles.getItem('podrain_episode_'+id)) {
-        await Shared.downloadedEpisodeFiles.removeItem('podrain_episode_'+id)
-        context.dispatch('syncDownloadedEpisodes')
-      }
-    },
-
-    async syncDownloadedEpisodes(context) {
-      let keys = await Shared.downloadedEpisodeFiles.keys()
-
-      let episodes = keys.filter(key => {
-          return key.includes('podrain_episode_')
-        }).map(key => {
-          return key.substr('podrain_episode_'.length)
-        })
-    
-      context.state.downloaded = episodes
     },
 
     playOrPauseEpisode(context, id) {
