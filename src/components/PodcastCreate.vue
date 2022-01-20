@@ -91,7 +91,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Shared } from '../State'
@@ -101,129 +101,113 @@ import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
 import { iOS } from '../Helpers'
 
-export default {
-  setup() {
-    const router = useRouter()
+const router = useRouter()
 
-    const selectedTab = ref('search')
-    const manualRssUrl = ref('')
-    const search = ref('')
-    const searchResults = ref([])
-    const searching = ref(false)
-    const addingPodcast = ref({
-      url: '',
-      adding: false,
-      episodesAdded: 0,
-      episodesTotal: 0,
+const selectedTab = ref('search')
+const manualRssUrl = ref('')
+const search = ref('')
+const searchResults = ref([])
+const searching = ref(false)
+const addingPodcast = ref({
+  url: '',
+  adding: false,
+  episodesAdded: 0,
+  episodesTotal: 0,
+})
+
+const addPodcast = (podcastUrl) => {
+  addingPodcast.value.adding = true
+  addingPodcast.value.url = podcastUrl
+  let cleanedUrl = podcastUrl.replace(/(?!:\/\/):/g, '%3A')
+
+  return feedParser.parseURL(cleanedUrl, {
+    proxyURL: localStorage.getItem('proxy_url'),
+    getAllPages: true,
+  }).then(podcast => {
+    let podcastOnly = _.clone(podcast)
+    delete podcastOnly.episodes
+
+    let podcastID = uuidv4()
+    addingPodcast.value.episodesTotal = podcast.episodes.length
+    let addPodcast = Shared.dexieDB.podcasts.add(_.merge(podcastOnly, {
+      '_id': podcastID,
+      'feed_url': cleanedUrl
+    })).then(() => {
+      if (iOS()) {
+        return Promise.resolve()
+      }
+
+      return axios.get(
+        localStorage.getItem('proxy_url') + podcastOnly.meta.imageURL,
+        {
+          headers: {
+            'Accept': 'image/*'
+          },
+          responseType: 'arraybuffer'
+        }
+      )
+    }).then(response => {
+      if (iOS()) {
+        return Promise.resolve()
+      }
+
+      let imageType = response.headers['content-type']
+      let imageBlob = new Blob([response.data], { type: imageType })
+      Shared.downloadedImageFiles.setItem('podrain_image_'+podcastID, imageBlob)
     })
 
-    const addPodcast = (podcastUrl) => {
-      addingPodcast.value.adding = true
-      addingPodcast.value.url = podcastUrl
-      let cleanedUrl = podcastUrl.replace(/(?!:\/\/):/g, '%3A')
-
-      return feedParser.parseURL(cleanedUrl, {
-        proxyURL: localStorage.getItem('proxy_url'),
-        getAllPages: true,
-      }).then(podcast => {
-        let podcastOnly = _.clone(podcast)
-        delete podcastOnly.episodes
-
-        let podcastID = uuidv4()
-        addingPodcast.value.episodesTotal = podcast.episodes.length
-        let addPodcast = Shared.dexieDB.podcasts.add(_.merge(podcastOnly, {
-          '_id': podcastID,
-          'feed_url': cleanedUrl
+    let addPodcastEpisodes = []
+    for (let ep of podcast.episodes) {
+      addPodcastEpisodes.push(
+        Shared.dexieDB.episodes.add(_.merge(ep, {
+          '_id': uuidv4(),
+          'podcast_id': podcastID,
+          'queue': 0,
+          'playhead': 0,
+          'currently_playing': 0,
+          'played': ''
         })).then(() => {
-          if (iOS()) {
-            return Promise.resolve()
-          }
-
-          return axios.get(
-            localStorage.getItem('proxy_url') + podcastOnly.meta.imageURL,
-            {
-              headers: {
-                'Accept': 'image/*'
-              },
-              responseType: 'arraybuffer'
-            }
-          )
-        }).then(response => {
-          if (iOS()) {
-            return Promise.resolve()
-          }
-
-          let imageType = response.headers['content-type']
-          let imageBlob = new Blob([response.data], { type: imageType })
-          Shared.downloadedImageFiles.setItem('podrain_image_'+podcastID, imageBlob)
+          addingPodcast.value.episodesAdded += 1
         })
-
-        let addPodcastEpisodes = []
-        for (let ep of podcast.episodes) {
-          addPodcastEpisodes.push(
-            Shared.dexieDB.episodes.add(_.merge(ep, {
-              '_id': uuidv4(),
-              'podcast_id': podcastID,
-              'queue': 0,
-              'playhead': 0,
-              'currently_playing': 0,
-              'played': ''
-            })).then(() => {
-              addingPodcast.value.episodesAdded += 1
-            })
-          )
-        }
-
-        return Promise.all([addPodcast, ...addPodcastEpisodes]).then(() => {
-          addingPodcast.value.url = ''
-          addingPodcast.value.adding = false
-          addingPodcast.value.episodesAdded = 0
-          addingPodcast.value.episodesTotal = 0
-        })
-      })
+      )
     }
 
-    const addManualRssUrl = () => {
-      addPodcast(manualRssUrl.value).then(() => {
-        router.push('/podcasts')
-      })
-    }
-
-    const addSearchedPodcast = (url) => {
-      addPodcast(url).then(() => {
-        router.push('/podcasts')
-      })
-    }
-
-    watch(search, _.debounce(function(value) {
-      searching.value = true
-      let searchURL = 'https://itunes.apple.com/search?' + new URLSearchParams({
-        term: value,
-        media: 'podcast',
-        entity: 'podcast'
-      })
-
-      fetch(searchURL)
-        .then(response => {
-          return response.json()
-        }).then(responseJSON => {
-          searchResults.value = responseJSON.results
-          searching.value = false
-        })
-      }, 250)
-    )
-
-    return {
-      selectedTab,
-      manualRssUrl,
-      search,
-      searchResults,
-      searching,
-      addingPodcast,
-      addManualRssUrl,
-      addPodcast,
-      addSearchedPodcast,
-    }
-  },
+    return Promise.all([addPodcast, ...addPodcastEpisodes]).then(() => {
+      addingPodcast.value.url = ''
+      addingPodcast.value.adding = false
+      addingPodcast.value.episodesAdded = 0
+      addingPodcast.value.episodesTotal = 0
+    })
+  })
 }
+
+const addManualRssUrl = () => {
+  addPodcast(manualRssUrl.value).then(() => {
+    router.push('/podcasts')
+  })
+}
+
+const addSearchedPodcast = (url) => {
+  addPodcast(url).then(() => {
+    router.push('/podcasts')
+  })
+}
+
+watch(search, _.debounce(function(value) {
+  searching.value = true
+  let searchURL = 'https://itunes.apple.com/search?' + new URLSearchParams({
+    term: value,
+    media: 'podcast',
+    entity: 'podcast'
+  })
+
+  fetch(searchURL)
+    .then(response => {
+      return response.json()
+    }).then(responseJSON => {
+      searchResults.value = responseJSON.results
+      searching.value = false
+    })
+  }, 250)
+)
 </script>
