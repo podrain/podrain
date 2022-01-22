@@ -24,13 +24,19 @@
               <font-awesome-icon icon="check" />
             </div>
 
-            <div class="text-white leading-tight text-xs font-bold">{{ ep.title }}</div>
+            <div 
+              class="leading-tight text-xs font-bold"
+              :class="[ep.currently_playing ? 'text-gray-900' : 'text-white']"
+            >{{ ep.title }}</div>
 
             <div class="flex mt-3">
               <div class="w-1/5">
                 <img :src="ep.imageURL || ep.podcast.meta.imageURL" />
               </div>
-              <div class="w-4/5 text-xs font-light ml-3 text-gray-300">
+              <div 
+                class="w-4/5 text-xs font-light ml-3"
+                :class="[ep.currently_playing ? 'text-gray-900' : 'text-gray-300']"
+              >
                 <span class="italic">{{ prepareDateString(ep.pubDate) }}</span>&nbsp;—&nbsp;
                 {{ prepareDescriptionString(ep.description) }}
                 <div class="mt-2 font-bold">
