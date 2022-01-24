@@ -36,7 +36,7 @@
         <div v-else class="text-white italic mt-3">You haven't listened to any episodes yet! They'll show up here when you do.</div>
 
         <button
-          v-if="playHistory.length > maxNumEpisodesShowing"
+          v-if="(playHistoryCount - playHistory.length >= maxNumEpisodesShowing) || (playHistoryCount != playHistory.length)"
           class="bg-purple-500 text-white mt-3 p-3 w-full"
           @click="getMorePlayHistory"
         >
@@ -59,12 +59,21 @@
 
   const loading = ref(false)
   const playHistory = ref([])
+  const playHistoryCount = ref(0)
   const store = useStore()
   const router = useRouter()
 
   const queue = computed(() => store.state.queue)
 
   loading.value = true
+
+  Shared.dexieDB.episodes.where('played')
+    .notEqual('')
+    .count()
+    .then(result => {
+      playHistoryCount.value = result
+    })
+
 
   Shared.dexieDB.episodes.where('played')
     .notEqual('')
