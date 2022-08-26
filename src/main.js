@@ -185,6 +185,6 @@ app
   .use(store)
   .mount('#app')
 
-if (!localStorage.getItem('proxy_url')) {
-  localStorage.setItem('proxy_url', 'https://podrain-proxy.herokuapp.com/')
+if (!localStorage.getItem('proxy_url') || localStorage.getItem('proxy_url') === 'https://podrain-proxy.herokuapp.com/') {
+  localStorage.setItem('proxy_url', 'https://podrain-proxy.sweeney.digital/')
 }
