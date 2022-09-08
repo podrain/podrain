@@ -105,40 +105,40 @@
 </template>
 
 <script setup>
+  import { usePiniaStore } from '../State'
   import { computed, ref } from 'vue'
-  import { useStore } from 'vuex'
   import { floatToISO } from '../Helpers'
   import LoadingEllipsis from './LoadingEllipsis.vue'
 
-  const store = useStore()
+  const store = usePiniaStore()
   const expanded = ref(true)
 
-  const playingEpisode = computed(() => store.state.playingEpisode)
+  const playingEpisode = computed(() => store.playingEpisode)
   const humanFriendlyDuration = computed(() => floatToISO(playingEpisode.value.duration))
   const humanFriendlyPlayhead = computed(() => floatToISO(playingEpisode.value.playhead))
-  const paused = computed(() => store.state.paused)
+  const paused = computed(() => store.paused)
 
   const playOrPause = () => {
-    store.dispatch('playOrPause')
+    store.playOrPause()
   }
 
   const jumpAhead = () => {
-    store.dispatch('jumpAhead')
+    store.jumpAhead()
   }
 
   const jumpBack = () => {
-    store.dispatch('jumpBack')
+    store.jumpBack()
   }
 
   const playNext = () => {
-    store.dispatch('playNext')
+    store.playNext()
   }
 
   const playPrev = () => {
-    store.dispatch('playPrev')
+    store.playPrev()
   }
 
   const setPlayhead = (e) => {
-    store.dispatch('setPlayhead', e.target.value)
+    store.setPlayhead(e.target.value)
   }
 </script>

@@ -34,13 +34,12 @@
 
 <script setup>
   import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
-  import { Shared } from '../State'
+  import { Shared, usePiniaStore } from '../State'
   import _ from 'lodash'
   import { ref, computed, watch } from 'vue'
-  import { useStore } from 'vuex'
   import { useRoute } from 'vue-router'
 
-  const store = useStore()
+  const store = usePiniaStore()
   const route = useRoute()
 
   const podcast = ref({})
@@ -48,7 +47,7 @@
   const episodes = ref([])
   const searchResults = ref([])
 
-  const queue = computed(() => store.state.queue)
+  const queue = computed(() => store.queue)
 
   const getPodcasts = Shared.dexieDB.podcasts
     .where({ _id: route.params.id })
@@ -79,11 +78,11 @@
   }
 
   const addToQueue = (id) => {
-    store.dispatch('addEpisodeToQueue', id)
+    store.addEpisodeToQueue(id)
   }
 
   const removeFromQueue = (id) => {
-    store.dispatch('removeEpisodeFromQueue', id)
+    store.removeEpisodeFromQueue(id)
   }
 
   watch(search, _.debounce(function(value) {

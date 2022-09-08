@@ -5,7 +5,8 @@ import './css/app.css'
 import Dexie from 'dexie'
 import localforage from 'localforage'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { VuexStore as store, Shared } from './State'
+import { Shared } from './State'
+import { createPinia } from 'pinia'
 import {
   Config, 
   Icon, 
@@ -172,6 +173,8 @@ const router = createRouter({
   routes,
 })
 
+const pinia = createPinia()
+
 const app = createApp(App)
 app
   .component('font-awesome-icon', FontAwesomeIcon)
@@ -182,7 +185,7 @@ app
     iconComponent: 'font-awesome-icon',
   })
   .use(router)
-  .use(store)
+  .use(pinia)
   .mount('#app')
 
 if (!localStorage.getItem('proxy_url') || localStorage.getItem('proxy_url') === 'https://podrain-proxy.herokuapp.com/') {

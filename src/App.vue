@@ -45,8 +45,7 @@
 
 <script setup>
   import Playbox from './components/Playbox.vue'
-  import { Shared } from './State'
-  import { useStore } from 'vuex'
+  import { Shared, usePiniaStore } from './State'
 
   const menu = [
     {
@@ -71,34 +70,34 @@
     }
   ]
 
-  const store = useStore()
+  const store = usePiniaStore()
 
-  store.dispatch('syncDownloadedEpisodes')
+  store.syncDownloadedEpisodes()
 
   Shared.playingAudio = new Audio
 
   Shared.playingAudio.addEventListener('pause', (event) => {
-    store.state.paused = true
+    store.paused = true
   })
 
   Shared.playingAudio.addEventListener('play', (event) => {
-    store.state.paused = false
+    store.paused = false
   })
 
   Shared.playingAudio.addEventListener('ended', (event) => {
-    store.dispatch('playNext', { finishEpisode: true, startPlaying: true })
+    store.playNext({ finishEpisode: true, startPlaying: true })
   })
 
   Shared.playingAudio.addEventListener('loadedmetadata', () => {
-    store.state.playingEpisode.duration = Shared.playingAudio.duration
+    store.playingEpisode.duration = Shared.playingAudio.duration
   })
 
-  store.dispatch('getQueue').then(() => {
-    if (store.state.queue.length > 0) {
+  store.getQueue().then(() => {
+    if (store.queue.length > 0) {
       return Shared.dexieDB.episodes
         .where({ currently_playing: 1 })
         .toArray().then(result => {
-          store.dispatch('playEpisode', { id: result[0]._id })
+          store.playEpisode({ id: result[0]._id })
         }) 
     } else {
       return Promise.resolve()
@@ -106,12 +105,12 @@
   }).then(() => {
     setInterval(() => {
       Shared.dexieDB.episodes
-        .where({ _id: store.state.playingEpisode._id })
-        .modify({ playhead: store.state.playingEpisode.playhead })
+        .where({ _id: store.playingEpisode._id })
+        .modify({ playhead: store.playingEpisode.playhead })
         .then(() => {
-          store.commit('setPlayheadOfEpisode', {
-            episodeID: store.state.playingEpisode._id,
-            newPlayhead: store.state.playingEpisode.playhead
+          store.setPlayheadOfEpisode({
+            episodeID: store.playingEpisode._id,
+            newPlayhead: store.playingEpisode.playhead
           })
         })
     }, 5000)

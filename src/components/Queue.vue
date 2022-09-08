@@ -108,22 +108,22 @@ ul#queue-list > li:first-child {
 
 <script setup>
   import { computed, onMounted } from 'vue'
-  import { useStore } from 'vuex'
+  import { usePiniaStore } from '../State'
   import { useRouter } from 'vue-router'
   import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration } from '../Helpers'
   import { DateTime } from 'luxon'
   import _ from 'lodash'
   import Sortable from 'sortablejs'
 
-  const store = useStore()
+  const store = usePiniaStore()
   const router = useRouter()
-  const queue = computed(() => store.getters.queueInOrder)
-  const downloading = computed(() => store.state.downloading)
-  const queueChanging = computed(() => store.state.queueChanging)
+  const queue = computed(() => store.queueInOrder)
+  const downloading = computed(() => store.downloading)
+  const queueChanging = computed(() => store.queueChanging)
 
-  const isDownloading = (id) => store.state.downloading.map(dl => dl.id).includes(id)
-  const downloadProgress = (id) => store.state.downloading.filter(dl => dl.id == id)[0].progress
-  const isDownloaded = (id) => store.state.downloaded.includes(id)
+  const isDownloading = (id) => store.downloading.map(dl => dl.id).includes(id)
+  const downloadProgress = (id) => store.downloading.filter(dl => dl.id == id)[0].progress
+  const isDownloaded = (id) => store.downloaded.includes(id)
 
   const prepareDescriptionString = (string) => {
     if (string) {
@@ -139,22 +139,22 @@ ul#queue-list > li:first-child {
   }
 
   const removeFromQueue = (episodeID) => {
-    store.dispatch('removeEpisodeFromQueue', episodeID)
+    store.removeEpisodeFromQueue(episodeID)
   }
 
   const downloadEpisode = (id) => {
     if (isDownloaded(id)) {
-      store.dispatch('removeDownload', id)
+      store.removeDownload(id)
     } else {
-      store.dispatch('downloadEpisode', id)
+      store.downloadEpisode(id)
     } 
   }
 
   const playOrPauseEpisode = (id) => {
-    store.dispatch('playOrPauseEpisode', id)
+    store.playOrPauseEpisode(id)
   }
 
-  const isPlaying = (id) => store.getters.isPlaying(id)
+  const isPlaying = (id) => store.isPlaying(id)
 
   onMounted(() => {
     let queueList = document.getElementById('queue-list')
@@ -166,7 +166,7 @@ ul#queue-list > li:first-child {
       onUpdate(evt) {
         let newOrder = evt.newIndex + 1
         let episodeID = evt.item.dataset.id
-        store.dispatch('reorderQueue', {
+        store.reorderQueue({
           episodeID,
           newOrder
         })

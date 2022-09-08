@@ -49,9 +49,8 @@
 
 <script setup>
   import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
-  import { Shared } from '../State'
+  import { Shared, usePiniaStore } from '../State'
   import { ref, computed } from 'vue'
-  import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import { DateTime } from 'luxon'
 
@@ -60,10 +59,10 @@
   const loading = ref(false)
   const playHistory = ref([])
   const playHistoryCount = ref(0)
-  const store = useStore()
+  const store = usePiniaStore()
   const router = useRouter()
 
-  const queue = computed(() => store.state.queue)
+  const queue = computed(() => store.queue)
 
   loading.value = true
 
@@ -99,11 +98,11 @@
   }
 
   const addToQueue = (id) => {
-    store.dispatch('addEpisodeToQueue', id)
+    store.addEpisodeToQueue(id)
   }
 
   const removeFromQueue = (id) => {
-    store.dispatch('removeEpisodeFromQueue', id)
+    store.removeEpisodeFromQueue(id)
   }
 
   const getMorePlayHistory = () => {

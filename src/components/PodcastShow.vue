@@ -129,9 +129,8 @@
 
 <script setup>
   import { ref, computed } from 'vue'
-  import { useStore } from 'vuex'
   import { useRouter, useRoute } from 'vue-router'
-  import { Shared } from '../State'
+  import { Shared, usePiniaStore } from '../State'
   import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
   import { DateTime } from 'luxon'
   import feedParser from 'https://jspm.dev/better-podcast-parser'
@@ -139,7 +138,7 @@
   import { v4 as uuidv4 } from 'uuid'
   import StoredImage from './StoredImage.vue'
 
-  const store = useStore()
+  const store = usePiniaStore()
   const router = useRouter()
   const route = useRoute()
   const podcast = ref({
@@ -156,8 +155,8 @@
   const episodeModalShowing = ref(false)
   const episodeModalContent = ref({})
 
-  const queue = computed(() => store.state.queue)
-  const queueChanging = computed(() => store.state.queueChanging)
+  const queue = computed(() => store.queue)
+  const queueChanging = computed(() => store.queueChanging)
 
   Shared.dexieDB.podcasts.where({ _id: route.params.id }).toArray().then(result => {
     podcast.value = result[0]
@@ -186,14 +185,14 @@
 
       for (let ep of episodes) {
         if (ep.podcast_id == podcast.value._id) {
-          sequence = sequence.then(() => store.dispatch('removeEpisodeFromQueue', ep._id))
+          sequence = sequence.then(() => store.removeEpisodeFromQueue(ep._id))
         }
       }
 
       return sequence
     }
 
-    await removeEpisodesFromQueue(store.state.queue)
+    await removeEpisodesFromQueue(store.queue)
 
     let deletePodcastOnly = Shared.dexieDB.podcasts.where({ _id: podcast.value._id }).delete()
     let deleteEpisodes = Shared.dexieDB.episodes.where({ podcast_id: podcast.value._id }).delete()
@@ -214,8 +213,8 @@
 
   const prepareDateString = (string) => DateTime.fromISO(string).toFormat('D')
 
-  const removeFromQueue = (id) => store.dispatch('removeEpisodeFromQueue', id)
-  const addToQueue = (id) => store.dispatch('addEpisodeToQueue', id)
+  const removeFromQueue = (id) => store.removeEpisodeFromQueue(id)
+  const addToQueue = (id) => store.addEpisodeToQueue(id)
 
   const refreshEpisodes = async () => {
     refreshing.value = true
@@ -243,10 +242,10 @@
   }
 
   const playOrPauseEpisode = (id) => {
-    store.dispatch('playOrPauseEpisode', id)
+    store.playOrPauseEpisode(id)
   }
 
-  const isPlaying = (id) => store.getters.isPlaying(id)
+  const isPlaying = (id) => store.isPlaying(id)
 
   const showEpisodeModal = (id) => {
     episodeModalShowing.value = true

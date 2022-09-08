@@ -17,11 +17,11 @@
     "localforage": "^1.9.0",
     "lodash": "^4.17.20",
     "luxon": "^2.0.2",
+    "pinia": "^2.0.22",
     "sortablejs": "^1.13.0",
     "uuid": "^8.3.2",
     "vue": "^3.0.5",
-    "vue-router": "4",
-    "vuex": "^4.0.0-rc.2"
+    "vue-router": "4"
   },
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "npm:@tailwindcss/postcss7-compat",
