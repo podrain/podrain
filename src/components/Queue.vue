@@ -88,7 +88,7 @@
             <div
               v-if="isDownloading(ep._id) || isDownloaded(ep._id)" 
               class="h-full bg-green-500 absolute"
-              :style="`width: ${ isDownloaded(ep._id) ? '100' : downloadProgress(ep._id) }%`"
+              :style="`transition: width 150ms; width: ${ isDownloaded(ep._id) ? '100' : downloadProgress(ep._id) }%`"
             ></div>
             <div 
               class="flex h-full justify-center items-center relative text-white"
