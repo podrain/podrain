@@ -10,17 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install Dependencies
-      run: yarn install
+    
+    - uses: pnpm/action-setup@2.2.2
+      name: Install and run pnpm
+      id: pnpm-install
+      with:
+        version: 7
+        run_install: true
+      
     - name: Build Site
       run: NODE_ENV=production npx vite build --base=./
+    
     - name: Stage Files
       run: git add -f dist
+    
     - name: Commit files
       run: |
         git config --local user.email "actions@github.com"
         git config --local user.name "GitHub Actions"
         git commit -m "Build for deploy"
+    
     - name: Publish
       run: |
         git subtree split --prefix dist -b gh-pages
