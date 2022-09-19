@@ -89,8 +89,6 @@
   }
 
   const searchDebounce = _.debounce(function(value) {
-    console.log(searching.value)
-
     searchResults.value = episodes.value.filter(ep => {
       let lowerCaseDesc = ep.description.toLowerCase()
       let lowerCaseTitle = ep.title.toLowerCase()
@@ -98,7 +96,6 @@
     })
 
     searching.value = false
-    console.log(searching.value)
   }, 1000)
 
   watch(search, (value) => {
