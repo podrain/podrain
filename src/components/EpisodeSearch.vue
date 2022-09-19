@@ -6,10 +6,12 @@
         class="p-1 w-full mt-1"
         v-model="search"
       />
-      <ul>
+      <div v-if="searching" class="text-white text-center text-4xl mt-6"><font-awesome-icon icon="spinner" spin /></div>
+      <ul v-else>
         <li class="text-white mt-3" v-for="sr in searchResults" :key="sr._id">
           <div class="bg-gray-700 p-3">
             <h2>{{ sr.title }}</h2>
+            <span class="italic w-4/5 text-xs font-light text-gray-300">{{ prepareDateString(sr.pubDate) }}</span>
             <p class="text-xs text-gray-300">{{ prepareDescriptionString(sr.description) }}</p>
             <div class="text-sm mt-2">
               <font-awesome-icon icon="clock" /> {{ humanFriendlyDuration(sr.duration) }}
@@ -33,7 +35,7 @@
 </template>
 
 <script setup>
-  import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
+  import { cleanHTMLString, truncateString, humanFriendlyDuration, prepareDateString } from '../Helpers'
   import { Shared, usePiniaStore } from '../State'
   import _ from 'lodash'
   import { ref, computed, watch } from 'vue'
@@ -46,6 +48,7 @@
   const search = ref('')
   const episodes = ref([])
   const searchResults = ref([])
+  const searching = ref(false)
 
   const queue = computed(() => store.queue)
 
@@ -85,11 +88,21 @@
     store.removeEpisodeFromQueue(id)
   }
 
-  watch(search, _.debounce(function(value) {
+  const searchDebounce = _.debounce(function(value) {
+    console.log(searching.value)
+
     searchResults.value = episodes.value.filter(ep => {
       let lowerCaseDesc = ep.description.toLowerCase()
       let lowerCaseTitle = ep.title.toLowerCase()
       return lowerCaseDesc.includes(value.toLowerCase()) || lowerCaseTitle.includes(value.toLowerCase())
     })
-  }, 1000))
+
+    searching.value = false
+    console.log(searching.value)
+  }, 1000)
+
+  watch(search, (value) => {
+    searching.value = true
+    searchDebounce(value)
+  })
 </script>

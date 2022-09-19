@@ -26,13 +26,13 @@
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "npm:@tailwindcss/postcss7-compat",
     "@tailwindcss/typography": "^0.3.1",
-    "@vitejs/plugin-vue": "^1.0.4",
+    "@vitejs/plugin-vue": "^1.10.2",
     "@vue/compiler-sfc": "^3.0.5",
     "autoprefixer": "^9",
     "postcss": "^7",
     "postcss-input-range": "^4.0.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
-    "vite": "^3",
+    "vite": "^3.1.2",
     "vite-plugin-pwa": "^0.3.8"
   }
 }

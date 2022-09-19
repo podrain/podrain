@@ -1,4 +1,4 @@
-import { Duration } from 'luxon'
+import { Duration, DateTime } from 'luxon'
 
 export function cleanHTMLString(string) {
   return new DOMParser().parseFromString(string, 'text/html').body.textContent
@@ -50,4 +50,8 @@ export function humanFriendlyDuration(value) {
   }
 
   return timeString
+}
+
+export function prepareDateString(string) {
+  return DateTime.fromISO(string).toFormat('D')
 }

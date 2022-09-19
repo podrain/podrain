@@ -7,7 +7,7 @@ specifiers:
   '@oruga-ui/oruga-next': ^0.4.4
   '@tailwindcss/postcss7-compat': npm:@tailwindcss/postcss7-compat
   '@tailwindcss/typography': ^0.3.1
-  '@vitejs/plugin-vue': ^1.0.4
+  '@vitejs/plugin-vue': ^1.10.2
   '@vue/compiler-sfc': ^3.0.5
   autoprefixer: ^9
   axios: ^0.21.1
@@ -23,7 +23,7 @@ specifiers:
   sortablejs: ^1.13.0
   tailwindcss: npm:@tailwindcss/postcss7-compat
   uuid: ^8.3.2
-  vite: ^3
+  vite: ^3.1.2
   vite-plugin-pwa: ^0.3.8
   vue: ^3.0.5
   vue-router: '4'
@@ -49,7 +49,7 @@ dependencies:
 devDependencies:
   '@tailwindcss/postcss7-compat': 2.2.17
   '@tailwindcss/typography': 0.3.1_adepz2rw47v3pbcgawiji3v4ka
-  '@vitejs/plugin-vue': 1.4.0_@vue+compiler-sfc@3.2.2
+  '@vitejs/plugin-vue': 1.10.2_vite@3.1.2
   '@vue/compiler-sfc': 3.2.2_lodash@4.17.21
   autoprefixer: 9.8.6
   postcss: 7.0.36
@@ -1403,13 +1403,13 @@ packages:
     resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
     dev: true
 
-  /@vitejs/plugin-vue/1.4.0_@vue+compiler-sfc@3.2.2:
-    resolution: {integrity: sha512-RkqfJHz9wdLKBp5Yi+kQL8BAljdrvPoccQm2PTZc/UcL4EjD11xsv2PPCduYx2oV1a/bpSKA3sD5sxOHFhz+LA==}
+  /@vitejs/plugin-vue/1.10.2_vite@3.1.2:
+    resolution: {integrity: sha512-/QJ0Z9qfhAFtKRY+r57ziY4BSbGUTGsPRMpB/Ron3QPwBZM4OZAZHdTa4a8PafCwU5DTatXG8TMDoP8z+oDqJw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
-      '@vue/compiler-sfc': ^3.0.8
+      vite: ^2.5.10
     dependencies:
-      '@vue/compiler-sfc': 3.2.2_lodash@4.17.21
+      vite: 3.1.2
     dev: true
 
   /@vue/compiler-core/3.2.2:
