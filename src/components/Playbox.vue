@@ -1,7 +1,7 @@
 <template>
-  <div v-if="playingEpisode">
+  <div v-if="playingEpisode" class="bg-gray-200">
     <Transition name="showhide" mode="out-in">
-      <div v-if="expanded" class="h-48 bg-gray-200">
+      <div v-if="expanded" class="h-48">
         <div class="p-3 h-full flex flex-col justify-between sm:justify-around">
           <div class="flex justify-between">
             <div class="flex flex-col w-4/5">
@@ -90,7 +90,7 @@
 
       <div 
         v-else 
-        class="h-12 bg-gray-200 flex items-center justify-center"
+        class="h-12 flex items-center justify-center"
         @click="expanded = true"
       >
         <font-awesome-icon icon="chevron-up" class="text-4xl" />
@@ -100,7 +100,7 @@
 
   <div 
     v-else
-    class="h-36 bg-gray-200 flex justify-center items-center"
+    class="h-36 flex justify-center items-center"
   >
     Loading player<LoadingEllipsis />
   </div>
@@ -109,12 +109,12 @@
 <style>
   .showhide-enter-active,
   .showhide-leave-active {
-    transition: height 0.2s ease;
+    transition: transform 0.2s ease;
   }
 
   .showhide-enter-from,
   .showhide-leave-to {
-    height: 0;
+    transform: translateY(16rem);
   }
 </style>
 
