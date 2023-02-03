@@ -1,5 +1,5 @@
 <template>
-  <div v-if="playingEpisode" class="bg-gray-200">
+  <div v-if="playingEpisode" class="bg-gray-200 sticky bottom-0 z-10">
     <Transition name="showhide" mode="out-in">
       <div v-if="expanded" class="h-48">
         <div class="p-3 h-full flex flex-col justify-between sm:justify-around">
@@ -100,7 +100,7 @@
 
   <div 
     v-else
-    class="h-36 flex justify-center items-center"
+    class="h-36 flex justify-center items-center bg-gray-200 sticky bottom-0 z-10"
   >
     Loading player<LoadingEllipsis />
   </div>

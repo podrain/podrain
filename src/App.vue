@@ -1,6 +1,6 @@
 <template>
-<div class="flex flex-col h-screen">
-  <div class="flex justify-center bg-teal-700">
+<div>
+  <div class="flex justify-center bg-teal-700 sticky top-0 z-10">
     <div class="flex text-white h-16 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
       <router-link 
         v-for="mn in menu" 
@@ -15,7 +15,7 @@
       </router-link>
     </div>
   </div>
-  <div class="flex-1 flex justify-center overflow-y-scroll bg-gray-800">
+  <div class="min-h-screen overflow-y-scroll bg-gray-800">
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />

@@ -20,7 +20,7 @@
         />
     </div>
 
-    <div v-else class="text-white h-full flex-1 flex justify-center items-center">
+    <div v-else class="text-white flex justify-center m-3">
       <div class="flex flex-col">
         There are no podcasts.
         <button @click="router.push('/podcasts/create')" class="mt-2 p-2 bg-green-500">Add some!</button>
