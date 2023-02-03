@@ -15,7 +15,7 @@
       </router-link>
     </div>
   </div>
-  <div class="min-h-screen overflow-y-scroll bg-gray-800">
+  <div class="min-h-screen bg-gray-800">
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />
