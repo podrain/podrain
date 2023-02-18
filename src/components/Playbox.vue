@@ -1,6 +1,5 @@
 <template>
   <div v-if="playingEpisode" class="bg-gray-200 sticky bottom-0 z-10">
-    <Transition name="showhide" mode="out-in">
       <div v-if="expanded" class="h-48">
         <div class="p-3 h-full flex flex-col justify-between sm:justify-around">
           <div class="flex justify-between">
@@ -95,7 +94,6 @@
       >
         <font-awesome-icon icon="chevron-up" class="text-4xl" />
       </div>
-    </Transition>
   </div>
 
   <div 
@@ -105,18 +103,6 @@
     Loading player<LoadingEllipsis />
   </div>
 </template>
-
-<style>
-  .showhide-enter-active,
-  .showhide-leave-active {
-    transition: transform 0.2s ease;
-  }
-
-  .showhide-enter-from,
-  .showhide-leave-to {
-    transform: translateY(16rem);
-  }
-</style>
 
 <script setup>
   import { usePiniaStore } from '../State'
