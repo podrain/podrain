@@ -107,6 +107,28 @@ dexieDB.version(3).stores({
   })
 })
 
+dexieDB.version(4).stores({
+  podcasts: '&_id',
+  episodes: '&_id,podcast_id,pubDate,queue,currently_playing,played',
+  player: '&key,value'
+}).upgrade(tx => {
+  return dexieDB.episodes.filter(ep => ep.queue > 0).toArray().then(episodes => {
+    const queueEpisodeIDs = episodes.map(ep => ep._id)
+    const currentlyPlayingID = episodes.filter(ep => ep.currently_playing === 1).map(ep => ep._id)[0]
+
+    return tx.table('player').bulkAdd([
+      {
+        key: 'queue',
+        value: JSON.stringify(queueEpisodeIDs)
+      },
+      {
+        key: 'currently_playing',
+        value: currentlyPlayingID
+      }
+    ])
+  })
+})
+
 Shared.dexieDB = dexieDB
 
 // localForage
