@@ -133,7 +133,7 @@
   import { Shared, usePiniaStore } from '../State'
   import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
   import { DateTime } from 'luxon'
-  import feedParser from 'https://jspm.dev/better-podcast-parser'
+  import feedParser from 'better-podcast-parser'
   import _ from 'lodash'
   import { v4 as uuidv4 } from 'uuid'
   import StoredImage from './StoredImage.vue'

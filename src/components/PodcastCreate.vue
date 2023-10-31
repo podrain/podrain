@@ -95,7 +95,7 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Shared } from '../State'
-import feedParser from 'https://jspm.dev/better-podcast-parser@0.1.16'
+import feedParser from 'better-podcast-parser'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'

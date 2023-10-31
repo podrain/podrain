@@ -11,7 +11,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.0-3",
     "@oruga-ui/oruga-next": "^0.4.4",
     "axios": "^0.21.1",
-    "better-podcast-parser": "^0.1.12",
+    "better-podcast-parser": "^0.2.0",
     "dexie": "^3.0.3",
     "file-saver": "^2.0.5",
     "localforage": "^1.9.0",
