@@ -15,7 +15,7 @@ jobs:
       name: Install and run pnpm
       id: pnpm-install
       with:
-        version: 7
+        version: 8
         run_install: true
       
     - name: Build Site
