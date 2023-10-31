@@ -229,9 +229,7 @@
       return _.merge(ep, {
         '_id': uuidv4(),
         'podcast_id': podcast.value._id,
-        'queue': 0,
         'playhead': 0,
-        'currently_playing': 0,
         'played': ''
       })
     })

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import _ from 'lodash'
+import _, { first } from 'lodash'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -20,8 +20,6 @@ export let usePiniaStore = defineStore('main', () => {
   const downloaded = ref([])
   const queueChanging = ref(false)
 
-  const currentlyPlayingInQueue = computed(() => queue.value.filter(qe => qe.currently_playing == 1)[0])
-
   function getEpisodeInQueue(id) {
     return queue.value.filter(qe => qe._id == id)[0]
   }
@@ -29,8 +27,6 @@ export let usePiniaStore = defineStore('main', () => {
   function isInQueue(id) {
     return queue.value.map(qe => qe._id).includes(id)
   }
-
-  const queueInOrder = computed(() => _.sortBy(queue.value, ['queue']))
 
   function isPlaying(id) {
     return playingEpisode.value?._id == id && !paused.value
@@ -49,13 +45,11 @@ export let usePiniaStore = defineStore('main', () => {
     queue.value.splice(queuedEpisodeIndex, 1)
   }
 
-  function setQueueOfEpisode(args) {
-    let episodeIndex = _.findIndex(queue.value, qe => qe._id == args.episodeID)
-    queue.value[episodeIndex].queue = args.newQueue
-  }
+  // function setQueueOfEpisode(args) {
+
+  // }
 
   function setPlayingEpisode(episode) {
-    delete episode.queue
     playingEpisode.value = episode
   }
 
@@ -68,15 +62,8 @@ export let usePiniaStore = defineStore('main', () => {
     queue.value[episodeIndex].playhead = args.newPlayhead
   }
 
-  function clearCurrentlyPlaying() {
-    for (let i = 0; i < queue.value.length; i++) {
-      queue.value[i].currently_playing = 0
-    }
-  }
-
   function setCurrentlyPlaying(id) {
-    let episodeIndex = _.findIndex(queue.value, qe => qe._id == id)
-    queue.value[episodeIndex].currently_playing = 1
+    Shared.dexieDB.player.where({ key: 'currently_playing' }).modify({ value: id })
   }
 
   function addEpisodeToDownloading(id) {
@@ -104,72 +91,55 @@ export let usePiniaStore = defineStore('main', () => {
     queueChanging.value = isQueueChanging
   }
 
-  function getQueue() {
+  async function getQueue() {
     clearQueue()
 
-    return Shared.dexieDB.episodes.where('queue').above(0).toArray().then(queuedEpisodes => {
-      return queuedEpisodes.map(async (qe) => {
-        qe.podcast = await Shared.dexieDB.podcasts.where({ _id: qe.podcast_id }).first()
-        return qe
-      })
-    }).then(episodesWithPodcastsPromises => {
-      return Promise.all(episodesWithPodcastsPromises)
-    }).then(episodesWithPodcasts => {
-      let episodesWithPodcastsSorted = _.sortBy(episodesWithPodcasts, ['queue'])
-
-      for (let ep of episodesWithPodcastsSorted) {
-        addEpisodeToQueueInternal(ep)
-      }
+    const queueCollection = await Shared.dexieDB.player.where({ key: 'queue' }).first()
+    const queueIDs = JSON.parse(queueCollection.value).filter(qe => qe !== null)
+    const queuedEpisodes = await Shared.dexieDB.episodes.where('_id').anyOf(queueIDs).toArray()
+    
+    const episodesWithPodcastsPromises = queuedEpisodes.map(async (qe) => {
+      qe.podcast = await Shared.dexieDB.podcasts.where({ _id: qe.podcast_id }).first()
+      return qe
     })
+
+    const episodesWithPodcasts = await Promise.all(episodesWithPodcastsPromises)
+
+    for (let id of queueIDs) {
+      const episode = episodesWithPodcasts.filter(ep => ep._id === id)[0]
+      addEpisodeToQueueInternal(episode)
+    }
   }
 
   function removeEpisodeFromQueue(id) {
     setQueueChanging(true)
-    let currentEpisode = queue.value.filter(qe => id == qe._id)[0]
-    
-    return Shared.dexieDB.episodes.where({ _id: id }).modify({ queue: 0 }).then(() => {
+
+    Shared.dexieDB.player.where({ key: 'queue' }).first().then(queueCollection => {
+      const currentQueue = JSON.parse(queueCollection.value)
+
+      const removeIndex = currentQueue.indexOf(id)
+      currentQueue.splice(removeIndex, 1)
+
+      const newQueueString = JSON.stringify(currentQueue)
+
+      return Shared.dexieDB.player.where({ key: 'queue' }).modify({ value: newQueueString })
+    }).then(() => {
       removeEpisodeFromQueueInternal(id)
-
-      return Shared.dexieDB.episodes.where('queue').above(currentEpisode.queue).toArray()
-    }).then(higherInQueue => {
-      let queuePromises = []
-
-      if (higherInQueue.length > 0) {
-        for (let hiq of higherInQueue) {
-          hiq.queue -= 1
-          queuePromises.push(
-            Shared.dexieDB.episodes
-              .where({ _id: hiq._id })
-              .modify({ queue: hiq.queue })
-              .then(() => {
-                setQueueOfEpisode({
-                  episodeID: hiq._id, 
-                  newQueue: hiq.queue,
-                })
-              })
-          )
-        }
-
-        return Promise.all(queuePromises).then(() => {
-          setQueueChanging(false)
-        })
-      } else {
-        return Promise.resolve().then(() => {
-          setQueueChanging(false)
-        })
-      }
+      setQueueChanging(false)
     })
   }
 
   async function addEpisodeToQueue(id) {
     setQueueChanging(true)
-    let episodesInQueue = await Shared.dexieDB.episodes.where('queue').above(0).toArray()
-    
-    let highestQueue = episodesInQueue.length > 0 ? Math.max(...episodesInQueue.map(ep => ep.queue)) : 0
-    let newHighestQueue = highestQueue + 1
-    await Shared.dexieDB.episodes
-      .where({ _id: id })
-      .modify({ queue: newHighestQueue })
+
+    const queueCollection = await Shared.dexieDB.player.where({ key: 'queue' }).first()
+    const currentQueue = JSON.parse(queueCollection.value)
+
+    currentQueue.push(id)
+
+    const newQueueString = JSON.stringify(currentQueue)
+
+    await Shared.dexieDB.player.where({ key: 'queue' }).modify({ value: newQueueString })
   
     let episode = await Shared.dexieDB.episodes
       .where({ _id: id })
@@ -192,12 +162,6 @@ export let usePiniaStore = defineStore('main', () => {
       Shared.playingAudio.pause()
     }
 
-    await Shared.dexieDB.episodes
-      .filter(ep => ep.currently_playing == 1)
-      .modify({ currently_playing: 0 })
-      
-    clearCurrentlyPlaying()
-
     // If not in queue already, add episode to queue
     if(!isInQueue(id)) {
       await addEpisodeToQueue(id)
@@ -213,11 +177,8 @@ export let usePiniaStore = defineStore('main', () => {
 
     setPlayingEpisode(episode)
 
-    await Shared.dexieDB.episodes
-      .where({ _id: id })
-      .modify({ currently_playing: 1 })
-    
-    clearCurrentlyPlaying()
+    await Shared.dexieDB.player.where({ key: 'currently_playing' }).modify({ value: id })
+
     setCurrentlyPlaying(id)
 
     let downloadedFile = await Shared.downloadedEpisodeFiles.getItem('podrain_episode_'+id)
@@ -269,15 +230,22 @@ export let usePiniaStore = defineStore('main', () => {
     let finishEpisode = payload.hasOwnProperty('finishEpisode') ? payload.finishEpisode : false
     let startPlaying = payload.hasOwnProperty('startPlaying') ? payload.startPlaying : false
 
+    const currentQueueString = await Shared.dexieDB.player.where({ key: 'queue' }).first()
+    const currentQueue = JSON.parse(currentQueueString.value).filter(qe => qe !== null)
+
+    const currentlyPlayingID = (await Shared.dexieDB.player.where({ key: 'currently_playing' }).first()).value
+
     let oldEpisodeId = _.clone(playingEpisode.value._id)
-    let firstInQueue = _.sortBy(queue.value, ['queue'])[0]
-    let lastInQueue = _.reverse(_.sortBy(queue.value, ['queue']))[0]
-    if (currentlyPlayingInQueue.value.queue == lastInQueue.queue) {
-      await playEpisode({ id: firstInQueue._id, startPlaying })
+    let firstInQueue = currentQueue[0]
+    let lastInQueue = currentQueue[currentQueue.length - 1]
+
+    if (currentlyPlayingID == lastInQueue) {
+      await playEpisode({ id: firstInQueue, startPlaying })
     } else {
-      let nextInQueue = queue.value.filter(qe => qe.queue == currentlyPlayingInQueue.value.queue + 1)[0]
+      const currentIndex = currentQueue.indexOf(currentlyPlayingID)
+      const nextEpisodeID = currentQueue[currentIndex + 1]
       
-      await playEpisode({ id: nextInQueue._id, startPlaying })
+      await playEpisode({ id: nextEpisodeID, startPlaying })
     }
 
     if (finishEpisode) {
@@ -292,76 +260,41 @@ export let usePiniaStore = defineStore('main', () => {
     }
   }
 
-  function playPrev() {
-    if (currentlyPlayingInQueue.value.queue == 1) {
-      let lastInQueue = _.reverse(_.sortBy(queue.value, ['queue']))[0]
-      playEpisode({ id: lastInQueue._id })
+  async function playPrev() {
+    const currentQueueString = await Shared.dexieDB.player.where({ key: 'queue' }).first()
+    const currentQueue = JSON.parse(currentQueueString.value).filter(qe => qe !== null)
+    
+    let firstInQueue = currentQueue[0]
+    let lastInQueue = currentQueue[currentQueue.length - 1]
+
+    const currentlyPlayingID = (await Shared.dexieDB.player.where({ key: 'currently_playing' }).first()).value
+
+    if (currentlyPlayingID === firstInQueue) {
+      playEpisode({ id: lastInQueue })
     } else {
-      let prevInQueue = queue.value.filter(qe => qe.queue == currentlyPlayingInQueue.value.queue - 1)[0]
-      playEpisode({ id: prevInQueue._id })
+      const currentIndex = currentQueue.indexOf(currentlyPlayingID)
+      const prevEpisodeID = currentQueue[currentIndex - 1]
+
+      playEpisode({ id: prevEpisodeID })
     }
   }
 
-  function reorderQueue(payload) {
+  function reorderArray(array, from, to) {
+    array.splice(to, 0, array.splice(from, 1)[0])
+    return array
+  }
+
+  async function reorderQueue(payload) {
     setQueueChanging(true)
-    let episodeID = payload.hasOwnProperty('episodeID') ? payload.episodeID : null
-    let newOrder = payload.hasOwnProperty('newOrder') ? payload.newOrder : null
+    let from = payload.hasOwnProperty('from') ? payload.from : null
+    let to = payload.hasOwnProperty('to') ? payload.to : null
 
-    let currentEpisode = queue.value.filter(qe => qe._id == episodeID)[0]
-    let reorderPromises = []
+    const queue = JSON.parse((await Shared.dexieDB.player.where({ key: 'queue' }).first()).value).filter(qe => qe !== null)
+    const newQueue = reorderArray(queue, from, to)
 
-    if (newOrder < currentEpisode.queue) {
-      let higherInQueue = queue.value.filter(ep => {
-        return ep.queue >= newOrder && ep.queue < currentEpisode.queue
-      })
+    await Shared.dexieDB.player.where({ key: 'queue' }).modify({ value: JSON.stringify(newQueue) })
 
-      for (let hiq of higherInQueue) {
-        reorderPromises.push(
-          Shared.dexieDB.episodes
-            .where({ _id: hiq._id })
-            .modify({ queue: hiq.queue + 1 })
-            .then(() => {
-              setQueueOfEpisode({
-                episodeID: hiq._id, 
-                newQueue: hiq.queue + 1,
-              })
-            })
-        )
-      }
-    } else if (newOrder > currentEpisode.queue) {
-      let lowerInQueue = queue.value.filter(ep => {
-        return ep.queue <= newOrder && ep.queue > currentEpisode.queue
-      })
-
-      for (let liq of lowerInQueue) {
-        reorderPromises.push(
-          Shared.dexieDB.episodes
-            .where({ _id: liq._id })
-            .modify({ queue: liq.queue - 1 })
-            .then(() => {
-              setQueueOfEpisode({
-                episodeID: liq._id, 
-                newQueue: liq.queue - 1,
-              })
-            })
-        )
-      }
-    }
-
-    return Promise.all([
-      Shared.dexieDB.episodes
-        .where({ _id: episodeID })
-        .modify({ queue: newOrder })
-        .then(() => {
-          setQueueOfEpisode({
-            episodeID: episodeID, 
-            newQueue: newOrder,
-          })
-        }),
-      ...reorderPromises
-    ]).then(() => 
-      setQueueChanging(false)
-    )
+    setQueueChanging(false)
   }
 
   async function downloadEpisode(id) {
@@ -434,17 +367,13 @@ export let usePiniaStore = defineStore('main', () => {
     downloaded,
     queueChanging,
 
-    currentlyPlayingInQueue,
     getEpisodeInQueue,
     isInQueue,
-    queueInOrder,
     isPlaying,
     clearQueue,
-    setQueueOfEpisode,
     setPlayingEpisode,
     updatePlayhead,
     setPlayheadOfEpisode,
-    clearCurrentlyPlaying,
     setCurrentlyPlaying,
     addEpisodeToDownloading,
     setEpisodeDownloadingProgress,

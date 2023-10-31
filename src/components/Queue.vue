@@ -12,7 +12,7 @@
       >
         <div 
           class="flex"
-          :class="[ ep.currently_playing ? 'bg-orange-500' : 'bg-gray-700' ]"
+          :class="[ playingEpisode?._id === ep._id ? 'bg-orange-500' : 'bg-gray-700' ]"
         >
           <div 
             class="p-3 relative w-full"
@@ -26,7 +26,7 @@
 
             <div 
               class="leading-tight text-xs font-bold"
-              :class="[ep.currently_playing ? 'text-gray-900' : 'text-white']"
+              :class="[ playingEpisode?._id === ep._id ? 'text-gray-900' : 'text-white']"
             >{{ ep.title }}</div>
 
             <div class="flex mt-3">
@@ -35,7 +35,7 @@
               </div>
               <div 
                 class="w-4/5 text-xs font-light ml-3"
-                :class="[ep.currently_playing ? 'text-gray-900' : 'text-gray-300']"
+                :class="[ playingEpisode?._id === ep._id ? 'text-gray-900' : 'text-gray-300']"
               >
                 <span class="italic">{{ prepareDateString(ep.pubDate) }}</span>&nbsp;—&nbsp;
                 {{ prepareDescriptionString(ep.description) }}
@@ -117,7 +117,8 @@ ul#queue-list > li:first-child {
 
   const store = usePiniaStore()
   const router = useRouter()
-  const queue = computed(() => store.queueInOrder)
+  const playingEpisode = computed(() => store.playingEpisode)
+  const queue = computed(() => store.queue)
   const downloading = computed(() => store.downloading)
   const queueChanging = computed(() => store.queueChanging)
 
@@ -164,11 +165,9 @@ ul#queue-list > li:first-child {
       animation: 150,
 
       onUpdate(evt) {
-        let newOrder = evt.newIndex + 1
-        let episodeID = evt.item.dataset.id
         store.reorderQueue({
-          episodeID,
-          newOrder
+          from: evt.oldIndex,
+          to: evt.newIndex,
         })
       }
     })

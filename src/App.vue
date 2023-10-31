@@ -94,10 +94,11 @@
 
   store.getQueue().then(() => {
     if (store.queue.length > 0) {
-      return Shared.dexieDB.episodes
-        .where({ currently_playing: 1 })
-        .toArray().then(result => {
-          store.playEpisode({ id: result[0]._id })
+      return Shared.dexieDB.player
+        .where({ key: 'currently_playing' })
+        .first()
+        .then(result => {
+          store.playEpisode({ id: result.value })
         }) 
     } else {
       return Promise.resolve()

@@ -162,9 +162,7 @@ const addPodcast = (podcastUrl) => {
         Shared.dexieDB.episodes.add(_.merge(ep, {
           '_id': uuidv4(),
           'podcast_id': podcastID,
-          'queue': 0,
           'playhead': 0,
-          'currently_playing': 0,
           'played': ''
         })).then(() => {
           addingPodcast.value.episodesAdded += 1

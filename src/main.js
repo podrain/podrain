@@ -129,6 +129,17 @@ dexieDB.version(4).stores({
   })
 })
 
+dexieDB.version(5).stores({
+  podcasts: '&_id',
+  episodes: '&_id,podcast_id,pubDate,played',
+  player: '&key,value'
+}).upgrade(tx => {
+  return tx.table('episodes').toCollection().modify(ep => {
+    delete ep.queue
+    delete ep.currently_playing
+  })
+})
+
 Shared.dexieDB = dexieDB
 
 // localForage

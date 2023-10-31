@@ -100,15 +100,18 @@
     restoreStatus.value = 'Starting restore...'
     restoreFile.value.text().then(result => {
       let parsedResult = JSON.parse(result)
+
       restoreStatus.value = 'Clearing podcasts...'
       return Promise.all([
         Shared.dexieDB.podcasts.clear(),
-        Shared.dexieDB.episodes.clear()
+        Shared.dexieDB.episodes.clear(),
+        Shared.dexieDB.player.clear()
       ]).then(() => {
         restoreStatus.value = 'Loading new podcasts...'
         return Promise.all([
           Shared.dexieDB.podcasts.bulkAdd(parsedResult.podcasts),
-          Shared.dexieDB.episodes.bulkAdd(parsedResult.episodes)
+          Shared.dexieDB.episodes.bulkAdd(parsedResult.episodes),
+          Shared.dexieDB.player.bulkAdd(parsedResult.player),
         ])
       }).then(() => {
         restoring.value = false
@@ -120,11 +123,13 @@
   const downloadBackup = () => {
     let getPodcasts = Shared.dexieDB.podcasts.toArray()
     let getEpisodes = Shared.dexieDB.episodes.toArray()
+    let getPlayer = Shared.dexieDB.player.toArray()
 
-    Promise.all([getPodcasts, getEpisodes]).then(result => {
+    Promise.all([getPodcasts, getEpisodes, getPlayer]).then(result => {
       let downloadPayload = {
         podcasts: result[0],
-        episodes: result[1]
+        episodes: result[1],
+        player: result[2],
       }
 
       let downloadBlob = new Blob([JSON.stringify(downloadPayload)], {
