@@ -180,19 +180,15 @@
   const deletePodcast = async () => {
     deleting.value = true
 
-    function removeEpisodesFromQueue(episodes) {
-      let sequence = Promise.resolve()
+    const queueEpisodesToDelete = []
 
-      for (let ep of episodes) {
-        if (ep.podcast_id == podcast.value._id) {
-          sequence = sequence.then(() => store.removeEpisodeFromQueue(ep._id))
-        }
+    for (let episode of queue.value) {
+      if (episode.podcast_id === podcast.value._id) {
+        queueEpisodesToDelete.push(episode._id)
       }
-
-      return sequence
     }
 
-    await removeEpisodesFromQueue(store.queue)
+    await store.removeEpisodeFromQueue(queueEpisodesToDelete)
 
     let deletePodcastOnly = Shared.dexieDB.podcasts.where({ _id: podcast.value._id }).delete()
     let deleteEpisodes = Shared.dexieDB.episodes.where({ podcast_id: podcast.value._id }).delete()

@@ -111,20 +111,33 @@ export let usePiniaStore = defineStore('main', () => {
     }
   }
 
-  function removeEpisodeFromQueue(id) {
+  function removeEpisodeFromQueue(idOrArray) {
     setQueueChanging(true)
 
-    Shared.dexieDB.player.where({ key: 'queue' }).first().then(queueCollection => {
+    return Shared.dexieDB.player.where({ key: 'queue' }).first().then(queueCollection => {
       const currentQueue = JSON.parse(queueCollection.value)
 
-      const removeIndex = currentQueue.indexOf(id)
-      currentQueue.splice(removeIndex, 1)
+      if (typeof idOrArray === 'string') {
+        const removeIndex = currentQueue.indexOf(idOrArray)
+        currentQueue.splice(removeIndex, 1)
+      } else {
+        for (let id of idOrArray) {
+          const removeIndex = currentQueue.indexOf(id)
+          currentQueue.splice(removeIndex, 1)
+        }
+      }
 
       const newQueueString = JSON.stringify(currentQueue)
 
       return Shared.dexieDB.player.where({ key: 'queue' }).modify({ value: newQueueString })
     }).then(() => {
-      removeEpisodeFromQueueInternal(id)
+      if (typeof idOrArray === 'string') {
+        removeEpisodeFromQueueInternal(idOrArray)
+      } else {
+        for (let id of idOrArray) {
+          removeEpisodeFromQueueInternal(id)
+        }
+      }
       setQueueChanging(false)
     })
   }
