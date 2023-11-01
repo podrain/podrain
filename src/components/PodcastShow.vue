@@ -19,7 +19,7 @@
               </button>
               <button 
                 class="text-white bg-red-500 p-2 text-sm flex-1"
-                @click="deletePodcast"
+                @click="confirmDeleteDialogOpen = true"
               >
                 <font-awesome-icon class="mr-1" icon="spinner" v-if="deleting" spin />
                 <font-awesome-icon class="mr-1" icon="times" v-else />
@@ -133,6 +133,21 @@
       </div>
     </div>
     </o-modal>
+
+    <o-modal
+      :active="confirmDeleteDialogOpen"
+      :onClose="() => { confirmDeleteDialogOpen = false }"
+      contentClass="p-3 bg-gray-700 text-white"
+      mobileClass="px-3"
+    >
+      <div>
+        Are you sure you want to delete this podcast?
+      </div>
+      <div class="flex justify-between">
+        <button class="text-white p-1 bg-red-700 mt-3" @click="deletePodcast">Confirm</button>
+        <button class="text-white p-1 bg-gray-500 mt-3 ml-2" @click="confirmDeleteDialogOpen = false">Cancel</button>
+      </div>
+    </o-modal>
   </div>
 </template>
 
@@ -163,6 +178,7 @@
   const deleting = ref(false)
   const episodeModalShowing = ref(false)
   const episodeModalContent = ref({})
+  const confirmDeleteDialogOpen = ref(false)
 
   const queue = computed(() => store.queue)
   const queueChanging = computed(() => store.queueChanging)
