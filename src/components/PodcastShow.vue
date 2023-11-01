@@ -26,13 +26,22 @@
                 Delete
               </button>
             </div>
-            <button 
-              class="bg-yellow-500 p-2 text-sm w-full"
-              @click="router.push('/podcasts/'+podcast._id+'/search')"
-            >
-              <font-awesome-icon class="mr-1" icon="search" />
-              Search episodes
-            </button>
+            <div class="flex">
+              <button 
+                class="bg-yellow-500 p-2 text-sm w-full flex-1"
+                @click="router.push('/podcasts/'+podcast._id+'/search')"
+              >
+                <font-awesome-icon class="mr-1" icon="search" />
+                Search
+              </button>
+              <button 
+                class="text-white bg-blue-500 p-2 text-sm flex-1"
+                @click="router.push('/podcasts/'+podcast._id+'/edit')"
+              >
+                <font-awesome-icon class="mr-1" icon="edit" />
+                Edit
+              </button>
+            </div>
           </div>
         </div>
       </div>

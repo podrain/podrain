@@ -15,6 +15,7 @@ import {
 
 import PodcastList from './components/PodcastList.vue'
 import PodcastShow from './components/PodcastShow.vue'
+import PodcastEdit from './components/PodcastEdit.vue'
 import Settings from './components/Settings.vue'
 import Queue from './components/Queue.vue'
 import EpisodeShow from './components/EpisodeShow.vue'
@@ -50,6 +51,7 @@ import {
   faClock,
   faImage,
   faHistory,
+  faEdit,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -80,6 +82,7 @@ library.add(
   faCheck,
   faImage,
   faHistory,
+  faEdit,
 )
 
 // Dexie
@@ -173,6 +176,11 @@ const routes = [
   {
     path: '/podcasts/:id/search',
     component: EpisodeSearch
+  },
+
+  {
+    path: '/podcasts/:id/edit',
+    component: PodcastEdit
   },
 
   {
