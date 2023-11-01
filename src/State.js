@@ -95,6 +95,11 @@ export let usePiniaStore = defineStore('main', () => {
     clearQueue()
 
     const queueCollection = await Shared.dexieDB.player.where({ key: 'queue' }).first()
+
+    if (!queueCollection) {
+      await Shared.dexieDB.player.add({ key: 'queue', value: JSON.stringify([]) })
+    }
+
     const queueIDs = JSON.parse(queueCollection.value).filter(qe => qe !== null)
     const queuedEpisodes = await Shared.dexieDB.episodes.where('_id').anyOf(queueIDs).toArray()
     
@@ -190,7 +195,13 @@ export let usePiniaStore = defineStore('main', () => {
 
     setPlayingEpisode(episode)
 
-    await Shared.dexieDB.player.where({ key: 'currently_playing' }).modify({ value: id })
+    const currentlyPlaying = await Shared.dexieDB.player.where({ key: 'currently_playing' }).first()
+
+    if (currentlyPlaying) {
+      await Shared.dexieDB.player.where({ key: 'currently_playing' }).modify({ value: id })
+    } else {
+      await Shared.dexieDB.player.add({ key: 'currently_playing', value: id })
+    }
 
     setCurrentlyPlaying(id)
 
