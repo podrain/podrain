@@ -6,19 +6,19 @@
     "build": "NODE_ENV=production npx vite build"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.32",
-    "@fortawesome/free-solid-svg-icons": "^5.15.1",
-    "@fortawesome/vue-fontawesome": "^3.0.0-3",
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/vue-fontawesome": "3.0.0-4",
     "@oruga-ui/oruga-next": "^0.7.0",
     "axios": "^0.21.1",
     "better-podcast-parser": "^0.2.0",
     "dexie": "^3.0.3",
     "file-saver": "^2.0.5",
     "localforage": "^1.9.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "luxon": "^2.0.2",
     "pinia": "^2.0.22",
-    "sortablejs": "^1.13.0",
+    "sortablejs": "^1.14.0",
     "uuid": "^8.3.2",
     "vue": "^3.3.7",
     "vue-router": "^4.2.5"
@@ -26,7 +26,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.7",
     "@vitejs/plugin-vue": "^4.4.0",
-    "@vue/compiler-sfc": "^3.0.5",
+    "@vue/compiler-sfc": "^3.2.2",
     "autoprefixer": "^10.4.12",
     "postcss": "^8.4.16",
     "postcss-input-range": "^4.0.0",

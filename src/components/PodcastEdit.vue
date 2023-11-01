@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-  import { ref, defineProps } from 'vue'
+  import { ref } from 'vue'
   import { Shared } from '../State'
   import { useRoute, useRouter } from 'vue-router'
   import feedParser from 'better-podcast-parser'
