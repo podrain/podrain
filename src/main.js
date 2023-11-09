@@ -10,7 +10,8 @@ import { createPinia } from 'pinia'
 import {
   Config, 
   Icon, 
-  Modal, 
+  Modal,
+  Notification,
 } from '@oruga-ui/oruga-next'
 
 import PodcastList from './components/PodcastList.vue'
@@ -224,6 +225,7 @@ app
   .component('font-awesome-icon', FontAwesomeIcon)
   .use(Icon)
   .use(Modal)
+  .use(Notification)
   .use(Config, {
     iconPack: 'fas',
     iconComponent: 'font-awesome-icon',

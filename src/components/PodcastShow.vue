@@ -161,6 +161,9 @@
   import _ from 'lodash'
   import { v4 as uuidv4 } from 'uuid'
   import StoredImage from './StoredImage.vue'
+  import { useProgrammatic } from '@oruga-ui/oruga-next'
+
+  const { oruga } = useProgrammatic()
 
   const store = usePiniaStore()
   const router = useRouter()
@@ -239,25 +242,39 @@
 
   const refreshEpisodes = async () => {
     refreshing.value = true
-    let podcastRefreshed = await feedParser.parseURL(podcast.value.feed_url, {
-      proxyURL: localStorage.getItem('proxy_url'),
-      getAllPages: true
-    })
 
-    let newEpisodes = podcastRefreshed.episodes.filter(ep => {
-      return ep && ep.hasOwnProperty('pubDate') && ep.pubDate > _.max(episodes.value.map(epCurr => epCurr.pubDate))
-    }).map(ep => {
-      return _.merge(ep, {
-        '_id': uuidv4(),
-        'podcast_id': podcast.value._id,
-        'playhead': 0,
-        'played': ''
+    try {
+      let podcastRefreshed = await feedParser.parseURL(podcast.value.feed_url, {
+        proxyURL: localStorage.getItem('proxy_url'),
+        getAllPages: true
       })
-    })
 
-    await Shared.dexieDB.episodes.bulkAdd(newEpisodes)
-    await getEpisodes()
-    refreshing.value = false
+      let newEpisodes = podcastRefreshed.episodes.filter(ep => {
+        return ep && ep.hasOwnProperty('pubDate') && ep.pubDate > _.max(episodes.value.map(epCurr => epCurr.pubDate))
+      }).map(ep => {
+        return _.merge(ep, {
+          '_id': uuidv4(),
+          'podcast_id': podcast.value._id,
+          'playhead': 0,
+          'played': ''
+        })
+      })
+
+      await Shared.dexieDB.episodes.bulkAdd(newEpisodes)
+      await getEpisodes()
+      refreshing.value = false
+    } catch (e) {
+      
+      console.log(e)
+      oruga.notification.open({
+        message: `${e}`,
+        position: 'top',
+        rootClass: 'bg-red-500 w-full p-3',
+        closable: true
+      })
+      refreshing.value = false
+    }
+    
   }
 
   const playOrPauseEpisode = (id) => {
