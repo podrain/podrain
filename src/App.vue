@@ -1,29 +1,42 @@
 <template>
-<div>
-  <div class="flex justify-center bg-teal-700 sticky top-0 z-10">
-    <div class="flex text-white h-16 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3">
-      <router-link 
-        v-for="mn in menu" 
+  <div>
+    <div class="flex justify-center bg-teal-700 sticky top-0 z-10">
+      <div class="flex text-white h-16 w-full">
+        <button @click="showSidebar = true" class="w-16">
+          <font-awesome-icon class="text-4xl" icon="bars" />
+        </button>
+      </div>
+    </div>
+    <div class="min-h-screen bg-gray-800 flex justify-center">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </div>
+    <Playbox />
+  </div>
+
+  <o-sidebar
+    v-model:open="showSidebar"
+    :overlay="true"
+    contentClass="h-screen w-48 bg-gray-700 text-white"
+    overlayClass="bg-black opacity-50"
+  >
+    <div class="flex flex-col">
+      <router-link
+        v-for="mn in menu"
         :key="mn.link"
         :to="mn.link"
-        class="flex-1" 
-        active-class="bg-teal-800"
+        class="p-3 flex items-center"
+        active-class="bg-gray-800"
+        @click="showSidebar = false"
       >
-        <div class="h-full flex justify-center items-center">
-          <font-awesome-icon class="text-4xl" :icon="mn.icon" />
-        </div>
+        <font-awesome-icon :icon="mn.icon" class="text-3xl" />
+        <span class="ml-3 text-lg">{{ mn.label }}</span>
       </router-link>
     </div>
-  </div>
-  <div class="min-h-screen bg-gray-800 flex justify-center">
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </router-view>
-  </div>
-  <Playbox />
-</div>
+  </o-sidebar>
 </template>
 
 <style>
@@ -46,31 +59,39 @@
 <script setup>
   import Playbox from './components/Playbox.vue'
   import { Shared, usePiniaStore } from './State'
+  import { ref } from 'vue'
 
   const menu = [
     {
       link: '/podcasts',
       icon: 'home',
+      label: 'Podcasts'
     },
     {
       link: '/queue',
       icon: 'list-ol',
+      label: 'Queue'
     },
     {
       link: '/history',
       icon: 'history',
+      label: 'History'
     },
     {
       link: '/podcasts/create',
       icon: 'plus',
+      label: 'Add podcast'
     },
     {
       link: '/settings',
       icon: 'cog',
-    }
+      label: 'Settings'
+    },
   ]
 
   const store = usePiniaStore()
+
+  const showSidebar = ref(false)
 
   store.syncDownloadedEpisodes()
 

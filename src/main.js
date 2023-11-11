@@ -12,6 +12,7 @@ import {
   Icon, 
   Modal,
   Notification,
+  Sidebar,
 } from '@oruga-ui/oruga-next'
 
 import PodcastList from './components/PodcastList.vue'
@@ -226,6 +227,7 @@ app
   .use(Icon)
   .use(Modal)
   .use(Notification)
+  .use(Sidebar)
   .use(Config, {
     iconPack: 'fas',
     iconComponent: 'font-awesome-icon',
