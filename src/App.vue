@@ -83,6 +83,11 @@
       label: 'Add podcast'
     },
     {
+      link: '/downloads',
+      icon: 'download',
+      label: 'Downloads'
+    },
+    {
       link: '/settings',
       icon: 'cog',
       label: 'Settings'
