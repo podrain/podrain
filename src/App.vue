@@ -5,7 +5,7 @@
         <button @click="showSidebar = true">
           <font-awesome-icon class="text-4xl" icon="bars" />
         </button>
-        <h2 class="text-4xl">Podrain</h2>
+        <h2 class="text-4xl"><router-link to="/">Podrain</router-link></h2>
       </div>
     </div>
     <div class="min-h-screen bg-gray-800 flex justify-center">
