@@ -10,7 +10,7 @@
         active-class="bg-teal-800"
       >
         <div class="h-full flex justify-center items-center">
-          <font-awesome-icon class="text-4xl" :icon="mn.icon" />
+          <font-awesome-icon class="text-3xl sm:text-4xl" :icon="mn.icon" />
         </div>
       </router-link>
     </div>
@@ -65,9 +65,13 @@
       icon: 'plus',
     },
     {
+      link: '/downloads',
+      icon: 'download',
+    },
+    {
       link: '/settings',
       icon: 'cog',
-    }
+    },
   ]
 
   const store = usePiniaStore()
