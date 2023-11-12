@@ -3,6 +3,7 @@ import _, { first } from 'lodash'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useEventBus } from '@vueuse/core'
 
 export let Shared = {
   dexieDB: null,
@@ -10,6 +11,7 @@ export let Shared = {
   wakeLock: null,
   downloadedEpisodeFiles: null,
   downloadedImageFiles: null,
+  syncDownloadBus: useEventBus('bus')
 }
 
 export let usePiniaStore = defineStore('main', () => {
@@ -346,6 +348,7 @@ export let usePiniaStore = defineStore('main', () => {
     let audioBlob = new Blob([episodeAudio.data], { type: audioType })
     await Shared.downloadedEpisodeFiles.setItem('podrain_episode_'+id, audioBlob)
     syncDownloadedEpisodes()
+    Shared.syncDownloadBus.emit('downloaded')
     removeEpisodeFromDownloading(id)
   }
 
@@ -353,6 +356,7 @@ export let usePiniaStore = defineStore('main', () => {
     if (await Shared.downloadedEpisodeFiles.getItem('podrain_episode_'+id)) {
       await Shared.downloadedEpisodeFiles.removeItem('podrain_episode_'+id)
       syncDownloadedEpisodes()
+      Shared.syncDownloadBus.emit('removed')
     }
   }
 

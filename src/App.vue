@@ -1,10 +1,11 @@
 <template>
   <div>
     <div class="flex justify-center bg-teal-700 sticky top-0 z-10">
-      <div class="flex text-white h-16 w-full">
-        <button @click="showSidebar = true" class="w-16">
+      <div class="flex items-center justify-between text-white h-16 w-full p-4">
+        <button @click="showSidebar = true">
           <font-awesome-icon class="text-4xl" icon="bars" />
         </button>
+        <h2 class="text-4xl">Podrain</h2>
       </div>
     </div>
     <div class="min-h-screen bg-gray-800 flex justify-center">

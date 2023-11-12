@@ -43,5 +43,9 @@
     })
   }
 
+  Shared.syncDownloadBus.on((event) => {
+    loadDownloadedFiles()
+  })
+
   loadDownloadedFiles()
 </script>

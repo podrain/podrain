@@ -10,6 +10,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/vue-fontawesome": "3.0.0-4",
     "@oruga-ui/oruga-next": "^0.7.0",
+    "@vueuse/core": "^10.6.0",
     "axios": "^0.21.1",
     "better-podcast-parser": "^0.2.0",
     "dexie": "^3.0.3",
