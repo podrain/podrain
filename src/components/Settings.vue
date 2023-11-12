@@ -69,6 +69,10 @@
           <font-awesome-icon icon="image" class="mr-1" />Download images for podcasts
         </template>
       </button>
+
+      <div class="mt-3">
+        (Estimated) Total time listened: {{ totalTimeListened }}
+      </div>
     </div>
   </div>
 </template>
@@ -79,6 +83,7 @@
   import FileSaver from 'file-saver'
   import axios from 'axios'
   import { iOS } from '../Helpers'
+  import { humanFriendlyDuration } from '../Helpers'
 
   const proxyURL = ref(localStorage.getItem('proxy_url') || '')
   const restoreStatus = ref('')
@@ -86,6 +91,7 @@
   const restoreFile = ref(null)
   const wakeLock = ref(Shared.wakeLock ? true : false)
   const podcastImagesDownloading = ref(false)
+  const totalTimeListened = ref('')
 
   const saveProxyURL = () => {
     localStorage.setItem('proxy_url', proxyURL.value)
@@ -145,7 +151,6 @@
     let podcasts = await Shared.dexieDB.podcasts.toArray()
 
     for (let pc of podcasts) {
-      console.log('downloading ' +pc._id)
       let response = await axios.get(
         localStorage.getItem('proxy_url') + pc.meta.imageURL,
         {
@@ -181,4 +186,15 @@
       alert('Cannot keep this device awake. \'Keep awake\' setting is ignored.')
     }
   })
+
+  const getTotalTimeListened = () => {
+    Shared.dexieDB.episodes.where('played').notEqual('').toArray().then((playedEpisodes) => {
+      const playedDurations = playedEpisodes.map(ep => ep.duration).filter(ep => ep !== undefined)
+      
+      const playedDuration = playedDurations.reduce((acc, current) => acc + current, 0)
+      totalTimeListened.value = humanFriendlyDuration(playedDuration)
+    })
+  }
+
+  getTotalTimeListened()
 </script>

@@ -264,8 +264,6 @@
       await getEpisodes()
       refreshing.value = false
     } catch (e) {
-      
-      console.log(e)
       oruga.notification.open({
         message: `${e}`,
         position: 'top',
