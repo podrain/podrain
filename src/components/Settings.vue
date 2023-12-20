@@ -71,7 +71,7 @@
       </button>
 
       <div class="mt-3">
-        (Estimated) Total time listened: {{ totalTimeListened }}
+        (Estimated) Total time listened: <font-awesome-icon v-if="loadingListenTime" icon="spinner" spin /><span v-else>{{ totalTimeListened }}</span>
       </div>
     </div>
   </div>
@@ -92,6 +92,7 @@
   const wakeLock = ref(Shared.wakeLock ? true : false)
   const podcastImagesDownloading = ref(false)
   const totalTimeListened = ref('')
+  const loadingListenTime = ref(false)
 
   const saveProxyURL = () => {
     localStorage.setItem('proxy_url', proxyURL.value)
@@ -188,10 +189,12 @@
   })
 
   const getTotalTimeListened = () => {
+    loadingListenTime.value = true
     Shared.dexieDB.episodes.where('played').notEqual('').toArray().then((playedEpisodes) => {
       const playedDurations = playedEpisodes.map(ep => ep.duration).filter(ep => ep !== undefined)
       
       const playedDuration = playedDurations.reduce((acc, current) => acc + current, 0)
+      loadingListenTime.value = false
       totalTimeListened.value = humanFriendlyDuration(playedDuration)
     })
   }

@@ -3,7 +3,10 @@
     <div class="p-3">
       <h1 class="text-white text-2xl text-center">Downloads</h1>
 
-      <ul class="text-white">
+      <div v-if="loading" class="flex justify-center mt-2">
+        <font-awesome-icon class="text-white text-3xl" icon="spinner" spin />
+      </div>
+      <ul v-else class="text-white">
         <li class="bg-gray-600 p-2 my-2 flex items-center justify-between gap-4" v-for="ep in episodes">
           <span>{{ ep.title }}</span>
           <button @click="removeDownload(ep._id)" class="bg-red-500 p-2"><font-awesome-icon icon="times" /></button>
@@ -19,8 +22,10 @@
 
   const store = usePiniaStore()
   const episodes = ref([])
+  const loading = ref(false)
 
   const loadDownloadedFiles = () => {
+    loading.value = true
     return Shared.downloadedEpisodeFiles.keys().then((keys) => {
       const ids = []
   
@@ -31,6 +36,7 @@
   
       return Shared.dexieDB.episodes.where('_id').anyOf(ids).toArray()
     }).then((episodeResults) => {
+      loading.value = false
       episodes.value = episodeResults
     })
   }
