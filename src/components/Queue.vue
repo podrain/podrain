@@ -110,10 +110,12 @@ ul#queue-list > li:first-child {
   import { computed, onMounted } from 'vue'
   import { usePiniaStore } from '../State'
   import { useRouter } from 'vue-router'
-  import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration } from '../Helpers'
+  import { cleanHTMLString, truncateString, iOS, getPercent, humanFriendlyDuration, customTitle } from '../Helpers'
   import { DateTime } from 'luxon'
   import _ from 'lodash'
   import Sortable from 'sortablejs'
+
+  customTitle('Queue')
 
   const store = usePiniaStore()
   const router = useRouter()

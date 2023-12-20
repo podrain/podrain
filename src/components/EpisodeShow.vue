@@ -13,11 +13,13 @@
   import { Shared } from '../State'
   import { ref } from 'vue'
   import { useRoute } from 'vue-router'
+  import { customTitle } from '../Helpers';
 
   const episode = ref({})
   const route = useRoute()
-
+  
   Shared.dexieDB.episodes.where({ _id: route.params.id }).toArray().then(result => {
     episode.value = result[0]
+    customTitle(episode.value.title)
   })
 </script>

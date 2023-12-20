@@ -16,6 +16,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import feedParser from 'better-podcast-parser'
   import { useProgrammatic } from '@oruga-ui/oruga-next'
+import { customTitle } from '../Helpers'
 
   const { oruga } = useProgrammatic()
 
@@ -32,6 +33,7 @@
   Shared.dexieDB.podcasts.where({ _id: route.params.id }).first().then((result) => {
     podcast.value = result
     feedURL.value = podcast.value.feed_url
+    customTitle('Edit '+podcast.value.meta.title)
   })
 
   const submit = async () => {

@@ -19,7 +19,9 @@
 <script setup>
   import { ref } from 'vue'
   import { Shared, usePiniaStore } from '../State'
+  import { customTitle } from '../Helpers'
 
+  customTitle('Downloads')
   const store = usePiniaStore()
   const episodes = ref([])
   const loading = ref(false)

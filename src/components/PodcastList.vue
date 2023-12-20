@@ -1,5 +1,4 @@
 <template>
-
     <div v-if="podcasts.length > 0" class="
         grid 
         grid-cols-3 
@@ -33,7 +32,11 @@
   import { useRouter } from 'vue-router'
   import { Shared } from '../State'
   import StoredImage from './StoredImage.vue'
+  import { customTitle } from '../Helpers'
+
   const router = useRouter()
+
+  customTitle('Podcasts')
 
   const podcasts = ref([])
 

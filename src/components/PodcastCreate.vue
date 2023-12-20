@@ -99,7 +99,9 @@ import feedParser from 'better-podcast-parser'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
-import { iOS } from '../Helpers'
+import { iOS, customTitle } from '../Helpers'
+
+customTitle('Add Podcast')
 
 const router = useRouter()
 

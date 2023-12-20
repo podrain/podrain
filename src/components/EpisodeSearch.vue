@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-  import { cleanHTMLString, truncateString, humanFriendlyDuration, prepareDateString } from '../Helpers'
+  import { cleanHTMLString, truncateString, humanFriendlyDuration, prepareDateString, customTitle } from '../Helpers'
   import { Shared, usePiniaStore } from '../State'
   import _ from 'lodash'
   import { ref, computed, watch } from 'vue'
@@ -43,13 +43,13 @@
 
   const store = usePiniaStore()
   const route = useRoute()
-
+  
   const podcast = ref({})
   const search = ref('')
   const episodes = ref([])
   const searchResults = ref([])
   const searching = ref(false)
-
+  
   const queue = computed(() => store.queue)
 
   const getPodcasts = Shared.dexieDB.podcasts
@@ -57,6 +57,7 @@
     .first()
     .then(pc => {
       podcast.value = pc
+      customTitle('Search episodes in '+podcast.value.meta.title)
     })
 
   const getEpisodes = Shared.dexieDB.episodes

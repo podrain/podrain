@@ -48,11 +48,13 @@
 </template>
 
 <script setup>
-  import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
+  import { cleanHTMLString, truncateString, humanFriendlyDuration, customTitle } from '../Helpers'
   import { Shared, usePiniaStore } from '../State'
   import { ref, computed } from 'vue'
   import { useRouter } from 'vue-router'
   import { DateTime } from 'luxon'
+
+  customTitle('History')
 
   const maxNumEpisodesShowing = 10
 

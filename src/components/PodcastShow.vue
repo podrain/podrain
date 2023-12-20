@@ -155,7 +155,7 @@
   import { ref, computed } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { Shared, usePiniaStore } from '../State'
-  import { cleanHTMLString, truncateString, humanFriendlyDuration } from '../Helpers'
+  import { cleanHTMLString, truncateString, humanFriendlyDuration, customTitle } from '../Helpers'
   import { DateTime } from 'luxon'
   import feedParser from 'better-podcast-parser'
   import _ from 'lodash'
@@ -188,6 +188,7 @@
 
   Shared.dexieDB.podcasts.where({ _id: route.params.id }).toArray().then(result => {
     podcast.value = result[0]
+    customTitle(podcast.value.meta.title)
     return getEpisodes()
   })
 

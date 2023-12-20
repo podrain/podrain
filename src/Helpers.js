@@ -1,4 +1,5 @@
 import { Duration, DateTime } from 'luxon'
+import { useTitle } from '@vueuse/core'
 
 export function cleanHTMLString(string) {
   return new DOMParser().parseFromString(string, 'text/html').body.textContent
@@ -54,4 +55,8 @@ export function humanFriendlyDuration(value) {
 
 export function prepareDateString(string) {
   return DateTime.fromISO(string).toFormat('D')
+}
+
+export function customTitle(title) {
+  return useTitle(title, { titleTemplate: title ? '%s | Podrain' : 'Podrain' })
 }

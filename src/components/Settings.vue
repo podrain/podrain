@@ -83,7 +83,9 @@
   import FileSaver from 'file-saver'
   import axios from 'axios'
   import { iOS } from '../Helpers'
-  import { humanFriendlyDuration } from '../Helpers'
+  import { humanFriendlyDuration, customTitle } from '../Helpers'
+
+  customTitle('Settings')
 
   const proxyURL = ref(localStorage.getItem('proxy_url') || '')
   const restoreStatus = ref('')
