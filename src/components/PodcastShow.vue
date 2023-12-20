@@ -3,7 +3,7 @@
     <div class="flex flex-col">
       <div class="flex">
         <div class="w-1/3 m-3">
-          <StoredImage v-if="podcast._id" :id="podcast._id" :backupURL="podcast.meta.imageURL" />
+          <StoredImage :alt="podcast.meta.title" v-if="podcast._id" :id="podcast._id" :backupURL="podcast.meta.imageURL" />
         </div>
         <div class="w-2/3 flex flex-col justify-center text-lg py-3 pr-3">
           <h1 class="text-white font-bold leading-snug">{{ podcast.meta.title }}</h1>
