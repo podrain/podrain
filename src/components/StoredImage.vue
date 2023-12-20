@@ -2,8 +2,8 @@
   <img 
     ref="imageTag" 
     :alt="alt" 
-    class="text-white text-center text-lg flex justify-center items-center bg-gradient-to-br p-4"
-    :class="`from-${chosenColor.from} to-${chosenColor.to}`"
+    class="text-white text-center text-lg flex justify-center items-center p-4 w-full h-full bg-gradient-to-r"
+    :class="`${chosenColor.from} ${chosenColor.to}`"
     @load="imageLoaded"
   />
 </template>
@@ -26,16 +26,16 @@
 
   const colorCombos = [
     {
-      from: 'green-500',
-      to: 'blue-500'
+      from: 'from-green-500',
+      to: 'to-blue-500'
     },
     {
-      from: 'pink-400',
-      to: 'red-600'
+      from: 'from-pink-400',
+      to: 'to-red-600'
     },
     {
-      from: 'yellow-500',
-      to: 'orange-500'
+      from: 'from-yellow-500',
+      to: 'to-orange-500'
     }
   ]
 
