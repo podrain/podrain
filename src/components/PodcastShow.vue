@@ -46,7 +46,10 @@
         </div>
       </div>
 
-      <ul class="mx-3 mb-3">
+      <div v-if="episodes.length === 0" class="flex justify-center">
+        <font-awesome-icon icon="spinner" class="text-white text-3xl" spin />
+      </div>
+      <ul v-else class="mx-3 mb-3">
         <li 
           class="flex flex-col mt-3" 
           v-for="ep in episodes" 
