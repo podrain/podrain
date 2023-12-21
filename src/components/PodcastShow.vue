@@ -115,6 +115,7 @@
       </ul>
 
       <button
+        v-if="episodes.length > 0"
         class="bg-purple-500 text-white mx-3 mb-3 p-3"
         @click="getMoreEpisodes"
       >
