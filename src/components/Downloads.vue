@@ -6,12 +6,15 @@
       <div v-if="loading" class="flex justify-center mt-2">
         <font-awesome-icon class="text-white text-3xl" icon="spinner" spin />
       </div>
-      <ul v-else class="text-white">
-        <li class="bg-gray-600 p-2 my-2 flex items-center justify-between gap-4" v-for="ep in episodes">
-          <span>{{ ep.title }}</span>
-          <button @click="removeDownload(ep._id)" class="bg-red-500 p-2"><font-awesome-icon icon="times" /></button>
-        </li>
-      </ul>
+      <div v-else class="flex justify-center">
+        <span class="text-white text-lg mt-2" v-if="episodes.length === 0">No episodes downloaded</span>
+        <ul v-else class="text-white">
+          <li class="bg-gray-600 p-2 my-2 flex items-center justify-between gap-4" v-for="ep in episodes">
+            <span>{{ ep.title }}</span>
+            <button @click="removeDownload(ep._id)" class="bg-red-500 p-2"><font-awesome-icon icon="times" /></button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
