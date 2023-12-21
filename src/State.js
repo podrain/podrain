@@ -4,6 +4,9 @@ import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useEventBus } from '@vueuse/core'
+import { useProgrammatic } from '@oruga-ui/oruga-next'
+
+const { oruga } = useProgrammatic()
 
 export let Shared = {
   dexieDB: null,
@@ -327,28 +330,38 @@ export let usePiniaStore = defineStore('main', () => {
     addEpisodeToDownloading(id)
     let proxyUrl = localStorage.getItem('proxy_url') || ""
 
-    let episodeAudio = await axios.get(
-      proxyUrl + getEpisodeInQueue(id).enclosure.url,
-      {
-        onDownloadProgress(event) {
-          setEpisodeDownloadingProgress({ 
-            id, 
-            progress: Math.floor((event.loaded / event.total) * 100)
-          })
-        },
+    try {
+      let episodeAudio = await axios.get(
+        proxyUrl + getEpisodeInQueue(id).enclosure.url,
+        {
+          onDownloadProgress(event) {
+            setEpisodeDownloadingProgress({ 
+              id, 
+              progress: Math.floor((event.loaded / event.total) * 100)
+            })
+          },
+  
+          headers: {
+            'Accept': 'audio/*'
+          },
+          responseType: 'arraybuffer'
+        }
+      )
+  
+      let audioType = episodeAudio.headers['content-type']
+      let audioBlob = new Blob([episodeAudio.data], { type: audioType })
+      await Shared.downloadedEpisodeFiles.setItem('podrain_episode_'+id, audioBlob)
+      syncDownloadedEpisodes()
+      Shared.syncDownloadBus.emit('downloaded')
+    } catch (e) {
+      oruga.notification.open({
+        message: `${e}`,
+        position: 'top',
+        rootClass: 'bg-red-500 w-full p-3',
+        closable: true
+      })
+    }
 
-        headers: {
-          'Accept': 'audio/*'
-        },
-        responseType: 'arraybuffer'
-      }
-    )
-
-    let audioType = episodeAudio.headers['content-type']
-    let audioBlob = new Blob([episodeAudio.data], { type: audioType })
-    await Shared.downloadedEpisodeFiles.setItem('podrain_episode_'+id, audioBlob)
-    syncDownloadedEpisodes()
-    Shared.syncDownloadBus.emit('downloaded')
     removeEpisodeFromDownloading(id)
   }
 
