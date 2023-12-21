@@ -15,6 +15,7 @@
           :backupURL="pc.meta.imageURL"
           v-for="pc in podcasts"
           :key="pc._id"
+          style="aspect-ratio: 1 / 1;"
           @click="router.push(`/podcasts/${pc._id}`)"
         />
     </div>
