@@ -46,7 +46,8 @@
         </div>
       </div>
 
-      <p class="text-white text-sm italic mt-1 mx-3">{{ cleanHTMLString(podcast.meta.description) }}</p>
+      <p class="text-white text-sm italic mt-1 mx-3">{{ truncateString(cleanHTMLString(podcast.meta.description), maxDescriptionLength) }}</p>
+      <button v-if="podcast.meta.description.length > maxDescriptionLength" class="text-white bg-orange-500 mx-3 mt-2 p-1" @click="descriptionModalShowing = true">Full description</button>
 
       <div v-if="episodes.length === 0" class="flex justify-center">
         <font-awesome-icon icon="spinner" class="text-white text-3xl" spin />
@@ -154,6 +155,16 @@
         <button class="text-white p-1 bg-gray-500 mt-3 ml-2" @click="confirmDeleteDialogOpen = false">Cancel</button>
       </div>
     </o-modal>
+
+    <o-modal
+      :active="descriptionModalShowing"
+      :onClose="() => { descriptionModalShowing = false }"
+      contentClass="p-3 bg-gray-700 text-white"
+    >
+      <div class="p-3 flex mt-3">
+        {{ cleanHTMLString(podcast.meta.description) }}
+      </div>
+    </o-modal>
   </div>
 </template>
 
@@ -180,6 +191,7 @@
       imageURL: '',
     }
   })
+  const maxDescriptionLength = 250
 
   const allEpisodes = ref([])
   const episodes = ref([])
@@ -188,6 +200,7 @@
   const episodeModalShowing = ref(false)
   const episodeModalContent = ref({})
   const confirmDeleteDialogOpen = ref(false)
+  const descriptionModalShowing = ref(false)
 
   const queue = computed(() => store.queue)
   const queueChanging = computed(() => store.queueChanging)
