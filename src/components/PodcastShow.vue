@@ -46,6 +46,8 @@
         </div>
       </div>
 
+      <p class="text-white text-sm italic mt-1 mx-3">{{ cleanHTMLString(podcast.meta.description) }}</p>
+
       <div v-if="episodes.length === 0" class="flex justify-center">
         <font-awesome-icon icon="spinner" class="text-white text-3xl" spin />
       </div>
