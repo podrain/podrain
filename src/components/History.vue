@@ -39,8 +39,10 @@
           v-if="(playHistoryCount - playHistory.length >= maxNumEpisodesShowing) || (playHistoryCount != playHistory.length)"
           class="bg-purple-500 text-white mt-3 p-3 w-full"
           @click="getMorePlayHistory"
+          :disabled="morePlayHistoryLoading"
         >
-          Show More
+          <span v-if="morePlayHistoryLoading">Loading<font-awesome-icon class="ml-2" icon="spinner" spin /></span>
+          <span v-else>Show More</span>
         </button>
       </div>
     </div>
@@ -63,6 +65,7 @@
   const playHistoryCount = ref(0)
   const store = usePiniaStore()
   const router = useRouter()
+  const morePlayHistoryLoading = ref(false)
 
   const queue = computed(() => store.queue)
 
@@ -107,16 +110,18 @@
     store.removeEpisodeFromQueue(id)
   }
 
-  const getMorePlayHistory = () => {
-    Shared.dexieDB.episodes.where('played')
+  const getMorePlayHistory = async () => {
+    morePlayHistoryLoading.value = true
+
+    const result = await Shared.dexieDB.episodes.where('played')
       .notEqual('')
       .reverse()
       .offset(playHistory.value.length)
       .limit(maxNumEpisodesShowing)
       .sortBy('played')
-      .then(result => {
-        playHistory.value = playHistory.value.concat(result)
-    })
+      
+    playHistory.value = playHistory.value.concat(result)
+    morePlayHistoryLoading.value = false
   }
 
   const visitEpisodeShow = (id) => {
