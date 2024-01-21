@@ -84,6 +84,9 @@
   import axios from 'axios'
   import { iOS } from '../Helpers'
   import { humanFriendlyDuration, customTitle } from '../Helpers'
+  import { useProgrammatic } from '@oruga-ui/oruga-next'
+
+  const { oruga } = useProgrammatic()
 
   customTitle('Settings')
 
@@ -98,6 +101,12 @@
 
   const saveProxyURL = () => {
     localStorage.setItem('proxy_url', proxyURL.value)
+    oruga.notification.open({
+      message: 'Proxy URL saved',
+      position: 'top',
+      rootClass: 'bg-blue-500 w-full p-3',
+      closable: true
+    })
   }
 
   const setRestoreFile = (e) => {
