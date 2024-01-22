@@ -49,7 +49,7 @@
       <p class="text-white text-sm italic mt-1 mx-3">{{ truncateString(cleanHTMLString(podcast.meta.description), maxDescriptionLength) }}</p>
       <button v-if="podcast.meta.description?.length > maxDescriptionLength" class="text-white bg-orange-500 mx-3 mt-2 p-1" @click="descriptionModalShowing = true">Full description</button>
 
-      <div v-if="episodes.length === 0" class="flex justify-center">
+      <div v-if="episodes.length === 0" class="flex justify-center mt-3">
         <font-awesome-icon icon="spinner" class="text-white text-3xl" spin />
       </div>
       <ul v-else class="mx-3 mb-3">
