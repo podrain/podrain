@@ -10,7 +10,10 @@
         <span class="text-white text-lg mt-2" v-if="episodes.length === 0">No episodes downloaded</span>
         <ul v-else class="text-white">
           <li class="bg-gray-600 p-2 my-2 flex items-center justify-between gap-4" v-for="ep in episodes">
-            <span>{{ ep.title }}</span>
+            <div class="flex flex-col">
+              <span class="italic text-sm text-gray-300">{{ ep.podcast.meta.title }}</span>
+              <span>{{ ep.title }}</span>
+            </div>
             <button @click="removeDownload(ep._id)" class="bg-red-500 p-2"><font-awesome-icon icon="times" /></button>
           </li>
         </ul>
@@ -41,8 +44,22 @@
   
       return Shared.dexieDB.episodes.where('_id').anyOf(ids).toArray()
     }).then((episodeResults) => {
-      loading.value = false
-      episodes.value = episodeResults
+
+      const podcastsIDs = episodeResults.map(ep => ep.podcast_id)
+
+      Shared.dexieDB.podcasts.where('_id').anyOf(podcastsIDs).toArray()
+        .then((podcastResults) => {
+          const episodesModified = episodeResults.map(ep => {
+            const podcast = podcastResults.filter(pc => pc._id === ep.podcast_id)[0]
+            ep.podcast = podcast
+            return ep
+          })
+
+          console.log(episodesModified)
+
+          loading.value = false
+          episodes.value = episodesModified
+        })
     })
   }
 
