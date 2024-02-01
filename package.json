@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "npx vite",
-    "build": "NODE_ENV=production npx vite build"
+    "build": "npx vite build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
