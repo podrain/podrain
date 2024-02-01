@@ -240,6 +240,10 @@ app
   .use(pinia)
   .mount('#app')
 
-if (!localStorage.getItem('proxy_url') || localStorage.getItem('proxy_url') === 'https://podrain-proxy.herokuapp.com/') {
-  localStorage.setItem('proxy_url', 'https://podrain-proxy.sweeney.digital/')
+if (
+  !localStorage.getItem('proxy_url') 
+  || localStorage.getItem('proxy_url') === 'https://podrain-proxy.herokuapp.com/'
+  || localStorage.getItem('proxy_url') === 'https://podrain-proxy.sweeney.digital/'
+) {
+  localStorage.setItem('proxy_url', 'https://podrain-proxy.sweeney.digital?url=')
 }
