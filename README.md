@@ -13,9 +13,9 @@ Podrain is a web-based podcast app with offline capabilities. It was built to sc
 - Easily back up all your podcast data to a file
 
 ## Demo
-https://podrain.github.io/podrain
+https://podrain.sweeney.digital
 
-Keep in mind, this version of the app is updated with the `master` branch, generally. If you don't mind dealing with possible occasional breaking changes, rock on! 🤘
+Keep in mind, this version of the app is updated with the `master` branch. If you don't mind dealing with possible occasional breaking changes, rock on! 🤘
 
 ## Requirements
 All you need to to use Podrain is a modern web browser.
