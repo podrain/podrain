@@ -1,5 +1,5 @@
 <template>
-  <div v-if="playingEpisode" class="bg-gray-200 sticky bottom-0 z-10">
+  <div class="bg-gray-200 sticky bottom-0 z-10">
       <div v-if="expanded" class="h-48">
         <div class="p-3 h-full flex flex-col justify-between sm:justify-around">
           <div class="flex justify-between">
@@ -95,20 +95,12 @@
         <font-awesome-icon icon="chevron-up" class="text-4xl" />
       </div>
   </div>
-
-  <div 
-    v-else
-    class="h-36 flex justify-center items-center bg-gray-200 sticky bottom-0 z-10"
-  >
-    Loading player<LoadingEllipsis />
-  </div>
 </template>
 
 <script setup>
   import { usePiniaStore } from '../State'
   import { computed, ref } from 'vue'
   import { floatToISO } from '../Helpers'
-  import LoadingEllipsis from './LoadingEllipsis.vue'
 
   const store = usePiniaStore()
   const expanded = ref(true)

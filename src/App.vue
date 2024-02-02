@@ -22,7 +22,7 @@
       </transition>
     </router-view>
   </div>
-  <Playbox />
+  <Playbox v-if="playingEpisode" />
 </div>
 </template>
 
@@ -46,6 +46,7 @@
 <script setup>
   import Playbox from './components/Playbox.vue'
   import { Shared, usePiniaStore } from './State'
+  import { computed } from 'vue'
 
   const menu = [
     {
@@ -75,6 +76,8 @@
   ]
 
   const store = usePiniaStore()
+
+  const playingEpisode = computed(() => store.playingEpisode)
 
   store.syncDownloadedEpisodes()
 
