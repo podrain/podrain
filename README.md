@@ -32,16 +32,16 @@ At this time, Podrain is not fully functional on iOS on any browser, Safari or o
 
 ### Requirements
 - [Node](https://nodejs.org/en/)
-- [Yarn](https://yarnpkg.com/)
+- [pnpm](https://pnpm.io/)
 
 ```bash
 git clone https://github.com/podrain/podrain
 cd podrain
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
 
-Then, just visit http://localhost:3000 (or whatever URL is produced from the `yarn dev` command) in your browser to see the app running. It's a HMR server so you should see changes to the code without having to refresh your browser.
+Then, just visit http://localhost:5173 (or whatever URL is produced from the `pnpm dev` command) in your browser to see the app running. It's a HMR server so you should see changes to the code without having to refresh your browser.
 
 ## Deployment
 
