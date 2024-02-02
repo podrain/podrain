@@ -6,7 +6,15 @@ import { VitePWA } from 'vite-plugin-pwa'
  */
 export default {
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => {
+            return ['marquee'].includes(tag)
+          }
+        }
+      }
+    }),
     VitePWA({
       manifest: {
         name: 'Podrain',
