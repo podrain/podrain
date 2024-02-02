@@ -8,16 +8,16 @@
           :class="[selectedTab == 'search' ? 'bg-orange-500' : 'bg-gray-900']"
           @click="selectedTab = 'search'"
         >
-          <font-awesome-icon icon="search" />
-          Search
+          <font-awesome-icon icon="search" class="mr-1" />
+          Search iTunes
         </button>
         <button 
           class="flex-1 p-3 text-white"
           :class="[selectedTab == 'rss' ? 'bg-orange-500' : 'bg-gray-900']"
           @click="selectedTab = 'rss'"
         >
-          <font-awesome-icon icon="rss" />
-          RSS
+          <font-awesome-icon icon="rss" class="mr-1" />
+          Add RSS feed manually
         </button>
       </div>
 
@@ -25,8 +25,9 @@
         <input 
             type="text"
             class="w-full mt-3 p-1"
-            placeholder="Podcast title to search..."
+            placeholder="Tim Ferriss"
             v-model="search"
+            ref="searchInput"
           />
 
           <div v-if="searching" class="text-white text-center text-4xl mt-6"><font-awesome-icon icon="spinner" spin /></div>
@@ -73,6 +74,7 @@
           class="w-full mt-3 p-1" 
           placeholder="https://example.com/podcast/feed"
           v-model="manualRssUrl"
+          ref="manualRssInput"
         >
         <button 
           :disabled="addingPodcast.adding"
@@ -92,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Shared } from '../State'
 import feedParser from 'better-podcast-parser'
@@ -116,6 +118,9 @@ const addingPodcast = ref({
   episodesAdded: 0,
   episodesTotal: 0,
 })
+
+const searchInput = ref(null)
+const manualRssInput = ref(null)
 
 const addPodcast = (podcastUrl) => {
   addingPodcast.value.adding = true
@@ -210,4 +215,10 @@ watch(search, _.debounce(function(value) {
     })
   }, 250)
 )
+
+onMounted(() => {
+  if (selectedTab.value === 'search') {
+    searchInput.value.focus()
+  }
+})
 </script>
