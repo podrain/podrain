@@ -1,7 +1,7 @@
 <template>
   <div class="responsive-width">
     <div class="p-3">
-      <div class="text-white text-2xl">Add Podcast</div>
+      <div class="text-white text-2xl text-center">Add Podcast</div>
       <div class="flex mt-3">
         <button 
           class="flex-1 p-3 text-white"

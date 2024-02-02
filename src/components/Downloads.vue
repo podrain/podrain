@@ -7,7 +7,7 @@
         <font-awesome-icon class="text-white text-3xl" icon="spinner" spin />
       </div>
       <div v-else class="flex justify-center">
-        <span class="text-white text-lg mt-2" v-if="episodes.length === 0">No episodes downloaded</span>
+        <span class="text-white text-lg mt-2" v-if="episodes.length === 0">No episodes downloaded for offline listening.</span>
         <ul v-else class="text-white">
           <li class="bg-gray-600 p-2 my-2 flex items-center justify-between gap-4" v-for="ep in episodes">
             <div class="flex flex-col">

@@ -3,6 +3,7 @@
     <ul 
       id="queue-list"
       class="p-3"
+      v-if="queue.length > 0"
     >
       <li 
         class="episode-in-queue flex flex-col mt-3" 
@@ -97,6 +98,9 @@
         </div>
       </li>
     </ul>
+    <div v-else>
+      <p class="italic text-white text-center mt-3 text-lg">There are no episodes in your queue. Once you start playing episodes or adding them to the queue, you'll see them here!</p>
+    </div>
   </div>
 </template>
 
@@ -161,17 +165,20 @@ ul#queue-list > li:first-child {
 
   onMounted(() => {
     let queueList = document.getElementById('queue-list')
-    let sortable = Sortable.create(queueList, {
-      handle: '.queue-dragbar',
-      scroll: true,
-      animation: 150,
 
-      onUpdate(evt) {
-        store.reorderQueue({
-          from: evt.oldIndex,
-          to: evt.newIndex,
-        })
-      }
-    })
+    if (queue.value.length > 0) {
+      let sortable = Sortable.create(queueList, {
+        handle: '.queue-dragbar',
+        scroll: true,
+        animation: 150,
+  
+        onUpdate(evt) {
+          store.reorderQueue({
+            from: evt.oldIndex,
+            to: evt.newIndex,
+          })
+        }
+      })
+    }
   })
 </script>

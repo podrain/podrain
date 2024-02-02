@@ -1,7 +1,7 @@
 <template>
   <div class="responsive-width">
     <div class="p-3 text-white">
-      <h1 class="text-xl text-center">Settings</h1>
+      <h1 class="text-2xl text-center">Settings</h1>
 
       <div class="mt-2">
         <input type="checkbox" class="mr-2" v-model="wakeLock" id="wakelock-id">
