@@ -55,8 +55,6 @@
             return ep
           })
 
-          console.log(episodesModified)
-
           loading.value = false
           episodes.value = episodesModified
         })
